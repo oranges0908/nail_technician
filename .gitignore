@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+env/
+
+# FastAPI / Backend
+.env
+.env.local
+uploads/
+*.db
+*.sqlite3
+
+# Flutter / Frontend
+frontend/nail_app/.dart_tool/
+frontend/nail_app/.flutter-plugins
+frontend/nail_app/.flutter-plugins-dependencies
+frontend/nail_app/.packages
+frontend/nail_app/build/
+frontend/nail_app/ios/Flutter/flutter_export_environment.sh
+frontend/nail_app/ios/Pods/
+frontend/nail_app/android/.gradle/
+frontend/nail_app/android/captures/
+frontend/nail_app/android/local.properties
+frontend/nail_app/pubspec.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
+
+# Database
+*.sql
+*.dump
+
+# Test
+.coverage
+htmlcov/
+.pytest_cache/
