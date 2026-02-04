@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 10485760  # 10MB
     UPLOAD_DIR: str = "uploads"
 
+    # AI Provider 配置
+    AI_PROVIDER: str = "openai"  # openai/baidu/alibaba
+    OPENAI_API_KEY: str = ""  # 必须在 .env 中设置
+
     # 日志配置
     LOG_LEVEL: str = "INFO"
 

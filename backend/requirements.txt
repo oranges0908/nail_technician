@@ -26,9 +26,13 @@ python-dotenv==1.0.0
 # HTTP 客户端
 httpx==0.26.0
 
+# AI Provider
+openai==1.10.0
+
 # 工具
 python-dateutil==2.8.2
 pytz==2023.3
+Pillow==10.2.0  # 图片处理（用于测试）
 
 # 开发工具
 pytest==7.4.4
