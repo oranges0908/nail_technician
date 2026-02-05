@@ -17,12 +17,78 @@ import logging
 setup_logging(log_level=settings.LOG_LEVEL)
 logger = get_logger(__name__)
 
+# API标签元数据（用于Swagger UI文档分组）
+tags_metadata = [
+    {
+        "name": "Health",
+        "description": "健康检查端点。用于监控服务运行状态和依赖项健康状况。",
+    },
+    {
+        "name": "System",
+        "description": "系统信息端点。提供应用版本、环境配置等运行时信息。",
+    },
+    {
+        "name": "Authentication",
+        "description": "认证与授权。包括用户注册、登录、JWT令牌管理。",
+    },
+    {
+        "name": "Users",
+        "description": "用户管理。美甲师账户的CRUD操作和个人信息管理。",
+    },
+    {
+        "name": "Customers",
+        "description": "客户档案管理。包括客户基本信息、详细档案（指甲特征、偏好等）。",
+    },
+    {
+        "name": "Services",
+        "description": "服务记录管理。记录服务过程、上传实际作品、美甲师复盘和客户反馈。",
+    },
+    {
+        "name": "File Upload",
+        "description": "文件上传服务。支持客户指甲照片、灵感图、设计图、实际完成图的上传。",
+    },
+]
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Nail - Flutter + FastAPI 跨平台应用后端",
+    description="""
+## 美甲师能力成长系统 API
+
+基于 AI 的美甲师能力追踪与设计生成平台。
+
+### 核心功能
+
+* **客户管理**: 维护客户档案，记录指甲特征、风格偏好
+* **AI设计生成**: 基于客户档案和灵感图生成个性化设计方案（DALL-E 3）
+* **设计微调**: 使用自然语言迭代优化设计（GPT-4 Vision）
+* **服务记录**: 记录实际服务结果，包括照片和时长
+* **AI对比分析**: 对比设计图与实际作品，识别差异（GPT-4 Vision）
+* **能力追踪**: 构建多维度能力雷达图，追踪成长趋势
+
+### 技术栈
+
+* **Backend**: FastAPI + SQLAlchemy + Alembic
+* **Database**: SQLite (开发) / PostgreSQL (生产)
+* **AI**: OpenAI API (DALL-E 3 + GPT-4 Vision)
+* **Storage**: 本地文件系统（图片存储于 `/uploads` 目录）
+
+### 文档
+
+* **Swagger UI**: [/docs](/docs) - 交互式API文档
+* **ReDoc**: [/redoc](/redoc) - API参考文档
+""",
     docs_url="/docs",
     redoc_url="/redoc",
+    openapi_tags=tags_metadata,
+    contact={
+        "name": "Nail API Support",
+        "email": "support@example.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
 
