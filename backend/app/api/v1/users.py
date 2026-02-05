@@ -246,9 +246,39 @@ async def update_user(
 
 
 @router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="删除当前用户账号",
+    description="删除当前登录用户的账号（软删除，设置 is_active=false）"
+)
+async def delete_current_user(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    删除当前用户账号（软删除）
+
+    **需要认证**: 是
+
+    **说明**:
+    - 执行软删除，将 `is_active` 设置为 `false`
+    - 用户数据不会真正删除，仅标记为不活跃
+    - 删除后无法再登录，但历史数据保留
+
+    **返回**: 204 No Content
+    """
+    # 软删除当前用户
+    current_user.is_active = False
+
+    db.commit()
+
+    return None
+
+
+@router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="删除用户",
+    summary="删除指定用户",
     description="删除指定用户（软删除，设置 is_active=false，需要超级管理员权限）"
 )
 async def delete_user(
@@ -280,7 +310,7 @@ async def delete_user(
     if user.id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="不能删除自己的账号"
+            detail="不能删除自己的账号，请使用 DELETE /me"
         )
 
     # 软删除
