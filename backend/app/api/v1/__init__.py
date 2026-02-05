@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import auth, users, health, system, services, uploads, customers
+from app.api.v1 import auth, users, health, system, services, uploads, customers, inspirations
 
 api_router = APIRouter()
 
@@ -11,3 +11,4 @@ api_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_router.include_router(customers.router, prefix="/customers", tags=["Customers"])
 api_router.include_router(services.router, prefix="/services", tags=["Services"])
 api_router.include_router(uploads.router, prefix="/uploads", tags=["File Upload"])
+api_router.include_router(inspirations.router, prefix="/inspirations", tags=["Inspirations"])

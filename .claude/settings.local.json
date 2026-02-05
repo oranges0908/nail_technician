@@ -23,7 +23,8 @@
       "Bash(pkill:*)",
       "Bash(wc:*)",
       "Bash(git restore:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(cat:*)"
     ]
   }
 }
