@@ -1,7 +1,29 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(alembic init:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python -m alembic:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m black:*)",
+      "Bash(python -m flake8:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(find:*)",
+      "Bash(alembic revision:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(sqlite3:*)",
+      "Bash(chmod:*)",
+      "Bash(python test_api.py:*)",
+      "Bash(pip install:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(wc:*)",
+      "Bash(git restore:*)",
+      "Bash(lsof:*)"
     ]
   }
 }
