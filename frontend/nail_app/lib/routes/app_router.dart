@@ -1,0 +1,132 @@
+import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
+import '../screens/splash/splash_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/register_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/customers/customer_list_screen.dart';
+import '../screens/customers/customer_detail_screen.dart';
+import '../screens/customers/customer_form_screen.dart';
+import '../screens/customers/customer_profile_screen.dart';
+import '../utils/constants.dart';
+
+/// 应用路由配置
+/// 使用 go_router 进行路由管理，包含认证守卫
+class AppRouter {
+  /// 需要在 main 中设置，用于路由守卫获取 AuthProvider
+  static AuthProvider? _authProvider;
+
+  static void setAuthProvider(AuthProvider provider) {
+    _authProvider = provider;
+  }
+
+  static final GoRouter router = GoRouter(
+    initialLocation: Constants.splashRoute,
+    routes: [
+      // 启动页
+      GoRoute(
+        path: Constants.splashRoute,
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      // 登录页
+      GoRoute(
+        path: Constants.loginRoute,
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+
+      // 注册页
+      GoRoute(
+        path: Constants.registerRoute,
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+
+      // 主页
+      GoRoute(
+        path: Constants.homeRoute,
+        name: 'home',
+        builder: (context, state) => const HomeScreen(),
+      ),
+
+      // 客户管理
+      GoRoute(
+        path: Constants.customersRoute,
+        name: 'customers',
+        builder: (context, state) => const CustomerListScreen(),
+      ),
+      GoRoute(
+        path: '/customers/new',
+        name: 'customer-new',
+        builder: (context, state) => const CustomerFormScreen(),
+      ),
+      GoRoute(
+        path: '/customers/:id',
+        name: 'customer-detail',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return CustomerDetailScreen(customerId: id);
+        },
+      ),
+      GoRoute(
+        path: '/customers/:id/edit',
+        name: 'customer-edit',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return CustomerFormScreen(customerId: id);
+        },
+      ),
+      GoRoute(
+        path: '/customers/:id/profile',
+        name: 'customer-profile',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return CustomerProfileScreen(customerId: id);
+        },
+      ),
+    ],
+
+    // 路由守卫（go_router v4.x 签名）
+    redirect: (state) {
+      final authProvider = _authProvider;
+      if (authProvider == null) return null;
+
+      // 初始化未完成时，停留在 splash
+      if (!authProvider.initialized) {
+        if (state.location != Constants.splashRoute) {
+          return Constants.splashRoute;
+        }
+        return null;
+      }
+
+      final isLoggedIn = authProvider.isLoggedIn;
+      final isAuthRoute = state.location == Constants.loginRoute ||
+          state.location == Constants.registerRoute;
+      final isSplash = state.location == Constants.splashRoute;
+
+      // splash 页面初始化完成后，根据登录状态跳转
+      if (isSplash) {
+        return isLoggedIn ? Constants.homeRoute : Constants.loginRoute;
+      }
+
+      // 未登录且不在认证页面，跳转到登录页
+      if (!isLoggedIn && !isAuthRoute) {
+        return Constants.loginRoute;
+      }
+
+      // 已登录且在认证页面，跳转到主页
+      if (isLoggedIn && isAuthRoute) {
+        return Constants.homeRoute;
+      }
+
+      return null;
+    },
+
+    // 错误页面
+    errorBuilder: (context, state) {
+      return const SplashScreen();
+    },
+  );
+}
