@@ -17,6 +17,8 @@ import '../screens/services/service_list_screen.dart';
 import '../screens/services/service_create_screen.dart';
 import '../screens/services/service_detail_screen.dart';
 import '../screens/services/service_complete_screen.dart';
+import '../screens/abilities/ability_center_screen.dart';
+import '../screens/abilities/ability_trend_screen.dart';
 import '../utils/constants.dart';
 
 /// 应用路由配置
@@ -153,6 +155,21 @@ class AppRouter {
         builder: (context, state) {
           final id = int.parse(state.params['id']!);
           return ServiceCompleteScreen(serviceId: id);
+        },
+      ),
+
+      // 能力中心
+      GoRoute(
+        path: Constants.abilitiesRoute,
+        name: 'abilities',
+        builder: (context, state) => const AbilityCenterScreen(),
+      ),
+      GoRoute(
+        path: '/abilities/trend/:dimensionName',
+        name: 'ability-trend',
+        builder: (context, state) {
+          final dimensionName = state.params['dimensionName']!;
+          return AbilityTrendScreen(dimensionName: dimensionName);
         },
       ),
     ],

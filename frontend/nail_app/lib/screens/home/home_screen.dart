@@ -152,7 +152,7 @@ class HomeScreen extends StatelessWidget {
                     subtitle: '技能成长分析',
                     color: ThemeConfig.warningColor,
                     onTap: () {
-                      // TODO: Iteration 5.6
+                      context.go(Constants.abilitiesRoute);
                     },
                   ),
                   _buildFeatureCard(
