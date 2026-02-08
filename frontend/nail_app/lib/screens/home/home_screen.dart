@@ -122,7 +122,7 @@ class HomeScreen extends StatelessWidget {
                     subtitle: '浏览参考设计',
                     color: ThemeConfig.accentColor,
                     onTap: () {
-                      // TODO: Iteration 5.4
+                      context.go(Constants.inspirationsRoute);
                     },
                   ),
                   _buildFeatureCard(
@@ -132,7 +132,7 @@ class HomeScreen extends StatelessWidget {
                     subtitle: '生成设计方案',
                     color: ThemeConfig.infoColor,
                     onTap: () {
-                      // TODO: Iteration 5.4
+                      context.go(Constants.designsRoute);
                     },
                   ),
                   _buildFeatureCard(
@@ -142,7 +142,7 @@ class HomeScreen extends StatelessWidget {
                     subtitle: '查看服务历史',
                     color: ThemeConfig.successColor,
                     onTap: () {
-                      // TODO: Iteration 5.5
+                      context.go(Constants.servicesRoute);
                     },
                   ),
                   _buildFeatureCard(

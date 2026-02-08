@@ -10,9 +10,14 @@ class Constants {
   static const String customersRoute = '/customers';
   static const String customerDetailRoute = '/customers/:id';
   static const String inspirationsRoute = '/inspirations';
+  static const String inspirationsUploadRoute = '/inspirations/upload';
   static const String designsRoute = '/designs';
+  static const String designGenerateRoute = '/designs/generate';
+  static const String designDetailRoute = '/designs/:id';
   static const String servicesRoute = '/services';
+  static const String serviceNewRoute = '/services/new';
   static const String serviceDetailRoute = '/services/:id';
+  static const String serviceCompleteRoute = '/services/:id/complete';
   static const String abilitiesRoute = '/abilities';
 
   // ==================== 动画时长 ====================

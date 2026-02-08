@@ -8,6 +8,15 @@ import '../screens/customers/customer_list_screen.dart';
 import '../screens/customers/customer_detail_screen.dart';
 import '../screens/customers/customer_form_screen.dart';
 import '../screens/customers/customer_profile_screen.dart';
+import '../screens/inspirations/inspiration_list_screen.dart';
+import '../screens/inspirations/inspiration_upload_screen.dart';
+import '../screens/designs/design_list_screen.dart';
+import '../screens/designs/design_generate_screen.dart';
+import '../screens/designs/design_detail_screen.dart';
+import '../screens/services/service_list_screen.dart';
+import '../screens/services/service_create_screen.dart';
+import '../screens/services/service_detail_screen.dart';
+import '../screens/services/service_complete_screen.dart';
 import '../utils/constants.dart';
 
 /// 应用路由配置
@@ -84,6 +93,66 @@ class AppRouter {
         builder: (context, state) {
           final id = int.parse(state.params['id']!);
           return CustomerProfileScreen(customerId: id);
+        },
+      ),
+
+      // 灵感图库
+      GoRoute(
+        path: Constants.inspirationsRoute,
+        name: 'inspirations',
+        builder: (context, state) => const InspirationListScreen(),
+      ),
+      GoRoute(
+        path: Constants.inspirationsUploadRoute,
+        name: 'inspiration-upload',
+        builder: (context, state) => const InspirationUploadScreen(),
+      ),
+
+      // 设计方案
+      GoRoute(
+        path: Constants.designsRoute,
+        name: 'designs',
+        builder: (context, state) => const DesignListScreen(),
+      ),
+      GoRoute(
+        path: Constants.designGenerateRoute,
+        name: 'design-generate',
+        builder: (context, state) => const DesignGenerateScreen(),
+      ),
+      GoRoute(
+        path: '/designs/:id',
+        name: 'design-detail',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return DesignDetailScreen(designId: id);
+        },
+      ),
+
+      // 服务记录
+      GoRoute(
+        path: Constants.servicesRoute,
+        name: 'services',
+        builder: (context, state) => const ServiceListScreen(),
+      ),
+      GoRoute(
+        path: Constants.serviceNewRoute,
+        name: 'service-new',
+        builder: (context, state) => const ServiceCreateScreen(),
+      ),
+      GoRoute(
+        path: '/services/:id',
+        name: 'service-detail',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return ServiceDetailScreen(serviceId: id);
+        },
+      ),
+      GoRoute(
+        path: '/services/:id/complete',
+        name: 'service-complete',
+        builder: (context, state) {
+          final id = int.parse(state.params['id']!);
+          return ServiceCompleteScreen(serviceId: id);
         },
       ),
     ],
