@@ -5,7 +5,10 @@ import '../config/app_config.dart';
 
 /// 设计方案状态管理
 class DesignProvider extends ChangeNotifier {
-  final DesignService _service = DesignService();
+  final DesignService _service;
+
+  DesignProvider({DesignService? service})
+      : _service = service ?? DesignService();
 
   List<DesignPlan> _designs = [];
   DesignPlan? _selectedDesign;

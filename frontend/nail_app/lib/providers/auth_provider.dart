@@ -5,7 +5,10 @@ import '../services/auth_service.dart';
 /// 认证状态管理
 /// 管理用户登录状态、用户信息、加载状态和错误信息
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthService _authService;
+
+  AuthProvider({AuthService? authService})
+      : _authService = authService ?? AuthService();
 
   User? _user;
   bool _isLoggedIn = false;

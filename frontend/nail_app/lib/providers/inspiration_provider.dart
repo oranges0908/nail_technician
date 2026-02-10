@@ -5,7 +5,10 @@ import '../config/app_config.dart';
 
 /// 灵感图库状态管理
 class InspirationProvider extends ChangeNotifier {
-  final InspirationService _service = InspirationService();
+  final InspirationService _service;
+
+  InspirationProvider({InspirationService? service})
+      : _service = service ?? InspirationService();
 
   List<InspirationImage> _inspirations = [];
   InspirationImage? _selectedInspiration;

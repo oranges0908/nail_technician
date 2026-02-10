@@ -6,7 +6,10 @@ import '../config/app_config.dart';
 
 /// 客户管理状态
 class CustomerProvider extends ChangeNotifier {
-  final CustomerService _service = CustomerService();
+  final CustomerService _service;
+
+  CustomerProvider({CustomerService? service})
+      : _service = service ?? CustomerService();
 
   List<Customer> _customers = [];
   Customer? _selectedCustomer;

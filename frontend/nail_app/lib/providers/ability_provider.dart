@@ -3,7 +3,10 @@ import '../services/ability_service.dart';
 
 /// 能力分析状态管理
 class AbilityProvider extends ChangeNotifier {
-  final AbilityService _service = AbilityService();
+  final AbilityService _service;
+
+  AbilityProvider({AbilityService? service})
+      : _service = service ?? AbilityService();
 
   // 雷达图数据
   List<String> _dimensions = [];

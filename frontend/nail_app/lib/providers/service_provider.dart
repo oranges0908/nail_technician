@@ -6,7 +6,10 @@ import '../config/app_config.dart';
 
 /// 服务记录状态管理
 class ServiceRecordProvider extends ChangeNotifier {
-  final ServiceRecordService _service = ServiceRecordService();
+  final ServiceRecordService _service;
+
+  ServiceRecordProvider({ServiceRecordService? service})
+      : _service = service ?? ServiceRecordService();
 
   List<ServiceRecord> _records = [];
   ServiceRecord? _selectedRecord;
