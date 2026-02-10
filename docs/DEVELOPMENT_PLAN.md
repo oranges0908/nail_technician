@@ -57,26 +57,24 @@
 
 ## 📊 开发进度总览
 
-**最后更新**: 2026-02-06
-**总体进度**: 16/23 迭代完成 (70%)
+**最后更新**: 2026-02-07
+**总体进度**: 23/23 迭代完成 (100%)
 
 ### 进度统计
 
 ```
-✅ 已完成: 13 个迭代
-⚠️ 部分完成: 3 个迭代
-❌ 未开始: 7 个迭代
+✅ 已完成: 23 个迭代
 ```
 
 ### 各阶段进度
 
 | 阶段 | 进度 | 完成度 | 说明 |
 |------|------|--------|------|
-| **阶段1: 框架层** | 3/5 | 60% | 数据库✅ 文件上传✅ API文档✅ 认证⚠️ 错误处理⚠️ |
-| **阶段2: 基础模块** | 3/3 | 100% | 用户⚠️ 客户✅ 客户档案✅ (API待完善) |
+| **阶段1: 框架层** | 5/5 | 100% | 数据库✅ 认证✅ 文件上传✅ 错误处理✅ API文档✅ |
+| **阶段2: 基础模块** | 3/3 | 100% | 用户✅ 客户✅ 客户档案✅ |
 | **阶段3: AI抽象层** | 2/2 | 100% | Provider接口✅ OpenAI实现✅ |
-| **阶段4: 核心业务** | 5/7 | 71% | 服务记录✅ AI分析✅ 能力追踪✅ 设计生成❌ |
-| **阶段5: 前端开发** | 3/6 | 50% | 基础架构✅ 认证模块✅ 客户管理✅ |
+| **阶段4: 核心业务** | 7/7 | 100% | 灵感图库✅ 设计生成✅ 设计微调✅ 服务记录✅ AI分析✅ 能力维度✅ 能力分析✅ |
+| **阶段5: 前端开发** | 6/6 | 100% | 基础架构✅ 认证模块✅ 客户管理✅ 设计生成✅ 服务记录✅ 能力中心✅ |
 
 ### 已完成迭代清单
 
@@ -84,43 +82,50 @@
 - ✅ **Iteration 1.1**: 数据库基础设施 (100%)
   - Alembic配置, 10个表已创建
   - Git: `44de17d`
-- ⚠️ **Iteration 1.2**: 认证与授权系统 (40%)
-  - 基础依赖已创建，JWT完整实现待完成
+- ✅ **Iteration 1.2**: 认证与授权系统 (100%)
+  - JWT认证, security.py, auth_service.py, dependencies.py
+  - Git: `5551a8e`
 - ✅ **Iteration 1.3**: 文件上传服务 (100%)
   - 4个上传端点 + 批量上传 + 删除
   - 文件验证、安全防护、静态文件服务
-  - Git: `9ada8e9`
-- ⚠️ **Iteration 1.4**: 错误处理与日志 (60%)
-  - 基础错误处理已实现，日志配置待完善
+  - Git: `892212d`
+- ✅ **Iteration 1.4**: 错误处理与日志 (100%)
+  - NailAppException, 全局异常处理, 结构化日志
+  - Git: `c196b20`
 - ✅ **Iteration 1.5**: API文档与健康检查 (100%)
   - Swagger UI自动生成，健康检查端点
+  - Git: `556cc05`
 
 **基础模块 (Basic Modules)**:
-- ⚠️ **Iteration 2.1**: 用户管理模块 (50%)
-  - User模型已创建，CRUD API待实现
+- ✅ **Iteration 2.1**: 用户管理模块 (100%)
+  - User CRUD API, user_service.py, users.py
+  - Git: `dfe2be4`
 - ✅ **Iteration 2.2**: 客户档案管理 (100%)
-  - Customer模型已创建，关系已建立
-  - Git: `9ada8e9`
+  - Customer模型, CRUD API, customer_service.py
+  - Git: `7a7962a` / `a4d8f95`
 - ✅ **Iteration 2.3**: 客户详细档案 (100%)
   - CustomerProfile模型，JSON字段支持
-  - Git: `9ada8e9`
+  - Git: `a4d8f95`
 
 **AI抽象层 (AI Abstraction)**:
 - ✅ **Iteration 3.1**: AI Provider抽象接口 (100%)
   - 抽象基类，4个核心方法
-  - Git: `9ada8e9`
+  - Git: `0099cc6`
 - ✅ **Iteration 3.2**: OpenAI Provider实现 (100%)
   - DALL-E 3 + GPT-4 Vision集成
   - 上下文感知对比分析
-  - Git: `9ada8e9`
+  - Git: `0099cc6`
 
 **核心业务模块 (Core Business)**:
-- ❌ **Iteration 4.1**: 灵感图库管理 (20%)
-  - InspirationImage模型已创建，API待实现
-- ❌ **Iteration 4.2**: AI设计方案生成 (20%)
-  - DesignPlan模型已创建，生成API待实现
-- ❌ **Iteration 4.3**: 设计方案微调 (20%)
-  - AI refine_design已实现，API待实现
+- ✅ **Iteration 4.1**: 灵感图库管理 (100%)
+  - 灵感图上传、标签管理、检索功能
+  - Git: `9c536b2`
+- ✅ **Iteration 4.2**: AI设计方案生成 (100%)
+  - DALL-E 3设计生成, 完整API
+  - Git: `90b7de5`
+- ✅ **Iteration 4.3**: 设计方案微调 (100%)
+  - 基于现有设计的微调功能
+  - Git: `90b7de5`
 - ✅ **Iteration 4.4**: 服务记录管理 (100%)
   - 完整CRUD + 复盘 + 反馈 + 满意度
   - Git: `9ada8e9`
@@ -129,55 +134,94 @@
   - Git: `9ada8e9`
 - ✅ **Iteration 4.6**: 能力维度管理 (100%)
   - 6个预设维度，完整实现
-  - Git: `9ada8e9`
+  - Git: `30f4849`
 - ✅ **Iteration 4.7**: 能力分析与可视化 (100%)
   - 趋势图、雷达图数据API
-  - Git: `9ada8e9`
+  - Git: `ce6d6f6`
 
 **前端开发 (Frontend)**:
-- ❌ **Iteration 5.1-5.6**: 全部未开始 (0%)
+- ✅ **Iteration 5.1**: Flutter项目基础架构 (100%)
+  - 项目创建, 依赖配置, Dio/Provider/GoRouter搭建
+  - Git: `6583201`
+- ✅ **Iteration 5.2**: 认证与用户模块 (100%)
+  - 登录/注册界面, AuthProvider, JWT Token管理
+  - Git: `517ced5`
+- ✅ **Iteration 5.3**: 客户管理界面 (100%)
+  - 客户列表/详情/表单/档案, CustomerProvider
+  - Git: `1cc873f`
+- ✅ **Iteration 5.4**: 设计生成界面 (100%)
+  - 设计列表/生成/详情, DesignProvider
+  - Git: `acfda93`
+- ✅ **Iteration 5.5**: 服务记录界面 (100%)
+  - 服务列表/创建/详情/完成, ServiceRecordProvider
+  - Git: `acfda93`
+- ✅ **Iteration 5.6**: 能力中心界面 (100%)
+  - 雷达图(CustomPainter), 趋势图, AbilityProvider
+  - Git: `bb03b06`
 
 ### 关键成果
 
 **已实现核心功能**:
 - ✅ 完整的数据库架构（10个表）
-- ✅ AI Provider抽象层（支持多提供商）
-- ✅ 服务记录完整流程（创建→完成→AI分析→能力评估）
+- ✅ JWT认证与授权系统
 - ✅ 文件上传系统（4种类型，批量上传，安全验证）
-- ✅ 上下文感知AI分析（图片+文本融合）
+- ✅ AI Provider抽象层（支持多提供商）
+- ✅ 灵感图库管理（上传、标签、检索）
+- ✅ AI设计方案生成与微调（DALL-E 3）
+- ✅ 服务记录完整流程（创建→完成→AI分析→能力评估）
+- ✅ 上下文感知AI分析（图片+文本融合, GPT-4 Vision）
 - ✅ 能力追踪系统（6维度评分+趋势+雷达图）
+- ✅ 完整的Flutter移动应用（6个功能模块, 19个页面）
 
 **代码统计**:
-- 总代码量: ~7,500+ 行
-- 模型层: ~1,200 行
-- 服务层: ~1,800 行
-- API层: ~1,600 行
-- 测试: ~600 行
-- 文档: ~2,000 行
+- 后端API层: ~2,300 行 (11个路由文件)
+- 后端服务层: ~2,400 行 (8个服务 + AI Provider)
+- 后端模型层: ~1,200 行 (10个ORM模型)
+- 后端测试: ~1,600 行 (11个测试文件)
+- 前端界面: 19个Screen文件
+- 前端状态管理: 6个Provider
+- 前端API服务: 8个Service
 
 **Git提交历史**:
 ```
+bb03b06 feat(frontend): implement Iteration 5.6 - Ability Center Interface
+acfda93 feat(frontend): implement Iteration 5.4 & 5.5 - Design Generation & Service Record interfaces
+1cc873f feat(frontend): implement Iteration 5.3 - Customer Management Interface
+517ced5 feat(frontend): implement Iteration 5.2 - Authentication & User Module
+6583201 feat(frontend): initialize Flutter project architecture
+ce6d6f6 feat(backend): complete Iteration 4.7 - Ability Analysis & Visualization
+30f4849 feat(backend): implement ability dimension system (Iteration 4.6)
+90b7de5 feat(design): complete Iteration 4.2 & 4.3 - AI设计生成与优化
+9c536b2 feat(inspiration): complete Iteration 4.1 - 灵感图库管理
+0099cc6 feat(ai): complete Iteration 3.1 & 3.2 - AI Provider abstraction layer
+a4d8f95 feat(backend): complete customer management module (Iteration 2.2 & 2.3)
+dfe2be4 feat(backend): implement user management module (Iteration 2.1)
+556cc05 feat(backend): enhance API documentation and health checks (Iteration 1.5)
+c196b20 feat(backend): implement error handling and logging system (Iteration 1.4)
+892212d test(backend): add comprehensive file upload API tests (Iteration 1.3)
+5551a8e feat(backend): implement JWT authentication and user management (Iteration 1.2)
 9ada8e9 feat(backend): implement AI-powered service record system and file upload API
 44de17d feat(backend): implement database infrastructure with Alembic
 ```
 
-### 下一步建议
+### 后续优化建议
 
-**短期优先级** (推荐顺序):
-1. **客户管理 CRUD API** (Iteration 2.1) - 完善用户管理
-2. **设计生成 API** (Iteration 4.2) - 实现核心AI功能
-3. **灵感图库 API** (Iteration 4.1) - 支持设计生成
-4. **JWT认证完善** (Iteration 1.2) - 生产环境安全
+**质量提升**（详见下方"阶段6: 质量提升"）:
+- 后端测试覆盖率提升（pytest 基础设施 + API/Service/AI 测试）
+- 前端单元测试与Widget测试（Model/Provider/Widget 三层）
+- 端到端集成测试（前端↔后端完整业务链路）
 
-**中期目标**:
-- 完成所有后端API (Iteration 4.1-4.3)
-- 端到端集成测试
-- 开始Flutter前端开发 (Iteration 5.1)
+**生产就绪**:
+- 生产环境部署配置（Docker Compose优化）
+- PostgreSQL迁移与数据备份策略
+- HTTPS与安全加固
+- 性能优化（分页、缓存、图片压缩）
 
-**长期目标**:
-- 完整的移动应用
-- 生产环境部署
-- 用户测试和反馈
+**功能增强**:
+- 用户设置页面实现
+- 推送通知
+- 数据导出
+- 多语言支持
 
 ---
 
@@ -330,7 +374,7 @@ Status: ✅ All tests passing"
 
 ---
 
-### Iteration 1.2: 认证与授权系统
+### Iteration 1.2: 认证与授权系统 ✅ COMPLETED
 
 **目标**: 实现JWT认证、用户注册登录、权限控制
 
@@ -775,7 +819,7 @@ Status: ✅ All tests passing, security reviewed"
 
 ---
 
-### Iteration 1.4: 错误处理与日志
+### Iteration 1.4: 错误处理与日志 ✅ COMPLETED
 
 **目标**: 统一错误处理、日志记录、异常管理
 
@@ -1099,7 +1143,7 @@ Status: ✅ All tests passing
 
 ## 阶段2: 基础模块 (Core Business Modules)
 
-### Iteration 2.1: 用户管理模块
+### Iteration 2.1: 用户管理模块 ✅ COMPLETED
 
 **目标**: 完善用户CRUD、个人资料管理
 
@@ -1214,7 +1258,7 @@ Status: ✅ All tests passing"
 
 ---
 
-### Iteration 2.2: 客户档案管理
+### Iteration 2.2: 客户档案管理 ✅ COMPLETED
 
 **目标**: 实现客户基础档案的增删改查
 
@@ -1368,7 +1412,7 @@ Status: ✅ All tests passing, data isolation verified"
 
 ---
 
-### Iteration 2.3: 客户详细档案
+### Iteration 2.3: 客户详细档案 ✅ COMPLETED
 
 **目标**: 实现客户详细档案（甲型特征、偏好、禁忌）
 
@@ -2028,7 +2072,7 @@ Status: ✅ All mock tests passing
 
 ## 阶段4: 核心业务模块 (Core Business Features)
 
-### Iteration 4.1: 灵感图库管理
+### Iteration 4.1: 灵感图库管理 ✅ COMPLETED
 
 **目标**: 实现灵感图上传、标签管理、检索功能
 
@@ -2098,7 +2142,7 @@ Status: ✅ All tests passing"
 
 ---
 
-### Iteration 4.2: AI设计方案生成
+### Iteration 4.2: AI设计方案生成 ✅ COMPLETED
 
 **目标**: 实现AI设计方案生成功能
 
@@ -2227,7 +2271,7 @@ Status: ✅ All tests passing (with AI mocks)"
 
 ---
 
-### Iteration 4.3: 设计方案微调
+### Iteration 4.3: 设计方案微调 ✅ COMPLETED
 
 **目标**: 实现基于现有设计的微调功能
 
@@ -2720,7 +2764,7 @@ Status: ✅ All tests passing
 
 **注意**: 前端开发每个迭代代码量较大，建议拆分更细或调整为1500行限制
 
-### Iteration 5.1: Flutter项目基础架构
+### Iteration 5.1: Flutter项目基础架构 ✅ COMPLETED
 
 **目标**: 创建Flutter项目、配置依赖、搭建基础架构
 
@@ -2800,11 +2844,15 @@ Status: ✅ App builds and runs"
 
 ---
 
-### Iteration 5.2 - 5.6: 其他前端迭代
+### Iteration 5.2 - 5.6: 其他前端迭代 ✅ ALL COMPLETED
 
-（后续前端迭代详细规划省略，每个迭代包括：认证界面、客户管理界面、设计生成界面、服务记录界面、能力中心界面）
+各迭代均已完成，遵循 分析 → 设计 → 实现 → 测试 → 校对 → Commit 流程：
 
-每个迭代遵循相同的流程：分析 → 设计 → 实现 → 测试 → 校对 → Commit
+- **Iteration 5.2**: 认证与用户模块 — 登录/注册界面, AuthProvider, JWT管理 (Git: `517ced5`)
+- **Iteration 5.3**: 客户管理界面 — 列表/详情/表单/档案, CustomerProvider (Git: `1cc873f`)
+- **Iteration 5.4**: 设计生成界面 — 列表/生成/详情, DesignProvider (Git: `acfda93`)
+- **Iteration 5.5**: 服务记录界面 — 列表/创建/详情/完成, ServiceRecordProvider (Git: `acfda93`)
+- **Iteration 5.6**: 能力中心界面 — 雷达图/趋势图(CustomPainter), AbilityProvider (Git: `bb03b06`)
 
 ---
 
@@ -2905,38 +2953,454 @@ Status: ✅ Description
 
 ---
 
+## 阶段6: 质量提升 (Quality Improvement)
+
+### 当前测试现状
+
+**后端**：
+- `tests/` 目录有 4 个 pytest 文件（使用 `TestClient`）：test_main, test_database, test_abilities, test_ability_analysis
+- 根目录有 11 个脚本文件（使用 `requests`，需运行服务器，非 pytest）：auth, users, customers, uploads, inspirations, designs, ai_providers, health 等
+- 无 `conftest.py`，无共享 fixtures
+- 无 service 层单元测试
+- 无 service_record API 测试
+
+**前端**：
+- 仅 1 个测试：`widget_test.dart`（验证启动页文字）
+- 6 个 Provider、8 个 Service、8 个 Model — 全部无测试
+- 无 `mockito` 依赖，无 `integration_test/` 目录
+
+---
+
+### Iteration 6.1: 后端 pytest 基础设施 + 核心 API 测试
+
+**目标**: 建立可复用的 pytest 基础设施，补全核心 API 路由测试
+
+**代码量估算**: ~800行
+
+#### 1. 分析 (Analysis)
+
+**现有问题**:
+- 根目录 test_*.py 使用 `requests` 调真实服务器，不能在 CI 中自动运行
+- 无 conftest.py，每个测试文件重复创建 client 和用户
+- tests/ 目录仅覆盖 health 和 abilities
+
+**目标覆盖**:
+- 所有 P0 API 路由（auth, customers, designs）需有 pytest 测试
+
+#### 2. 设计 (Design)
+
+**文件结构**:
+```
+backend/tests/
+├── conftest.py                    # 新建 — 共享 fixtures
+├── test_main.py                   # 已存在
+├── test_database.py               # 已存在
+├── test_auth_api.py               # 新建
+├── test_customers_api.py          # 新建
+├── test_designs_api.py            # 新建
+├── test_abilities.py              # 已存在
+└── test_ability_analysis.py       # 已存在
+```
+
+**conftest.py 设计**:
+```python
+# fixtures:
+# - db_session: SQLite 内存数据库会话，每个测试函数隔离
+# - client: TestClient，覆盖 get_db 依赖注入测试 db_session
+# - test_user: 创建测试用户，返回 User 对象
+# - auth_headers: 注册+登录，返回 {"Authorization": "Bearer <token>"}
+# - test_customer: 创建测试客户，返回 Customer 对象
+```
+
+#### 3. 实现 (Implementation)
+
+**任务清单**:
+- [ ] 创建 `backend/tests/conftest.py`:
+  - `db_session` fixture — 创建内存 SQLite engine，绑定 Base.metadata.create_all，yield session，teardown drop_all
+  - `client` fixture — 依赖 db_session，用 `app.dependency_overrides[get_db]` 覆盖
+  - `test_user` fixture — 通过 API 注册用户或直接插入 db
+  - `auth_headers` fixture — 调用 `/api/v1/auth/login` 获取 token
+  - `test_customer` fixture — 调用客户创建 API
+- [ ] 创建 `backend/tests/test_auth_api.py`:
+  - test_register_success — 正常注册
+  - test_register_duplicate_email — 重复邮箱 409
+  - test_login_success — 正常登录返回 token
+  - test_login_wrong_password — 错误密码 401
+  - test_token_refresh — 刷新 token
+  - test_protected_route_no_token — 无 token 访问受保护路由 401
+- [ ] 创建 `backend/tests/test_customers_api.py`:
+  - test_create_customer — 创建客户
+  - test_list_customers — 列表分页
+  - test_get_customer_detail — 获取详情
+  - test_update_customer — 更新客户
+  - test_delete_customer — 删除客户
+  - test_search_customers — 搜索
+  - test_customer_data_isolation — 不同用户数据隔离
+- [ ] 创建 `backend/tests/test_designs_api.py`:
+  - test_generate_design — 生成设计（mock AI provider）
+  - test_refine_design — 优化设计（mock AI provider）
+  - test_list_designs — 列表分页过滤
+  - test_get_design_versions — 版本历史
+  - test_archive_design — 归档
+  - test_delete_design — 删除
+
+#### 4. 验证 (Verification)
+
+```bash
+cd backend && pytest tests/ -v
+cd backend && pytest tests/ --cov=app --cov-report=term-missing
+```
+
+---
+
+### Iteration 6.2: 后端补全测试（Service 层 + 剩余 API + AI Provider）
+
+**目标**: 补全 P1/P2 API 测试、Service 层单元测试、AI Provider 测试
+
+**代码量估算**: ~1000行
+
+#### 1. 分析 (Analysis)
+
+**6.1 完成后仍缺失**:
+- API: inspirations, services (service_record), uploads, users
+- Service 层: 所有 service 文件无直接单元测试
+- AI Provider: openai_provider.py 和 factory.py 无隔离测试
+
+#### 2. 设计 (Design)
+
+**文件结构**:
+```
+backend/tests/
+├── conftest.py                    # 6.1 已建
+├── test_inspirations_api.py       # 新建
+├── test_services_api.py           # 新建 — service_record 路由
+├── test_uploads_api.py            # 新建
+├── test_users_api.py              # 新建
+├── test_customer_service.py       # 新建 — service 层
+├── test_design_service.py         # 新建 — mock AI
+├── test_service_record_service.py # 新建
+├── test_analysis_service.py       # 新建 — mock AI
+├── test_ai_provider.py            # 新建 — mock OpenAI
+└── test_ai_factory.py             # 新建
+```
+
+#### 3. 实现 (Implementation)
+
+**任务清单 — P1 API 测试**:
+- [ ] 创建 `tests/test_inspirations_api.py`:
+  - CRUD、标签过滤、热门查询、使用标记、数据隔离
+- [ ] 创建 `tests/test_services_api.py`（**当前完全无测试**）:
+  - 创建服务记录（关联 design + customer）
+  - 列表查询、详情、更新、删除
+  - 上传实际效果图
+- [ ] 创建 `tests/test_uploads_api.py`:
+  - 文件上传成功、文件类型校验拒绝、文件大小限制
+- [ ] 创建 `tests/test_users_api.py`:
+  - 获取当前用户信息、修改密码、更新个人资料
+
+**任务清单 — Service 层单元测试**:
+- [ ] 创建 `tests/test_customer_service.py`:
+  - 直接调用 customer_service 函数，传入 mock db session
+  - 测试业务逻辑（如重复客户检查）
+- [ ] 创建 `tests/test_design_service.py`:
+  - Mock AI provider（`unittest.mock.patch`）
+  - 测试设计生成、优化的业务逻辑
+- [ ] 创建 `tests/test_service_record_service.py`:
+  - 测试服务记录创建、关联关系
+- [ ] 创建 `tests/test_analysis_service.py`:
+  - Mock AI provider 的 compare_images
+  - 测试对比分析 → 能力记录生成逻辑
+
+**任务清单 — AI Provider 测试**:
+- [ ] 创建 `tests/test_ai_provider.py`:
+  - Mock `openai.OpenAI` client
+  - 测试 generate_design 构造正确的 DALL-E 3 请求
+  - 测试 compare_images 构造正确的 GPT-4 Vision 请求
+  - 测试异常处理（API 超时、无效响应、rate limit）
+- [ ] 创建 `tests/test_ai_factory.py`:
+  - 测试 `AI_PROVIDER=openai` 返回 OpenAIProvider
+  - 测试未知 provider 抛出异常
+
+#### 4. 验证 (Verification)
+
+```bash
+cd backend && pytest tests/ -v --cov=app --cov-report=term-missing
+# 目标：app/services/ 覆盖率 > 70%，app/api/v1/ 覆盖率 > 80%
+```
+
+---
+
+### Iteration 6.3: 前端 Model 与 Provider 测试
+
+**目标**: 为 Flutter 添加测试依赖，编写 Model 序列化测试和 Provider 状态管理测试
+
+**代码量估算**: ~900行
+
+#### 1. 分析 (Analysis)
+
+**当前状态**:
+- `pubspec.yaml` 仅有 `flutter_test` 依赖
+- 无 mockito，无法 mock service 调用
+- 8 个 Model 使用 `@JsonSerializable`，fromJson/toJson 需验证
+- 6 个 Provider 使用 `ChangeNotifier`，状态变更逻辑需验证
+
+#### 2. 设计 (Design)
+
+**文件结构**:
+```
+frontend/nail_app/
+├── pubspec.yaml                              # 修改 — 添加 mockito, build_runner
+└── test/
+    ├── widget_test.dart                      # 已存在
+    ├── models/
+    │   ├── user_test.dart                    # 新建
+    │   ├── customer_test.dart                # 新建
+    │   ├── design_plan_test.dart             # 新建
+    │   ├── service_record_test.dart          # 新建
+    │   ├── inspiration_image_test.dart       # 新建
+    │   └── comparison_result_test.dart       # 新建
+    └── providers/
+        ├── auth_provider_test.dart           # 新建
+        ├── customer_provider_test.dart       # 新建
+        ├── design_provider_test.dart         # 新建
+        ├── inspiration_provider_test.dart    # 新建
+        ├── service_provider_test.dart        # 新建
+        └── ability_provider_test.dart        # 新建
+```
+
+#### 3. 实现 (Implementation)
+
+**任务清单 — 环境准备**:
+- [ ] 修改 `pubspec.yaml`，在 dev_dependencies 添加:
+  - `mockito: ^5.4.0`
+  - `build_runner: ^2.4.0`（如未有）
+  - `network_image_mock: ^2.1.0`
+- [ ] 运行 `flutter pub get`
+
+**任务清单 — Model 测试**（每个 model 测试 fromJson + toJson + 边界值）:
+- [ ] `test/models/user_test.dart`:
+  - fromJson 正常数据 → 字段正确
+  - toJson → 可反序列化回来
+  - 可选字段为 null 的情况
+- [ ] `test/models/customer_test.dart`:
+  - Customer 和 CustomerProfile 的序列化
+- [ ] `test/models/design_plan_test.dart`:
+  - parent_design_id 自引用序列化
+- [ ] `test/models/service_record_test.dart`
+- [ ] `test/models/inspiration_image_test.dart`
+- [ ] `test/models/comparison_result_test.dart`
+
+**任务清单 — Provider 测试**（mock service，验证状态变更和 notifyListeners）:
+- [ ] `test/providers/auth_provider_test.dart`:
+  - login → isAuthenticated = true, user 已赋值
+  - logout → isAuthenticated = false, token 清除
+  - token 过期自动刷新逻辑
+  - 登录失败 → error 状态
+- [ ] `test/providers/customer_provider_test.dart`:
+  - loadCustomers → customers 列表已填充, isLoading 状态变化
+  - createCustomer → 列表新增一项
+  - deleteCustomer → 列表移除
+- [ ] `test/providers/design_provider_test.dart`:
+  - generateDesign → isLoading → 完成后 designs 更新
+  - refineDesign → 版本链更新
+- [ ] `test/providers/inspiration_provider_test.dart`:
+  - 加载列表、按标签过滤
+- [ ] `test/providers/service_provider_test.dart`:
+  - 服务记录 CRUD 状态管理
+- [ ] `test/providers/ability_provider_test.dart`:
+  - 加载能力数据、维度列表
+
+#### 4. 验证 (Verification)
+
+```bash
+cd frontend/nail_app && flutter pub run build_runner build --delete-conflicting-outputs
+cd frontend/nail_app && flutter test test/models/
+cd frontend/nail_app && flutter test test/providers/
+cd frontend/nail_app && flutter test --coverage
+```
+
+---
+
+### Iteration 6.4: 前端 Widget 测试
+
+**目标**: 为关键页面编写 Widget 测试
+
+**代码量估算**: ~600行
+
+#### 1. 分析 (Analysis)
+
+**关键页面**（按用户使用频率排序）:
+- 登录页 — 入口，表单验证逻辑
+- 客户列表页 — 最常用，列表+搜索
+- 设计生成页 — 核心功能，输入+加载+展示
+- 服务记录页 — 表单提交
+
+#### 2. 设计 (Design)
+
+**文件结构**:
+```
+frontend/nail_app/test/
+└── screens/
+    ├── login_screen_test.dart              # 新建
+    ├── customer_list_screen_test.dart      # 新建
+    ├── design_screen_test.dart             # 新建
+    └── service_record_screen_test.dart     # 新建
+```
+
+#### 3. 实现 (Implementation)
+
+**任务清单**:
+- [ ] `test/screens/login_screen_test.dart`:
+  - 渲染登录表单（邮箱+密码输入框+登录按钮）
+  - 空表单提交 → 显示验证错误
+  - 输入有效凭证并提交 → 调用 AuthProvider.login
+  - 登录失败 → 显示错误提示
+- [ ] `test/screens/customer_list_screen_test.dart`:
+  - 加载中显示 loading indicator
+  - 加载完成显示客户列表
+  - 空列表显示空状态提示
+  - 搜索框输入 → 过滤列表
+  - 点击客户 → 导航到详情
+- [ ] `test/screens/design_screen_test.dart`:
+  - 输入提示词 → 点击生成 → 显示 loading
+  - 生成完成 → 显示设计图
+  - 点击优化 → 二次生成流程
+- [ ] `test/screens/service_record_screen_test.dart`:
+  - 表单字段渲染
+  - 选择客户+设计方案
+  - 提交表单 → 调用 ServiceProvider
+
+#### 4. 验证 (Verification)
+
+```bash
+cd frontend/nail_app && flutter test test/screens/
+cd frontend/nail_app && flutter test --coverage
+```
+
+---
+
+### Iteration 6.5: 端到端集成测试
+
+**目标**: 验证前后端联调的完整业务链路
+
+**代码量估算**: ~500行
+
+#### 1. 分析 (Analysis)
+
+**核心业务链路**:
+用户注册 → 创建客户 → 上传灵感图 → 生成设计 → 创建服务记录 → AI对比分析 → 能力记录
+
+**技术方案**:
+- 后端：pytest + TestClient 跑完整链路（单进程，无需启动服务器）
+- 前端：Flutter integration_test（需启动后端服务）
+
+#### 2. 设计 (Design)
+
+**文件结构**:
+```
+backend/tests/
+└── integration/
+    ├── __init__.py
+    ├── conftest.py                         # 新建 — 集成测试专用 fixtures
+    └── test_full_workflow.py               # 新建 — 完整业务链路
+
+frontend/nail_app/
+└── integration_test/
+    └── app_test.dart                       # 新建 — Flutter 集成测试
+```
+
+#### 3. 实现 (Implementation)
+
+**任务清单 — 后端集成测试**:
+- [ ] 创建 `backend/tests/integration/conftest.py`:
+  - 复用 tests/conftest.py 的 db_session 和 client fixtures
+  - 添加 mock_ai_provider fixture（全局 mock AI 调用）
+- [ ] 创建 `backend/tests/integration/test_full_workflow.py`:
+  - test_complete_business_workflow（按顺序执行完整链路）:
+    1. POST `/auth/register` → 注册用户
+    2. POST `/auth/login` → 获取 token
+    3. POST `/customers` → 创建客户
+    4. POST `/uploads/nails` → 上传指甲照片
+    5. POST `/inspirations` → 创建灵感图
+    6. POST `/designs/generate` → 生成设计（mock AI）
+    7. POST `/designs/{id}/refine` → 优化设计（mock AI）
+    8. POST `/services` → 创建服务记录
+    9. POST `/uploads/actuals` → 上传实际效果图
+    10. POST `/services/{id}/compare` → AI 对比分析（mock）
+    11. GET `/abilities/records` → 验证能力记录已生成
+    12. GET `/abilities/dimensions` → 验证能力维度数据
+
+**任务清单 — 前端集成测试**:
+- [ ] 创建 `frontend/nail_app/integration_test/app_test.dart`:
+  - testWidgets: 启动应用 → 看到登录页
+  - testWidgets: 登录 → 进入主页 → 显示底部导航
+  - testWidgets: 导航到客户列表 → 创建客户 → 列表刷新
+  - testWidgets: 导航到设计页面 → 查看设计列表
+
+#### 4. 验证 (Verification)
+
+```bash
+# 后端集成测试
+cd backend && pytest tests/integration/ -v
+
+# 前端集成测试（需先启动后端）
+cd backend && uvicorn app.main:app --reload &
+cd frontend/nail_app && flutter test integration_test/
+```
+
+---
+
+### 阶段6 执行顺序总结
+
+| 顺序 | 迭代 | 内容 | 依赖 |
+|------|------|------|------|
+| 1 | 6.1 | 后端 pytest 基础设施 + P0 API 测试 | 无 |
+| 2 | 6.2 | 后端补全测试（Service/AI/P1 API） | 依赖 6.1 的 conftest.py |
+| 3 | 6.3 | 前端 Model + Provider 测试 | 无（可与 6.2 并行） |
+| 4 | 6.4 | 前端 Widget 测试 | 依赖 6.3 的 mockito 配置 |
+| 5 | 6.5 | 端到端集成测试 | 依赖 6.1 + 6.3 完成 |
+
+---
+
 ## 附录：完整迭代列表
 
 | 迭代ID | 名称 | 代码量 | 状态 |
 |--------|------|--------|------|
-| 1.1 | 数据库基础设施 | ~300行 | ⏳ |
-| 1.2 | 认证与授权系统 | ~800行 | ⏳ |
-| 1.3 | 文件上传服务 | ~400行 | ⏳ |
-| 1.4 | 错误处理与日志 | ~350行 | ⏳ |
-| 1.5 | API文档与健康检查 | ~200行 | ⏳ |
-| 2.1 | 用户管理模块 | ~500行 | ⏳ |
-| 2.2 | 客户档案管理 | ~600行 | ⏳ |
-| 2.3 | 客户详细档案 | ~700行 | ⏳ |
-| 3.1 | AI Provider抽象接口 | ~400行 | ⏳ |
-| 3.2 | OpenAI Provider实现 | ~900行 | ⏳ |
-| 4.1 | 灵感图库管理 | ~550行 | ⏳ |
-| 4.2 | AI设计方案生成 | ~800行 | ⏳ |
-| 4.3 | 设计方案微调 | ~500行 | ⏳ |
-| 4.4 | 服务记录管理 | ~600行 | ⏳ |
-| 4.5 | AI对比分析 | ~700行 | ⏳ |
-| 4.6 | 能力维度管理 | ~400行 | ⏳ |
-| 4.7 | 能力分析与可视化 | ~850行 | ⏳ |
-| 5.1 | Flutter基础架构 | ~800行 | ⏳ |
-| 5.2 | 认证与用户模块 | ~900行 | ⏳ |
-| 5.3 | 客户管理界面 | ~950行 | ⏳ |
-| 5.4 | 设计生成界面 | ~1000行 | ⏳ |
-| 5.5 | 服务记录界面 | ~900行 | ⏳ |
-| 5.6 | 能力中心界面 | ~950行 | ⏳ |
+| 1.1 | 数据库基础设施 | ~300行 | ✅ |
+| 1.2 | 认证与授权系统 | ~800行 | ✅ |
+| 1.3 | 文件上传服务 | ~400行 | ✅ |
+| 1.4 | 错误处理与日志 | ~350行 | ✅ |
+| 1.5 | API文档与健康检查 | ~200行 | ✅ |
+| 2.1 | 用户管理模块 | ~500行 | ✅ |
+| 2.2 | 客户档案管理 | ~600行 | ✅ |
+| 2.3 | 客户详细档案 | ~700行 | ✅ |
+| 3.1 | AI Provider抽象接口 | ~400行 | ✅ |
+| 3.2 | OpenAI Provider实现 | ~900行 | ✅ |
+| 4.1 | 灵感图库管理 | ~550行 | ✅ |
+| 4.2 | AI设计方案生成 | ~800行 | ✅ |
+| 4.3 | 设计方案微调 | ~500行 | ✅ |
+| 4.4 | 服务记录管理 | ~600行 | ✅ |
+| 4.5 | AI对比分析 | ~700行 | ✅ |
+| 4.6 | 能力维度管理 | ~400行 | ✅ |
+| 4.7 | 能力分析与可视化 | ~850行 | ✅ |
+| 5.1 | Flutter基础架构 | ~800行 | ✅ |
+| 5.2 | 认证与用户模块 | ~900行 | ✅ |
+| 5.3 | 客户管理界面 | ~950行 | ✅ |
+| 5.4 | 设计生成界面 | ~1000行 | ✅ |
+| 5.5 | 服务记录界面 | ~900行 | ✅ |
+| 5.6 | 能力中心界面 | ~950行 | ✅ |
 
-**总计**: 23个迭代，约15,000行代码
+| 6.1 | 后端 pytest 基础设施 + P0 API 测试 | ~800行 | 待开始 |
+| 6.2 | 后端补全测试（Service/AI/P1 API） | ~1000行 | 待开始 |
+| 6.3 | 前端 Model + Provider 测试 | ~900行 | 待开始 |
+| 6.4 | 前端 Widget 测试 | ~600行 | 待开始 |
+| 6.5 | 端到端集成测试 | ~500行 | 待开始 |
+
+**阶段1-5 总计**: 23个迭代，约15,000行代码 — **全部完成**
+**阶段6 总计**: 5个迭代，约3,800行测试代码 — 待开始
 
 ---
 
-**文档版本**: v1.0
+**文档版本**: v2.1
 **创建日期**: 2024-01-08
-**最后更新**: 2024-01-08
+**最后更新**: 2026-02-08

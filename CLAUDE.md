@@ -60,11 +60,12 @@ docker-compose logs -f backend
 ### Backend: Layered Architecture
 
 ```
-API Routes (app/api/v1/) → Services (app/services/) → AI Provider Layer (app/services/ai/)
-                                    ↓
-                           ORM Models (app/models/) → Database
+API Routes (app/api/v1/) → Schemas (app/schemas/) → Services (app/services/) → AI Provider Layer (app/services/ai/)
+                                                            ↓
+                                                   ORM Models (app/models/) → Database
 ```
 
+- **Schemas vs Models**: `app/schemas/` has Pydantic request/response schemas (API contract); `app/models/` has SQLAlchemy ORM models (database tables). Keep them separate.
 - **Config**: `app/core/config.py` — Pydantic Settings loading from `.env`. Access via `from app.core.config import settings`
 - **Auth**: JWT-based. `app/core/security.py` for token ops, `app/core/dependencies.py` for `get_current_user` / `get_current_active_user` injection
 - **Database**: `app/db/database.py` — `get_db()` yields SQLAlchemy sessions, injected via `Depends(get_db)`
@@ -91,6 +92,7 @@ Screens (lib/screens/) → Providers (lib/providers/) → Services (lib/services
 - **Routing**: `go_router` configured in `lib/routes/app_router.dart`
 - **API client**: `dio` configured in `lib/services/api_service.dart`
 - **Auth flow**: `AuthProvider` initialized in `main()` and passed to `AppRouter` for route guards
+- **Config**: `lib/config/` — `api_config.dart` (endpoints/timeouts), `app_config.dart` (constants), `theme_config.dart` (Material theme)
 
 ### Key Domain Model Relationships
 
@@ -122,5 +124,7 @@ Backend config via `backend/.env` (see `.env.example`). Key vars:
 
 - `docs/BUSINESS.md` — Feature descriptions and user stories
 - `docs/ARCHITECTURE.md` — System architecture and database schema
+- `docs/TECHNICAL.md` — Technical implementation details
 - `docs/API.md` — API endpoint specifications
+- `docs/DEVELOPMENT_PLAN.md` — Iteration-based development plan
 - `docs/SETUP.md` — Deployment guide
