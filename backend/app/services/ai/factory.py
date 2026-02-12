@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 from app.services.ai.base import AIProvider
 from app.services.ai.openai_provider import OpenAIProvider
+from app.services.ai.gemini_provider import GeminiProvider
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,8 @@ class AIProviderFactory:
         # 根据类型创建实例
         if provider_type == "openai":
             cls._instance = OpenAIProvider()
+        elif provider_type == "gemini":
+            cls._instance = GeminiProvider()
         elif provider_type == "baidu":
             # TODO: 实现百度 AI Provider
             raise NotImplementedError("百度 AI Provider 尚未实现")

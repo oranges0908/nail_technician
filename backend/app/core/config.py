@@ -37,8 +37,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
 
     # AI Provider 配置
-    AI_PROVIDER: str = "openai"  # openai/baidu/alibaba
+    AI_PROVIDER: str = "openai"  # openai/gemini/baidu/alibaba
     OPENAI_API_KEY: str = ""  # 必须在 .env 中设置
+    GEMINI_API_KEY: str = ""  # Google Gemini API Key
 
     # 日志配置
     LOG_LEVEL: str = "INFO"
