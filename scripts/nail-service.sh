@@ -316,6 +316,18 @@ do_docker_logs() {
     docker-compose logs -f "${@:2}"
 }
 
+do_web_build() {
+    "$SCRIPT_DIR/nail-web.sh" build
+}
+
+do_web_serve() {
+    "$SCRIPT_DIR/nail-web.sh" serve
+}
+
+do_web_run() {
+    "$SCRIPT_DIR/nail-web.sh" run
+}
+
 do_help() {
     cat <<'USAGE'
 Nail 服务管理脚本
@@ -332,6 +344,11 @@ Nail 服务管理脚本
   init-db     初始化/迁移数据库
   test        运行 pytest 测试
 
+Web 前端命令:
+  web-build   构建 Web 发布版本
+  web-serve   启动本地静态服务器预览构建产物
+  web-run     以开发模式在 Chrome 中运行
+
 Docker 命令:
   docker-start   启动 Docker 全栈服务 (PostgreSQL + Redis + Backend)
   docker-stop    停止 Docker 服务
@@ -340,11 +357,15 @@ Docker 命令:
 环境变量:
   NAIL_HOST      监听地址 (默认: 0.0.0.0)
   NAIL_PORT      监听端口 (默认: 8002)
+  API_BASE_URL   前端 API 地址 (默认: http://localhost:8002/api/v1)
+  SERVE_PORT     Web 预览端口 (默认: 9000)
 
 示例:
   ./scripts/nail-service.sh start              # 启动服务
   ./scripts/nail-service.sh status             # 查看状态
   ./scripts/nail-service.sh test -k test_auth  # 运行特定测试
+  ./scripts/nail-service.sh web-build          # 构建 Web 前端
+  ./scripts/nail-service.sh web-run            # 开发模式运行 Web
   NAIL_PORT=9000 ./scripts/nail-service.sh start  # 指定端口启动
 USAGE
 }
@@ -361,6 +382,9 @@ case "${1:-help}" in
     logs)         do_logs ;;
     init-db)      do_init_db ;;
     test)         do_test "$@" ;;
+    web-build)    do_web_build ;;
+    web-serve)    do_web_serve ;;
+    web-run)      do_web_run ;;
     docker-start) do_docker_start ;;
     docker-stop)  do_docker_stop ;;
     docker-logs)  do_docker_logs "$@" ;;

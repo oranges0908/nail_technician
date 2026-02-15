@@ -4,7 +4,7 @@ class ApiConfig {
   // 基础 URL（根据环境切换）
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8000/api/v1',
+    defaultValue: 'http://localhost:8002/api/v1',
   );
 
   // 超时配置
