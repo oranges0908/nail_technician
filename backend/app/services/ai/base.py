@@ -29,7 +29,8 @@ class AIProvider(ABC):
     async def refine_design(
         self,
         original_image: str,
-        refinement_instruction: str
+        refinement_instruction: str,
+        design_target: str = "10nails"
     ) -> str:
         """
         迭代优化设计图
@@ -37,6 +38,7 @@ class AIProvider(ABC):
         Args:
             original_image: 原始设计图 URL
             refinement_instruction: 优化指令（自然语言）
+            design_target: 设计目标（single/5nails/10nails），保持与原设计一致
 
         Returns:
             优化后的设计图 URL

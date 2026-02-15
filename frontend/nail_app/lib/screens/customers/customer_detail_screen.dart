@@ -31,6 +31,10 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.customersRoute),
+        ),
         title: const Text('客户详情'),
         actions: [
           IconButton(

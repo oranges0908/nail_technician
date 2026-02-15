@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/theme_config.dart';
 import '../../providers/ability_provider.dart';
+import '../../utils/constants.dart';
 
 /// 能力趋势详情页
 /// 展示某个维度的历史评分趋势图
@@ -31,6 +33,10 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.abilitiesRoute),
+        ),
         title: Text(widget.dimensionName),
         actions: [
           IconButton(

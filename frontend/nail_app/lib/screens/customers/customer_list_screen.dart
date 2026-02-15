@@ -49,6 +49,10 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.homeRoute),
+        ),
         title: const Text('客户管理'),
       ),
       body: Column(

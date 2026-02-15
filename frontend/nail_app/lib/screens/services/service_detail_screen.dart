@@ -36,6 +36,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.servicesRoute),
+        ),
         title: const Text('服务详情'),
         actions: [
           IconButton(
@@ -71,7 +75,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 const SizedBox(height: 16),
 
                 // 设计图 vs 实际图
-                if (record.designPlanId != null || record.actualImagePath != null)
+                if (record.designImagePath != null || record.actualImagePath != null)
                   _buildComparisonImages(record),
 
                 // 复盘信息
@@ -260,10 +264,19 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           color: ThemeConfig.dividerLight.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: record.designPlanId != null
-                            ? const Center(
-                                child: Icon(Icons.brush_outlined,
-                                    size: 32, color: ThemeConfig.textHintLight))
+                        child: record.designImagePath != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: CachedNetworkImage(
+                                  imageUrl: ApiConfig.getStaticFileUrl(
+                                      record.designImagePath!),
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: 150,
+                                  errorWidget: (_, __, ___) => const Icon(
+                                      Icons.broken_image),
+                                ),
+                              )
                             : const Center(child: Text('无设计图')),
                       ),
                     ],

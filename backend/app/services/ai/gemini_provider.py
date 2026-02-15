@@ -1,5 +1,8 @@
+import base64
 import json
 import logging
+import os
+from pathlib import Path
 from typing import Dict, Optional, List
 from google import genai
 from google.genai import types
@@ -15,7 +18,33 @@ class GeminiProvider(AIProvider):
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
         self.vision_model = "gemini-2.0-flash"
-        self.imagen_model = "imagen-3.0-generate-002"
+        self.image_gen_model = "gemini-2.0-flash-exp-image-generation"
+
+    @staticmethod
+    def _extract_json(text: str) -> dict:
+        """从可能包含 markdown 代码块的文本中提取 JSON"""
+        import re
+        # 剥离 ```json ... ``` 包裹
+        match = re.search(r'```(?:json)?\s*\n?(.*?)\n?\s*```', text, re.DOTALL)
+        if match:
+            text = match.group(1)
+        return json.loads(text.strip())
+
+    def _load_image_part(self, image_path: str) -> types.Part:
+        """将本地图片路径转为 Gemini Part（读取字节）"""
+        # image_path 可能是 /uploads/designs/xxx.png 格式
+        if image_path.startswith("/uploads/"):
+            local_path = os.path.join(settings.UPLOAD_DIR, image_path[len("/uploads/"):])
+        else:
+            local_path = image_path
+
+        ext = Path(local_path).suffix.lower()
+        mime_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
+        mime_type = mime_map.get(ext, "image/png")
+
+        with open(local_path, "rb") as f:
+            data = f.read()
+        return types.Part.from_bytes(data=data, mime_type=mime_type)
 
     async def generate_design(
         self,
@@ -23,7 +52,7 @@ class GeminiProvider(AIProvider):
         reference_images: Optional[List[str]] = None,
         design_target: str = "10nails"
     ) -> str:
-        """使用 Imagen 3 生成美甲设计图"""
+        """使用 Gemini 生成美甲设计图"""
 
         enhanced_prompt = self._build_generation_prompt(prompt, design_target)
 
@@ -31,39 +60,62 @@ class GeminiProvider(AIProvider):
         logger.debug(f"提示词: {enhanced_prompt}")
 
         try:
-            response = await self.client.aio.models.generate_images(
-                model=self.imagen_model,
-                prompt=enhanced_prompt,
-                config=types.GenerateImagesConfig(
-                    number_of_images=1,
+            # 构建内容：文本提示 + 可选的参考图
+            contents: list = [enhanced_prompt]
+            if reference_images:
+                for img_path in reference_images:
+                    try:
+                        contents.append(self._load_image_part(img_path))
+                    except Exception as e:
+                        logger.warning(f"加载参考图失败 {img_path}: {e}")
+
+            response = await self.client.aio.models.generate_content(
+                model=self.image_gen_model,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    response_modalities=["TEXT", "IMAGE"],
                 )
             )
 
-            # Imagen 3 返回 base64 图片数据，需要保存到文件
-            image = response.generated_images[0]
-            import base64
-            import os
+            # 从响应中提取生成的图片
             import uuid
+            for part in response.candidates[0].content.parts:
+                if part.inline_data and part.inline_data.mime_type.startswith("image/"):
+                    raw_data = part.inline_data.data
 
-            filename = f"design_{uuid.uuid4().hex[:12]}.png"
-            filepath = os.path.join(settings.UPLOAD_DIR, "designs", filename)
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                    # Gemini 可能返回 base64 编码的字符串而非原始二进制
+                    if isinstance(raw_data, (str, bytes)) and not (isinstance(raw_data, bytes) and raw_data[:4] == b'\x89PNG'):
+                        try:
+                            if isinstance(raw_data, bytes):
+                                raw_data = raw_data.decode("ascii")
+                            image_bytes = base64.b64decode(raw_data)
+                        except Exception:
+                            image_bytes = raw_data if isinstance(raw_data, bytes) else raw_data.encode()
+                    else:
+                        image_bytes = raw_data
 
-            with open(filepath, "wb") as f:
-                f.write(image.image.image_bytes)
+                    filename = f"design_{uuid.uuid4().hex[:12]}.png"
+                    filepath = os.path.join(settings.UPLOAD_DIR, "designs", filename)
+                    os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-            image_url = f"/uploads/designs/{filename}"
-            logger.info(f"设计生成成功: {image_url}")
-            return image_url
+                    with open(filepath, "wb") as f:
+                        f.write(image_bytes)
+
+                    image_url = f"/uploads/designs/{filename}"
+                    logger.info(f"设计生成成功: {image_url}")
+                    return image_url
+
+            raise RuntimeError("Gemini 未返回图片数据")
 
         except Exception as e:
-            logger.error(f"Imagen 3 生成失败: {e}")
+            logger.error(f"Gemini 图片生成失败: {e}")
             raise
 
     async def refine_design(
         self,
         original_image: str,
-        refinement_instruction: str
+        refinement_instruction: str,
+        design_target: str = "10nails"
     ) -> str:
         """使用 Gemini Vision 分析原图，然后用 Imagen 3 重新生成"""
 
@@ -79,7 +131,7 @@ class GeminiProvider(AIProvider):
             # 1. 使用 Gemini Vision 分析原图并生成新提示词
             contents = [
                 types.Part.from_text(text=analysis_prompt),
-                types.Part.from_uri(file_uri=original_image, mime_type="image/png"),
+                self._load_image_part(original_image),
             ]
 
             response = await self.client.aio.models.generate_content(
@@ -93,8 +145,8 @@ class GeminiProvider(AIProvider):
             new_prompt = response.text
             logger.info("优化提示词生成成功")
 
-            # 2. 使用新提示词生成设计图
-            return await self.generate_design(new_prompt)
+            # 2. 使用新提示词生成设计图（保持原始 design_target）
+            return await self.generate_design(new_prompt, design_target=design_target)
 
         except Exception as e:
             logger.error(f"设计优化失败: {e}")
@@ -123,7 +175,7 @@ class GeminiProvider(AIProvider):
         try:
             contents = [
                 types.Part.from_text(text=prompt),
-                types.Part.from_uri(file_uri=design_image, mime_type="image/png"),
+                self._load_image_part(design_image),
             ]
 
             response = await self.client.aio.models.generate_content(
@@ -135,7 +187,7 @@ class GeminiProvider(AIProvider):
                 )
             )
 
-            result = json.loads(response.text)
+            result = self._extract_json(response.text)
             logger.info(f"执行估算完成: {result['difficulty_level']}, {result['estimated_duration']}分钟")
             return result
 
@@ -167,8 +219,8 @@ class GeminiProvider(AIProvider):
         try:
             contents = [
                 types.Part.from_text(text=user_prompt),
-                types.Part.from_uri(file_uri=design_image, mime_type="image/png"),
-                types.Part.from_uri(file_uri=actual_image, mime_type="image/png"),
+                self._load_image_part(design_image),
+                self._load_image_part(actual_image),
             ]
 
             response = await self.client.aio.models.generate_content(
@@ -181,7 +233,7 @@ class GeminiProvider(AIProvider):
                 )
             )
 
-            result = json.loads(response.text)
+            result = self._extract_json(response.text)
             logger.info(f"AI 综合分析完成，相似度: {result['similarity_score']}")
             return result
 

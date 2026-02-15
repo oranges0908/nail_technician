@@ -60,6 +60,12 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => isEdit
+              ? context.go('/customers/${widget.customerId}')
+              : context.go(Constants.customersRoute),
+        ),
         title: Text(isEdit ? '编辑客户' : '添加客户'),
       ),
       body: Consumer<CustomerProvider>(
@@ -111,6 +117,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                     decoration: const InputDecoration(
                       labelText: '姓名 *',
                       hintText: '请输入客户姓名',
+                      helperText: '必填，最多100个字符',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -131,6 +138,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                     decoration: const InputDecoration(
                       labelText: '手机号 *',
                       hintText: '请输入手机号',
+                      helperText: '必填，11位国内手机号',
                       prefixIcon: Icon(Icons.phone_outlined),
                     ),
                     keyboardType: TextInputType.phone,
@@ -152,6 +160,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                     decoration: const InputDecoration(
                       labelText: '邮箱',
                       hintText: '请输入邮箱（选填）',
+                      helperText: '选填，如填写需为有效邮箱格式',
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -176,6 +185,8 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                       alignLabelWithHint: true,
                     ),
                     maxLines: 3,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                   const SizedBox(height: 32),
 

@@ -130,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: const InputDecoration(
                       labelText: '邮箱或用户名',
                       hintText: '请输入邮箱或用户名',
+                      helperText: '必填',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -150,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       labelText: '密码',
                       hintText: '请输入密码',
+                      helperText: '至少6位字符',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(

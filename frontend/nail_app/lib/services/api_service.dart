@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import '../config/app_config.dart';
@@ -8,6 +10,7 @@ import '../config/app_config.dart';
 class ApiService {
   late Dio _dio;
   static final ApiService _instance = ApiService._internal();
+  bool _isRefreshing = false;
 
   factory ApiService() {
     return _instance;
@@ -78,27 +81,36 @@ class ApiService {
     DioError error,
     ErrorInterceptorHandler handler,
   ) async {
-    // 处理 401 未授权错误
-    if (error.response?.statusCode == 401) {
-      // 尝试刷新 token
-      final refreshed = await _refreshToken();
-      if (refreshed) {
-        // Token 刷新成功，重试原请求
-        final options = error.requestOptions;
-        final prefs = await SharedPreferences.getInstance();
-        final newToken = prefs.getString(AppConfig.accessTokenKey);
-        options.headers['Authorization'] = 'Bearer $newToken';
+    // 处理 401 未授权错误（避免递归刷新）
+    if (error.response?.statusCode == 401 && !_isRefreshing) {
+      _isRefreshing = true;
+      try {
+        final refreshed = await _refreshToken();
+        if (refreshed) {
+          // FormData 的 stream 已被消耗，无法在拦截器内重试
+          // 文件上传的重试由 upload() 方法处理
+          if (error.requestOptions.data is FormData) {
+            return handler.next(error);
+          }
 
-        try {
-          final response = await _dio.fetch(options);
-          return handler.resolve(response);
-        } catch (e) {
-          // 重试失败，继续抛出错误
+          // Token 刷新成功，重试原请求
+          final options = error.requestOptions;
+          final prefs = await SharedPreferences.getInstance();
+          final newToken = prefs.getString(AppConfig.accessTokenKey);
+          options.headers['Authorization'] = 'Bearer $newToken';
+
+          try {
+            final response = await _dio.fetch(options);
+            return handler.resolve(response);
+          } catch (e) {
+            // 重试失败，继续抛出错误
+          }
+        } else {
+          // Token 刷新失败，清除本地数据
+          await _clearAuthData();
         }
-      } else {
-        // Token 刷新失败，清除本地数据并跳转到登录页
-        await _clearAuthData();
-        // TODO: 导航到登录页
+      } finally {
+        _isRefreshing = false;
       }
     }
 
@@ -106,7 +118,7 @@ class ApiService {
     return handler.next(error);
   }
 
-  /// 刷新 Token
+  /// 刷新 Token（使用独立 Dio 实例避免拦截器递归）
   Future<bool> _refreshToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -116,7 +128,18 @@ class ApiService {
         return false;
       }
 
-      final response = await _dio.post(
+      // 使用独立的 Dio 实例，避免触发拦截器导致递归
+      final refreshDio = Dio(BaseOptions(
+        baseUrl: ApiConfig.baseUrl,
+        connectTimeout: ApiConfig.connectTimeout.inMilliseconds,
+        receiveTimeout: ApiConfig.receiveTimeout.inMilliseconds,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ));
+
+      final response = await refreshDio.post(
         ApiConfig.refreshTokenEndpoint,
         data: {'refresh_token': refreshToken},
       );
@@ -213,6 +236,7 @@ class ApiService {
   }
 
   /// 文件上传
+  /// 如果 token 过期会自动刷新并重试
   Future<Response> upload(
     String path,
     String filePath, {
@@ -220,16 +244,97 @@ class ApiService {
     Map<String, dynamic>? data,
     ProgressCallback? onSendProgress,
   }) async {
-    final formData = FormData.fromMap({
-      fileKey: await MultipartFile.fromFile(filePath),
-      if (data != null) ...data,
-    });
+    Future<FormData> buildFormData() async {
+      return FormData.fromMap({
+        fileKey: await MultipartFile.fromFile(filePath),
+        if (data != null) ...data,
+      });
+    }
 
-    return await _dio.post(
-      path,
-      data: formData,
-      onSendProgress: onSendProgress,
-    );
+    try {
+      final formData = await buildFormData();
+      return await _dio.post(
+        path,
+        data: formData,
+        onSendProgress: onSendProgress,
+      );
+    } on DioError catch (e) {
+      // 文件上传遇到 401 时，需要重新构建 FormData（stream 已被消耗）
+      if (e.response?.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString(AppConfig.accessTokenKey);
+        if (token != null && token.isNotEmpty) {
+          // token 已被拦截器刷新，用新 FormData 重试
+          final newFormData = await buildFormData();
+          return await _dio.post(
+            path,
+            data: newFormData,
+            onSendProgress: onSendProgress,
+          );
+        }
+      }
+      rethrow;
+    }
+  }
+
+  /// 文件上传（基于字节数据，兼容 Web 平台）
+  Future<Response> uploadBytes(
+    String path,
+    Uint8List bytes,
+    String filename, {
+    String fileKey = 'file',
+    Map<String, dynamic>? data,
+    ProgressCallback? onSendProgress,
+  }) async {
+    Future<FormData> buildFormData() async {
+      return FormData.fromMap({
+        fileKey: MultipartFile.fromBytes(
+          bytes,
+          filename: filename,
+          contentType: _getMediaType(filename),
+        ),
+        if (data != null) ...data,
+      });
+    }
+
+    try {
+      final formData = await buildFormData();
+      return await _dio.post(
+        path,
+        data: formData,
+        onSendProgress: onSendProgress,
+      );
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 401) {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString(AppConfig.accessTokenKey);
+        if (token != null && token.isNotEmpty) {
+          final newFormData = await buildFormData();
+          return await _dio.post(
+            path,
+            data: newFormData,
+            onSendProgress: onSendProgress,
+          );
+        }
+      }
+      rethrow;
+    }
+  }
+
+  /// 根据文件名获取 MIME 类型
+  static MediaType _getMediaType(String filename) {
+    final ext = filename.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'webp':
+        return MediaType('image', 'webp');
+      default:
+        return MediaType('image', 'jpeg');
+    }
   }
 
   /// 文件下载

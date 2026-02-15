@@ -51,5 +51,12 @@ class ServiceRecord(Base):
         cascade="all, delete-orphan"
     )
 
+    @property
+    def design_image_path(self):
+        """从关联的设计方案获取设计图路径"""
+        if self.design_plan and self.design_plan.generated_image_path:
+            return self.design_plan.generated_image_path
+        return None
+
     def __repr__(self):
         return f"<ServiceRecord(id={self.id}, customer_id={self.customer_id}, date={self.service_date}, status={self.status})>"

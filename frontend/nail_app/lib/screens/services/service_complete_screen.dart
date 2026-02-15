@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +28,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
   final _imagePicker = ImagePicker();
   final _uploadService = UploadService();
 
-  File? _actualImage;
+  XFile? _actualImage;
+  Uint8List? _actualImageBytes;
   int _satisfaction = 5;
   bool _isSubmitting = false;
   double _uploadProgress = 0;
@@ -50,8 +51,10 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
       imageQuality: 85,
     );
     if (picked != null) {
+      final bytes = await picked.readAsBytes();
       setState(() {
-        _actualImage = File(picked.path);
+        _actualImage = picked;
+        _actualImageBytes = bytes;
       });
     }
   }
@@ -72,8 +75,9 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
 
     try {
       // 1. 上传实际图
-      final uploadResult = await _uploadService.uploadImage(
-        _actualImage!.path,
+      final uploadResult = await _uploadService.uploadImageBytes(
+        _actualImageBytes!,
+        _actualImage!.name,
         'actuals',
         onProgress: (sent, total) {
           setState(() {
@@ -137,6 +141,10 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/services/${widget.serviceId}'),
+        ),
         title: const Text('完成服务'),
       ),
       body: SingleChildScrollView(
@@ -167,11 +175,11 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                       width: 2,
                     ),
                   ),
-                  child: _actualImage != null
+                  child: _actualImageBytes != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.file(
-                            _actualImage!,
+                          child: Image.memory(
+                            _actualImageBytes!,
                             fit: BoxFit.cover,
                             width: double.infinity,
                           ),
@@ -216,6 +224,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                 decoration: const InputDecoration(
                   labelText: '实际服务时长（分钟）*',
                   hintText: '输入实际服务时长',
+                  helperText: '必填，需为大于0的整数',
                   prefixIcon: Icon(Icons.timer),
                 ),
                 keyboardType: TextInputType.number,
@@ -242,6 +251,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 2,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 16),
 
@@ -255,6 +266,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 16),
 
@@ -268,6 +281,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 2,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 16),
 

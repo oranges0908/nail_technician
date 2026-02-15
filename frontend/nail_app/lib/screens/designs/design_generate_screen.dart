@@ -1,10 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../config/api_config.dart';
 import '../../config/theme_config.dart';
 import '../../config/app_config.dart';
+import '../../models/inspiration_image.dart';
 import '../../providers/design_provider.dart';
 import '../../providers/customer_provider.dart';
+import '../../providers/inspiration_provider.dart';
 import '../../utils/constants.dart';
 
 /// AI设计生成页
@@ -24,12 +28,14 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
   int? _selectedCustomerId;
   String _designTarget = '10nails';
   List<String> _styleKeywords = [];
+  List<InspirationImage> _selectedInspirations = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CustomerProvider>().loadCustomers();
+      context.read<InspirationProvider>().loadInspirations();
     });
   }
 
@@ -65,6 +71,9 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
       prompt: _promptController.text.trim(),
       designTarget: _designTarget,
       styleKeywords: _styleKeywords.isNotEmpty ? _styleKeywords : null,
+      referenceImages: _selectedInspirations.isNotEmpty
+          ? _selectedInspirations.map((i) => i.imagePath).toList()
+          : null,
       customerId: _selectedCustomerId,
       title: _titleController.text.trim().isNotEmpty
           ? _titleController.text.trim()
@@ -83,6 +92,10 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.designsRoute),
+        ),
         title: const Text('AI 设计生成'),
       ),
       body: Consumer<DesignProvider>(
@@ -133,10 +146,13 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                         decoration: const InputDecoration(
                           labelText: '设计描述 *',
                           hintText: '描述你想要的美甲设计，例如：\n春日粉色樱花主题，渐变底色配手绘樱花花瓣，点缀金色亮片',
+                          helperText: '必填，描述越详细生成效果越好',
                           prefixIcon: Icon(Icons.auto_awesome),
                           alignLabelWithHint: true,
                         ),
                         maxLines: 5,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return '请输入设计描述';
@@ -184,6 +200,108 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                                 _selectedCustomerId = value;
                               });
                             },
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 灵感参考图选择
+                      Consumer<InspirationProvider>(
+                        builder: (context, inspProvider, _) {
+                          final inspirations = inspProvider.inspirations;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.photo_library, size: 20, color: ThemeConfig.primaryColor),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    '参考灵感图',
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                  ),
+                                  const Spacer(),
+                                  if (_selectedInspirations.isNotEmpty)
+                                    Text(
+                                      '已选 ${_selectedInspirations.length} 张',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: ThemeConfig.primaryColor,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              if (inspirations.isEmpty)
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: ThemeConfig.dividerLight),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '暂无灵感图，可在灵感图库中上传',
+                                      style: TextStyle(color: ThemeConfig.textSecondaryLight, fontSize: 13),
+                                    ),
+                                  ),
+                                )
+                              else
+                                SizedBox(
+                                  height: 100,
+                                  child: ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: inspirations.length,
+                                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                    itemBuilder: (context, index) {
+                                      final insp = inspirations[index];
+                                      final selected = _selectedInspirations.any((s) => s.id == insp.id);
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (selected) {
+                                              _selectedInspirations.removeWhere((s) => s.id == insp.id);
+                                            } else {
+                                              _selectedInspirations.add(insp);
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          width: 100,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: selected ? ThemeConfig.primaryColor : ThemeConfig.dividerLight,
+                                              width: selected ? 2.5 : 1,
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(6),
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                CachedNetworkImage(
+                                                  imageUrl: ApiConfig.getStaticFileUrl(insp.imagePath),
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (_, __) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                  errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
+                                                ),
+                                                if (selected)
+                                                  Container(
+                                                    color: ThemeConfig.primaryColor.withOpacity(0.3),
+                                                    child: const Center(
+                                                      child: Icon(Icons.check_circle, color: Colors.white, size: 28),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
                           );
                         },
                       ),

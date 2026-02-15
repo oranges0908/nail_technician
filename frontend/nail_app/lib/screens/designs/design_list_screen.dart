@@ -53,6 +53,10 @@ class _DesignListScreenState extends State<DesignListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.homeRoute),
+        ),
         title: const Text('设计方案'),
       ),
       body: Column(

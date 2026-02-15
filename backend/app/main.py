@@ -179,13 +179,23 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.add_middleware(LoggingMiddleware)
 
 # CORS 中间件配置
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if settings.DEBUG:
+    # 开发模式：允许所有来源（Flutter Web 每次端口不同）
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # 挂载静态文件目录（用于提供上传的图片）
 uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")

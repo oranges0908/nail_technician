@@ -50,7 +50,8 @@ class OpenAIProvider(AIProvider):
     async def refine_design(
         self,
         original_image: str,
-        refinement_instruction: str
+        refinement_instruction: str,
+        design_target: str = "10nails"
     ) -> str:
         """使用 GPT-4 Vision 分析原图，然后用 DALL-E 3 重新生成"""
 
@@ -81,8 +82,8 @@ class OpenAIProvider(AIProvider):
             new_prompt = response.choices[0].message.content
             logger.info(f"优化提示词生成成功")
 
-            # 2. 使用新提示词生成设计图
-            return await self.generate_design(new_prompt)
+            # 2. 使用新提示词生成设计图（保持原始 design_target）
+            return await self.generate_design(new_prompt, design_target=design_target)
 
         except Exception as e:
             logger.error(f"设计优化失败: {e}")

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'config/theme_config.dart';
 import 'config/app_config.dart';
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.light,
 
         // 路由配置
+        routeInformationProvider: AppRouter.router.routeInformationProvider,
         routeInformationParser: AppRouter.router.routeInformationParser,
         routerDelegate: AppRouter.router.routerDelegate,
 
@@ -69,7 +71,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: !AppConfig.isProduction,
 
         // 本地化配置
-        localizationsDelegates: const [],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
         supportedLocales: const [
           Locale('zh', 'CN'),
           Locale('en', 'US'),

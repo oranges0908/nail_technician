@@ -29,10 +29,15 @@ class AppRouter {
 
   static void setAuthProvider(AuthProvider provider) {
     _authProvider = provider;
+    _router = _createRouter();
   }
 
-  static final GoRouter router = GoRouter(
+  static GoRouter get router => _router;
+  static late GoRouter _router;
+
+  static GoRouter _createRouter() => GoRouter(
     initialLocation: Constants.splashRoute,
+    refreshListenable: _authProvider,
     routes: [
       // 启动页
       GoRoute(

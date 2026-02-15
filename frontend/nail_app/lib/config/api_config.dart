@@ -75,6 +75,8 @@ class ApiConfig {
   static String getStaticFileUrl(String path) {
     // 去除 /api/v1 前缀用于静态文件访问
     final baseStaticUrl = baseUrl.replaceAll('/api/v1', '');
-    return '$baseStaticUrl/$path';
+    // 去除 path 开头的斜杠，避免双斜杠
+    final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return '$baseStaticUrl/$cleanPath';
   }
 }

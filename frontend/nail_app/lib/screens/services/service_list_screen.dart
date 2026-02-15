@@ -45,6 +45,10 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.homeRoute),
+        ),
         title: const Text('服务记录'),
       ),
       body: Column(

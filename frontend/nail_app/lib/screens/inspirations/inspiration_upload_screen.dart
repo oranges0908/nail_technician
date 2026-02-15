@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,7 +27,8 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
   final _uploadService = UploadService();
   final _inspirationService = InspirationService();
 
-  File? _selectedImage;
+  XFile? _selectedImage;
+  Uint8List? _selectedImageBytes;
   String? _selectedCategory;
   List<String> _tags = [];
   bool _isUploading = false;
@@ -51,8 +52,10 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
       imageQuality: 85,
     );
     if (picked != null) {
+      final bytes = await picked.readAsBytes();
       setState(() {
-        _selectedImage = File(picked.path);
+        _selectedImage = picked;
+        _selectedImageBytes = bytes;
       });
     }
   }
@@ -88,8 +91,9 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
 
     try {
       // 1. 上传图片
-      final uploadResult = await _uploadService.uploadImage(
-        _selectedImage!.path,
+      final uploadResult = await _uploadService.uploadImageBytes(
+        _selectedImageBytes!,
+        _selectedImage!.name,
         'inspirations',
         onProgress: (sent, total) {
           setState(() {
@@ -138,6 +142,10 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.inspirationsRoute),
+        ),
         title: const Text('上传灵感图'),
       ),
       body: SingleChildScrollView(
@@ -161,11 +169,11 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                       style: BorderStyle.solid,
                     ),
                   ),
-                  child: _selectedImage != null
+                  child: _selectedImageBytes != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.file(
-                            _selectedImage!,
+                          child: Image.memory(
+                            _selectedImageBytes!,
                             fit: BoxFit.cover,
                             width: double.infinity,
                           ),
@@ -227,6 +235,8 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 16),
 

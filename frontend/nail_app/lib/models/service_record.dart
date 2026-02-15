@@ -25,6 +25,9 @@ class ServiceRecord {
   @JsonKey(name: 'actual_image_path')
   final String? actualImagePath;
 
+  @JsonKey(name: 'design_image_path')
+  final String? designImagePath;
+
   @JsonKey(name: 'materials_used')
   final String? materialsUsed;
 
@@ -57,6 +60,7 @@ class ServiceRecord {
     required this.serviceDate,
     this.serviceDuration,
     this.actualImagePath,
+    this.designImagePath,
     this.materialsUsed,
     this.artistReview,
     this.customerFeedback,

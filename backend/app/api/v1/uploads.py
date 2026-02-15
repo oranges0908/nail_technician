@@ -88,8 +88,8 @@ def validate_file(file: UploadFile) -> None:
             detail=f"不支持的文件格式 {file_ext}，仅支持: {', '.join(ALLOWED_EXTENSIONS)}"
         )
 
-    # 检查 Content-Type
-    if file.content_type not in ALLOWED_CONTENT_TYPES:
+    # 检查 Content-Type（允许 application/octet-stream，Web 上传常见）
+    if file.content_type not in ALLOWED_CONTENT_TYPES and file.content_type != "application/octet-stream":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"不支持的文件类型 {file.content_type}"

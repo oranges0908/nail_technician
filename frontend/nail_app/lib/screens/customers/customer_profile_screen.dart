@@ -90,6 +90,10 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/customers/${widget.customerId}'),
+        ),
         title: const Text('客户档案'),
       ),
       body: Consumer<CustomerProvider>(
@@ -133,6 +137,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                       hintText: '如：指甲质地良好，无明显问题',
                     ),
                     maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                   const SizedBox(height: 24),
 
@@ -191,6 +197,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                       hintText: '如：喜欢珍珠、碎钻装饰',
                     ),
                     maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                   const SizedBox(height: 24),
 
@@ -204,6 +212,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                       hintText: '如：对某些胶水过敏',
                     ),
                     maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -213,6 +223,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                       hintText: '如：不接受过长指甲',
                     ),
                     maxLines: 2,
+                    keyboardType: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                   const SizedBox(height: 24),
 

@@ -95,6 +95,10 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.servicesRoute),
+        ),
         title: const Text('创建服务记录'),
       ),
       body: SingleChildScrollView(
@@ -112,6 +116,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                     decoration: const InputDecoration(
                       labelText: '客户 *',
                       hintText: '选择客户',
+                      helperText: '必填，请选择服务客户',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     items: customerProvider.customers
@@ -190,6 +195,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                 decoration: const InputDecoration(
                   labelText: '预估时长（分钟）',
                   hintText: '输入预估服务时长（选填）',
+                  helperText: '选填，需为大于0的整数',
                   prefixIcon: Icon(Icons.timer_outlined),
                 ),
                 keyboardType: TextInputType.number,
@@ -215,6 +221,8 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
               ),
               const SizedBox(height: 32),
 

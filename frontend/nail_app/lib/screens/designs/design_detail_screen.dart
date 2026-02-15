@@ -36,6 +36,10 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Constants.designsRoute),
+        ),
         title: const Text('设计详情'),
         actions: [
           PopupMenuButton<String>(
@@ -370,15 +374,21 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         title: const Text('优化设计'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: '描述你想要的修改，例如：\n增加更多亮片，让渐变更自然',
-            alignLabelWithHint: true,
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: '描述你想要的修改，例如：\n增加更多亮片，让渐变更自然',
+              alignLabelWithHint: true,
+            ),
+            maxLines: 4,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            autofocus: true,
           ),
-          maxLines: 4,
-          autofocus: true,
         ),
         actions: [
           TextButton(

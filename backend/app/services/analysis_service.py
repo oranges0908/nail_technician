@@ -45,9 +45,10 @@ class AnalysisService:
         if not design_plan or not design_plan.generated_image_path:
             raise ValueError("设计方案缺少生成图片")
 
-        # 构建图片 URL（假设通过静态文件服务）
-        design_image_url = f"http://localhost:8000/uploads/designs/{design_plan.generated_image_path}"
-        actual_image_url = f"http://localhost:8000/uploads/actuals/{service.actual_image_path}"
+        # 直接使用存储的路径（如 /uploads/designs/xxx.png）
+        # AI Provider 的 _load_image_part 会处理路径转换
+        design_image_url = design_plan.generated_image_path
+        actual_image_url = service.actual_image_path
 
         # 3. 调用 AI Provider 进行综合分析
         ai_provider = AIProviderFactory.get_provider()

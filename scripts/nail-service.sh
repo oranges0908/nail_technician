@@ -13,7 +13,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKEND_DIR="$PROJECT_DIR/backend"
-VENV_DIR="$BACKEND_DIR/venv"
 PID_FILE="$BACKEND_DIR/.pid"
 LOG_DIR="$BACKEND_DIR/logs"
 LOG_FILE="$LOG_DIR/app.log"
@@ -37,13 +36,13 @@ error() { echo -e "${RED}[ERROR]${NC} $*"; }
 # 辅助函数
 # ============================================
 
-check_venv() {
-    if [ ! -d "$VENV_DIR" ]; then
-        error "虚拟环境不存在: $VENV_DIR"
-        info "请先创建虚拟环境:"
-        info "  cd $BACKEND_DIR && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+check_conda() {
+    if [ -z "${CONDA_DEFAULT_ENV:-}" ]; then
+        error "未检测到 conda 环境，请先激活 conda 环境:"
+        info "  conda activate <env_name>"
         exit 1
     fi
+    info "使用 conda 环境: $CONDA_DEFAULT_ENV"
 }
 
 check_env_file() {
@@ -84,7 +83,7 @@ do_start() {
         return 0
     fi
 
-    check_venv
+    check_conda
     check_env_file
 
     mkdir -p "$LOG_DIR"
@@ -95,13 +94,12 @@ do_start() {
     info "  日志: $LOG_FILE"
 
     cd "$BACKEND_DIR"
-    # shellcheck disable=SC1091
-    source "$VENV_DIR/bin/activate"
 
     nohup uvicorn app.main:app \
         --host "$HOST" \
         --port "$PORT" \
-        >> "$LOG_FILE" 2>&1 &
+        >> "$LOG_FILE" 2>&1 < /dev/null &
+    disown
 
     local pid=$!
     echo "$pid" > "$PID_FILE"
@@ -188,11 +186,11 @@ do_status() {
         error ".env 配置文件: 缺失"
     fi
 
-    # 虚拟环境
-    if [ -d "$VENV_DIR" ]; then
-        ok "Python 虚拟环境: 存在"
+    # Conda 环境
+    if [ -n "${CONDA_DEFAULT_ENV:-}" ]; then
+        ok "Conda 环境: $CONDA_DEFAULT_ENV ($CONDA_PREFIX)"
     else
-        error "Python 虚拟环境: 缺失"
+        warn "Conda 环境: 未激活"
     fi
 
     # 上传目录
@@ -229,13 +227,11 @@ do_logs() {
 }
 
 do_init_db() {
-    check_venv
+    check_conda
     check_env_file
 
     info "初始化数据库..."
     cd "$BACKEND_DIR"
-    # shellcheck disable=SC1091
-    source "$VENV_DIR/bin/activate"
 
     alembic upgrade head
 
@@ -245,12 +241,10 @@ do_init_db() {
 }
 
 do_test() {
-    check_venv
+    check_conda
 
     info "运行后端测试..."
     cd "$BACKEND_DIR"
-    # shellcheck disable=SC1091
-    source "$VENV_DIR/bin/activate"
 
     pytest "${@:2}"
 

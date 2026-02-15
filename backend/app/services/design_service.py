@@ -152,7 +152,8 @@ class DesignService:
             logger.info(f"调用AI优化设计 ID {design_id}，指令: {refine_request.refinement_instruction}")
             refined_image_url = await ai_provider.refine_design(
                 original_image=original_design.generated_image_path,
-                refinement_instruction=refine_request.refinement_instruction
+                refinement_instruction=refine_request.refinement_instruction,
+                design_target=original_design.design_target or "10nails"
             )
             logger.info(f"AI优化成功，图片URL: {refined_image_url}")
 

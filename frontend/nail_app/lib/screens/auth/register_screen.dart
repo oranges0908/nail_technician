@@ -130,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: const InputDecoration(
                       labelText: '邮箱',
                       hintText: '请输入邮箱地址',
+                      helperText: '必填，需为有效邮箱格式',
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (value) {
@@ -151,6 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: const InputDecoration(
                       labelText: '用户名',
                       hintText: '3-20位字母、数字或下划线',
+                      helperText: '必填，3-20位字母、数字或下划线',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -173,6 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: InputDecoration(
                       labelText: '密码',
                       hintText: '至少6位',
+                      helperText: '必填，至少6位字符',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -208,6 +211,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: InputDecoration(
                       labelText: '确认密码',
                       hintText: '再次输入密码',
+                      helperText: '必填，需与密码一致',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(

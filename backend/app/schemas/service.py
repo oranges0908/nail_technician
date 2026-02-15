@@ -74,6 +74,7 @@ class ServiceRecordResponse(ServiceRecordBase):
     id: int
     user_id: int
     actual_image_path: Optional[str] = None
+    design_image_path: Optional[str] = None
     status: str
     created_at: datetime
     completed_at: Optional[datetime] = None
