@@ -18,7 +18,7 @@ LOG_DIR="$BACKEND_DIR/logs"
 LOG_FILE="$LOG_DIR/app.log"
 
 HOST="${NAIL_HOST:-0.0.0.0}"
-PORT="${NAIL_PORT:-8000}"
+PORT="${NAIL_PORT:-8002}"
 
 # 颜色输出
 RED='\033[0;31m'
@@ -37,11 +37,53 @@ error() { echo -e "${RED}[ERROR]${NC} $*"; }
 # ============================================
 
 check_conda() {
-    if [ -z "${CONDA_DEFAULT_ENV:-}" ]; then
-        error "未检测到 conda 环境，请先激活 conda 环境:"
-        info "  conda activate <env_name>"
+    # 1. 检查 conda 是否已安装
+    if ! command -v conda >/dev/null 2>&1; then
+        error "未检测到 conda，请先安装 conda："
+        info ""
+        info "  推荐安装 Miniconda（轻量版）："
+        info "    macOS:  brew install miniconda"
+        info "    Linux:  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && bash miniconda.sh"
+        info ""
+        info "  或安装 Anaconda（完整版）："
+        info "    https://www.anaconda.com/download"
+        info ""
+        info "  安装完成后请重新打开终端，然后运行："
+        info "    conda create -n nail python=3.11"
+        info "    conda activate nail"
         exit 1
     fi
+
+    # 2. 检查是否已激活 conda 环境
+    if [ -z "${CONDA_DEFAULT_ENV:-}" ] || [ "${CONDA_DEFAULT_ENV:-}" = "base" ]; then
+        warn "未激活项目 conda 环境（当前: ${CONDA_DEFAULT_ENV:-无}）"
+
+        # 列出可用环境，查找是否有 nail 环境
+        local nail_env=""
+        if conda env list 2>/dev/null | grep -q "^nail "; then
+            nail_env="nail"
+        fi
+
+        if [ -n "$nail_env" ]; then
+            info "检测到 nail 环境，正在自动激活..."
+            # 初始化 conda shell 函数（脚本中 conda activate 需要先 source）
+            eval "$(conda shell.bash hook)"
+            conda activate nail
+            ok "已自动激活 conda 环境: nail"
+        else
+            warn "未找到 nail 环境，可用的 conda 环境："
+            conda env list 2>/dev/null | grep -v "^#" | grep -v "^$" | while read -r line; do
+                info "    $line"
+            done
+            info ""
+            info "  建议创建专用环境："
+            info "    conda create -n nail python=3.11"
+            info "    conda activate nail"
+            info "    pip install -r $BACKEND_DIR/requirements.txt"
+            exit 1
+        fi
+    fi
+
     info "使用 conda 环境: $CONDA_DEFAULT_ENV"
 }
 
@@ -297,7 +339,7 @@ Docker 命令:
 
 环境变量:
   NAIL_HOST      监听地址 (默认: 0.0.0.0)
-  NAIL_PORT      监听端口 (默认: 8000)
+  NAIL_PORT      监听端口 (默认: 8002)
 
 示例:
   ./scripts/nail-service.sh start              # 启动服务
