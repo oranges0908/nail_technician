@@ -65,9 +65,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.light,
 
         // 路由配置
-        routeInformationProvider: AppRouter.router.routeInformationProvider,
-        routeInformationParser: AppRouter.router.routeInformationParser,
-        routerDelegate: AppRouter.router.routerDelegate,
+        routerConfig: AppRouter.router,
 
         // 调试横幅（生产环境关闭）
         debugShowCheckedModeBanner: !AppConfig.isProduction,
@@ -88,7 +86,7 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MediaQuery(
             // 禁用系统字体缩放
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
             child: child!,
           );
         },

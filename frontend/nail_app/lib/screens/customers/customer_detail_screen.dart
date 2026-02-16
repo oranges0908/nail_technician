@@ -382,7 +382,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(primary: ThemeConfig.errorColor),
+            style: TextButton.styleFrom(foregroundColor: ThemeConfig.errorColor),
             child: const Text(Constants.deleteButton),
           ),
         ],

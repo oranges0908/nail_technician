@@ -344,7 +344,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                               icon: const Icon(Icons.delete_outline),
                               label: const Text('删除'),
                               style: OutlinedButton.styleFrom(
-                                primary: ThemeConfig.errorColor,
+                                foregroundColor: ThemeConfig.errorColor,
                               ),
                             ),
                           ),
@@ -384,7 +384,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                 );
               }
             },
-            style: TextButton.styleFrom(primary: ThemeConfig.errorColor),
+            style: TextButton.styleFrom(foregroundColor: ThemeConfig.errorColor),
             child: const Text(Constants.deleteButton),
           ),
         ],

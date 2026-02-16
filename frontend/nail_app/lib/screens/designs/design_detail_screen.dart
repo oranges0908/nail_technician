@@ -467,7 +467,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                 context.go(Constants.designsRoute);
               }
             },
-            style: TextButton.styleFrom(primary: ThemeConfig.errorColor),
+            style: TextButton.styleFrom(foregroundColor: ThemeConfig.errorColor),
             child: const Text(Constants.deleteButton),
           ),
         ],

@@ -502,7 +502,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 context.go(Constants.servicesRoute);
               }
             },
-            style: TextButton.styleFrom(primary: ThemeConfig.errorColor),
+            style: TextButton.styleFrom(foregroundColor: ThemeConfig.errorColor),
             child: const Text(Constants.deleteButton),
           ),
         ],

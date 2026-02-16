@@ -82,7 +82,7 @@ class AppRouter {
         path: '/customers/:id',
         name: 'customer-detail',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return CustomerDetailScreen(customerId: id);
         },
       ),
@@ -90,7 +90,7 @@ class AppRouter {
         path: '/customers/:id/edit',
         name: 'customer-edit',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return CustomerFormScreen(customerId: id);
         },
       ),
@@ -98,7 +98,7 @@ class AppRouter {
         path: '/customers/:id/profile',
         name: 'customer-profile',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return CustomerProfileScreen(customerId: id);
         },
       ),
@@ -130,7 +130,7 @@ class AppRouter {
         path: '/designs/:id',
         name: 'design-detail',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return DesignDetailScreen(designId: id);
         },
       ),
@@ -150,7 +150,7 @@ class AppRouter {
         path: '/services/:id',
         name: 'service-detail',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return ServiceDetailScreen(serviceId: id);
         },
       ),
@@ -158,7 +158,7 @@ class AppRouter {
         path: '/services/:id/complete',
         name: 'service-complete',
         builder: (context, state) {
-          final id = int.parse(state.params['id']!);
+          final id = int.parse(state.pathParameters['id']!);
           return ServiceCompleteScreen(serviceId: id);
         },
       ),
@@ -173,29 +173,29 @@ class AppRouter {
         path: '/abilities/trend/:dimensionName',
         name: 'ability-trend',
         builder: (context, state) {
-          final dimensionName = state.params['dimensionName']!;
+          final dimensionName = state.pathParameters['dimensionName']!;
           return AbilityTrendScreen(dimensionName: dimensionName);
         },
       ),
     ],
 
-    // 路由守卫（go_router v4.x 签名）
-    redirect: (state) {
+    // 路由守卫
+    redirect: (context, state) {
       final authProvider = _authProvider;
       if (authProvider == null) return null;
 
       // 初始化未完成时，停留在 splash
       if (!authProvider.initialized) {
-        if (state.location != Constants.splashRoute) {
+        if (state.matchedLocation != Constants.splashRoute) {
           return Constants.splashRoute;
         }
         return null;
       }
 
       final isLoggedIn = authProvider.isLoggedIn;
-      final isAuthRoute = state.location == Constants.loginRoute ||
-          state.location == Constants.registerRoute;
-      final isSplash = state.location == Constants.splashRoute;
+      final isAuthRoute = state.matchedLocation == Constants.loginRoute ||
+          state.matchedLocation == Constants.registerRoute;
+      final isSplash = state.matchedLocation == Constants.splashRoute;
 
       // splash 页面初始化完成后，根据登录状态跳转
       if (isSplash) {

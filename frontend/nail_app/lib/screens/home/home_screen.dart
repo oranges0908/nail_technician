@@ -239,7 +239,7 @@ class HomeScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: TextButton.styleFrom(
-                  primary: ThemeConfig.errorColor,
+                  foregroundColor: ThemeConfig.errorColor,
                 ),
                 child: const Text(Constants.logoutButton),
               ),
