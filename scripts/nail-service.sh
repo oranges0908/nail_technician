@@ -316,6 +316,16 @@ do_docker_logs() {
     docker-compose logs -f "${@:2}"
 }
 
+# All-in-One Docker 命令 (委托给 nail-docker.sh)
+do_aio_build()   { "$SCRIPT_DIR/nail-docker.sh" build "${@:2}"; }
+do_aio_run()     { "$SCRIPT_DIR/nail-docker.sh" run; }
+do_aio_stop()    { "$SCRIPT_DIR/nail-docker.sh" stop; }
+do_aio_status()  { "$SCRIPT_DIR/nail-docker.sh" status; }
+do_aio_logs()    { "$SCRIPT_DIR/nail-docker.sh" logs "${@:2}"; }
+do_aio_shell()   { "$SCRIPT_DIR/nail-docker.sh" shell; }
+do_aio_backup()  { "$SCRIPT_DIR/nail-docker.sh" backup "$@"; }
+do_aio_restore() { "$SCRIPT_DIR/nail-docker.sh" restore "$@"; }
+
 do_web_build() {
     "$SCRIPT_DIR/nail-web.sh" build
 }
@@ -349,10 +359,20 @@ Web 前端命令:
   web-serve   启动本地静态服务器预览构建产物
   web-run     以开发模式在 Chrome 中运行
 
-Docker 命令:
+Docker Compose 命令:
   docker-start   启动 Docker 全栈服务 (PostgreSQL + Redis + Backend)
   docker-stop    停止 Docker 服务
   docker-logs    查看 Docker 服务日志
+
+All-in-One Docker 命令 (前端+后端+数据库一体化):
+  aio-build      构建 All-in-One 镜像
+  aio-run        运行 All-in-One 容器
+  aio-stop       停止 All-in-One 容器
+  aio-status     查看 All-in-One 状态
+  aio-logs       查看 All-in-One 日志
+  aio-shell      进入 All-in-One 容器
+  aio-backup     备份数据
+  aio-restore    恢复数据
 
 环境变量:
   NAIL_HOST      监听地址 (默认: 0.0.0.0)
@@ -367,6 +387,8 @@ Docker 命令:
   ./scripts/nail-service.sh web-build          # 构建 Web 前端
   ./scripts/nail-service.sh web-run            # 开发模式运行 Web
   NAIL_PORT=9000 ./scripts/nail-service.sh start  # 指定端口启动
+  ./scripts/nail-service.sh aio-build          # 构建 All-in-One Docker 镜像
+  ./scripts/nail-service.sh aio-run            # 启动 All-in-One 容器
 USAGE
 }
 
@@ -388,6 +410,14 @@ case "${1:-help}" in
     docker-start) do_docker_start ;;
     docker-stop)  do_docker_stop ;;
     docker-logs)  do_docker_logs "$@" ;;
+    aio-build)    do_aio_build "$@" ;;
+    aio-run)      do_aio_run ;;
+    aio-stop)     do_aio_stop ;;
+    aio-status)   do_aio_status ;;
+    aio-logs)     do_aio_logs "$@" ;;
+    aio-shell)    do_aio_shell ;;
+    aio-backup)   do_aio_backup "$@" ;;
+    aio-restore)  do_aio_restore "$@" ;;
     help|--help|-h) do_help ;;
     *)
         error "未知命令: $1"
