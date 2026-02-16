@@ -6,15 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Nail** is an AI-powered nail artist capability growth system. Nail artists use it to generate personalized designs (DALL-E 3), track service records, and analyze skill development via AI comparison of designs vs actual results (GPT-4 Vision).
 
-**Stack**: FastAPI backend + Flutter frontend + SQLAlchemy ORM + OpenAI API
+**Stack**: FastAPI backend + Flutter frontend + SQLAlchemy ORM + AI providers (OpenAI, Google Gemini)
 
 ## Common Commands
 
 ### Backend
 
 ```bash
-# Run dev server (from backend/)
-uvicorn app.main:app --reload
+# Run dev server (from backend/, default port is 8002)
+uvicorn app.main:app --reload --port 8002
 
 # Tests (from backend/)
 pytest                         # all tests
@@ -40,6 +40,11 @@ alembic downgrade -1
 flutter run
 flutter run -d <device_id>
 
+# Web development
+./scripts/nail-web.sh run               # Dev mode in Chrome
+./scripts/nail-web.sh build             # Production build
+./scripts/nail-web.sh serve             # Preview build on port 9000
+
 # Code generation (required after modifying @JsonSerializable models)
 flutter pub run build_runner build --delete-conflicting-outputs
 
@@ -48,11 +53,38 @@ flutter test
 flutter test test/models/user_test.dart
 ```
 
+### Scripts
+
+```bash
+# Local service management (auto-activates conda env 'nail')
+./scripts/nail-service.sh start         # Start backend on port 8002
+./scripts/nail-service.sh stop          # Stop backend
+./scripts/nail-service.sh init-db       # Run alembic migrations
+./scripts/nail-service.sh status        # Check service status
+
+# Flutter Web
+./scripts/nail-web.sh build             # Build Web release
+./scripts/nail-web.sh serve             # Serve static build (port 9000)
+./scripts/nail-web.sh run               # Dev mode in Chrome
+
+# All-in-One Docker (Frontend + Backend + nginx + SQLite)
+./scripts/nail-docker.sh build          # Build unified image
+./scripts/nail-docker.sh run            # Run container (port 80)
+./scripts/nail-docker.sh status         # Check status
+./scripts/nail-docker.sh backup         # Backup data
+./scripts/nail-docker.sh restore <file> # Restore from backup
+```
+
 ### Docker
 
 ```bash
-docker-compose up -d           # PostgreSQL + Redis + Backend
+# Development stack (PostgreSQL + Redis + Backend only)
+docker-compose up -d
 docker-compose logs -f backend
+
+# All-in-One production (Flutter Web + FastAPI + nginx + supervisor)
+./scripts/nail-docker.sh build && ./scripts/nail-docker.sh run
+# Access at http://localhost:80
 ```
 
 ## Architecture
@@ -78,7 +110,8 @@ All AI calls **must** go through the provider abstraction — never call OpenAI 
 
 - `app/services/ai/base.py` — `AIProvider` ABC with methods: `generate_design`, `refine_design`, `estimate_execution`, `compare_images`
 - `app/services/ai/openai_provider.py` — OpenAI implementation (DALL-E 3 + GPT-4 Vision)
-- `app/services/ai/factory.py` — `AIProviderFactory.get_provider()` returns provider based on `AI_PROVIDER` env var
+- `app/services/ai/gemini_provider.py` — Google Gemini implementation (Imagen 3 + Gemini 2.0 Flash)
+- `app/services/ai/factory.py` — `AIProviderFactory.get_provider()` returns provider based on `AI_PROVIDER` env var (`openai` or `gemini`)
 
 ### Frontend: Provider Pattern
 
@@ -116,7 +149,8 @@ Backend config via `backend/.env` (see `.env.example`). Key vars:
 
 - `DATABASE_URL` — defaults to `sqlite:///./nail.db`; use PostgreSQL for production
 - `OPENAI_API_KEY` — required for AI features
-- `AI_PROVIDER` — `openai` (default); extensible to other providers
+- `GEMINI_API_KEY` — required if using Gemini provider
+- `AI_PROVIDER` — `openai` (default) or `gemini`
 - `SECRET_KEY` — for JWT signing
 - `ALLOWED_ORIGINS` — CORS origins for Flutter app
 
