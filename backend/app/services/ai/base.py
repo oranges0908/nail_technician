@@ -10,7 +10,8 @@ class AIProvider(ABC):
         self,
         prompt: str,
         reference_images: Optional[List[str]] = None,
-        design_target: str = "10nails"
+        design_target: str = "10nails",
+        customer_context: Optional[str] = None
     ) -> str:
         """
         生成美甲设计图
@@ -19,6 +20,7 @@ class AIProvider(ABC):
             prompt: AI 生成提示词
             reference_images: 参考图片 URL 列表
             design_target: 设计目标（single/5nails/10nails）
+            customer_context: 客户甲型和偏好信息，用于约束AI生成保持一致性
 
         Returns:
             生成的设计图 URL
@@ -30,7 +32,9 @@ class AIProvider(ABC):
         self,
         original_image: str,
         refinement_instruction: str,
-        design_target: str = "10nails"
+        design_target: str = "10nails",
+        customer_context: Optional[str] = None,
+        original_prompt: Optional[str] = None
     ) -> str:
         """
         迭代优化设计图
@@ -39,6 +43,8 @@ class AIProvider(ABC):
             original_image: 原始设计图 URL
             refinement_instruction: 优化指令（自然语言）
             design_target: 设计目标（single/5nails/10nails），保持与原设计一致
+            customer_context: 客户甲型和偏好信息，用于约束AI生成保持一致性
+            original_prompt: 原始设计提示词，用于迭代优化时保持设计意图一致性
 
         Returns:
             优化后的设计图 URL

@@ -20,15 +20,16 @@ class OpenAIProvider(AIProvider):
         self,
         prompt: str,
         reference_images: Optional[List[str]] = None,
-        design_target: str = "10nails"
+        design_target: str = "10nails",
+        customer_context: Optional[str] = None
     ) -> str:
         """使用 DALL-E 3 生成美甲设计图"""
 
         # 构建增强的提示词
-        enhanced_prompt = self._build_generation_prompt(prompt, design_target)
+        enhanced_prompt = self._build_generation_prompt(prompt, design_target, customer_context)
 
         logger.info(f"生成美甲设计，目标: {design_target}")
-        logger.debug(f"提示词: {enhanced_prompt}")
+        logger.info(f"完整提示词: {enhanced_prompt[:200]}...")
 
         try:
             response = await self.client.images.generate(
@@ -51,18 +52,29 @@ class OpenAIProvider(AIProvider):
         self,
         original_image: str,
         refinement_instruction: str,
-        design_target: str = "10nails"
+        design_target: str = "10nails",
+        customer_context: Optional[str] = None,
+        original_prompt: Optional[str] = None
     ) -> str:
         """使用 GPT-4 Vision 分析原图，然后用 DALL-E 3 重新生成"""
 
         # 1. 使用 GPT-4 Vision 分析原图并生成新提示词
-        analysis_prompt = f"""
-        请分析这张美甲设计图，然后根据以下优化指令生成新的设计描述：
+        sections = []
+        if customer_context:
+            sections.append(f"【客户甲型信息 - 必须严格保持一致】\n{customer_context}")
+        if original_prompt:
+            sections.append(f"【原始设计提示词】\n{original_prompt}")
+        context_block = "\n\n".join(sections)
 
-        优化指令：{refinement_instruction}
+        analysis_prompt = f"""请分析这张美甲设计图，然后根据以下信息生成新的设计描述：
 
-        请返回详细的设计描述（英文），用于 DALL-E 3 生成新图片。
-        """
+{context_block}
+
+【本次优化指令】
+{refinement_instruction}
+
+请返回详细的设计描述（英文），用于 DALL-E 3 生成新图片。
+注意：必须保持指甲形状和长度与原图一致，只按优化指令调整设计风格和细节。"""
 
         try:
             response = await self.client.chat.completions.create(
@@ -82,8 +94,8 @@ class OpenAIProvider(AIProvider):
             new_prompt = response.choices[0].message.content
             logger.info(f"优化提示词生成成功")
 
-            # 2. 使用新提示词生成设计图（保持原始 design_target）
-            return await self.generate_design(new_prompt, design_target=design_target)
+            # 2. 使用新提示词生成设计图（保持原始 design_target + 客户甲型约束）
+            return await self.generate_design(new_prompt, design_target=design_target, customer_context=customer_context)
 
         except Exception as e:
             logger.error(f"设计优化失败: {e}")
@@ -183,8 +195,8 @@ class OpenAIProvider(AIProvider):
             logger.error(f"AI 对比分析失败: {e}")
             raise
 
-    def _build_generation_prompt(self, base_prompt: str, design_target: str) -> str:
-        """构建 DALL-E 3 生成提示词"""
+    def _build_generation_prompt(self, base_prompt: str, design_target: str, customer_context: Optional[str] = None) -> str:
+        """构建 DALL-E 3 生成提示词（结构化格式）"""
 
         target_descriptions = {
             "single": "a single nail art design, close-up view",
@@ -194,14 +206,12 @@ class OpenAIProvider(AIProvider):
 
         target_desc = target_descriptions.get(design_target, target_descriptions["10nails"])
 
-        enhanced_prompt = f"""
-        Professional nail art design, {target_desc}.
-        {base_prompt}
-
-        High quality, detailed, professional photography, well-lit, white background.
-        """
-
-        return enhanced_prompt.strip()
+        prompt = f"Professional nail art design, {target_desc}.\n\n"
+        prompt += f"【Design Intent】\n{base_prompt}\n\n"
+        if customer_context:
+            prompt += f"【Nail Profile - MUST maintain consistency】\n{customer_context}\n\n"
+        prompt += "High quality, detailed, professional photography, well-lit, white background."
+        return prompt
 
     def _build_comparison_prompt(
         self,

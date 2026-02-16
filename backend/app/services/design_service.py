@@ -24,6 +24,27 @@ class DesignService:
     """设计方案服务"""
 
     @staticmethod
+    def _build_customer_context(customer: "Customer") -> Optional[str]:
+        """从客户档案构建AI上下文"""
+        if not customer or not customer.profile:
+            return None
+        profile = customer.profile
+        parts = []
+        if profile.nail_shape:
+            parts.append(f"指甲形状: {profile.nail_shape}")
+        if profile.nail_length:
+            parts.append(f"指甲长度: {profile.nail_length}")
+        if profile.nail_condition:
+            parts.append(f"指甲状况: {profile.nail_condition}")
+        if profile.color_preferences:
+            parts.append(f"颜色偏好: {', '.join(profile.color_preferences)}")
+        if profile.style_preferences:
+            parts.append(f"风格偏好: {', '.join(profile.style_preferences)}")
+        if profile.prohibitions:
+            parts.append(f"禁忌: {profile.prohibitions}")
+        return "\n".join(parts) if parts else None
+
+    @staticmethod
     async def generate_design(
         db: Session,
         design_request: DesignGenerateRequest,
@@ -62,12 +83,25 @@ class DesignService:
             # 获取AI Provider
             ai_provider = AIProviderFactory.get_provider()
 
+            # 构建客户甲型上下文
+            customer_context = None
+            if design_request.customer_id:
+                customer = db.query(Customer).filter(
+                    and_(
+                        Customer.id == design_request.customer_id,
+                        Customer.user_id == user_id
+                    )
+                ).first()
+                if customer:
+                    customer_context = DesignService._build_customer_context(customer)
+
             # 调用AI生成设计图
             logger.info(f"调用AI生成设计，提示词: {design_request.prompt[:50]}...")
             generated_image_url = await ai_provider.generate_design(
                 prompt=design_request.prompt,
                 reference_images=design_request.reference_images,
-                design_target=design_request.design_target
+                design_target=design_request.design_target,
+                customer_context=customer_context
             )
             logger.info(f"AI生成成功，图片URL: {generated_image_url}")
 
@@ -148,12 +182,19 @@ class DesignService:
             # 获取AI Provider
             ai_provider = AIProviderFactory.get_provider()
 
+            # 构建客户甲型上下文信息（仅客户档案数据）
+            customer_context = None
+            if original_design.customer_id and original_design.customer:
+                customer_context = DesignService._build_customer_context(original_design.customer)
+
             # 调用AI优化设计
             logger.info(f"调用AI优化设计 ID {design_id}，指令: {refine_request.refinement_instruction}")
             refined_image_url = await ai_provider.refine_design(
                 original_image=original_design.generated_image_path,
                 refinement_instruction=refine_request.refinement_instruction,
-                design_target=original_design.design_target or "10nails"
+                design_target=original_design.design_target or "10nails",
+                customer_context=customer_context,
+                original_prompt=original_design.ai_prompt
             )
             logger.info(f"AI优化成功，图片URL: {refined_image_url}")
 
@@ -180,7 +221,7 @@ class DesignService:
                 estimated_duration=estimation.get("estimated_duration"),
                 estimated_materials=estimation.get("materials"),
                 difficulty_level=estimation.get("difficulty_level"),
-                title=original_design.title,
+                title=f"{original_design.title} v{original_design.version + 1}" if original_design.title else None,
                 notes=original_design.notes,
                 is_archived=0
             )
