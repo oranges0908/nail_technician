@@ -16,4 +16,4 @@ DATABASE_URL="sqlite:////app/backend/data/nail.db" alembic upgrade head
 APP_PORT="${PORT:-80}"
 echo "==> Starting uvicorn on 0.0.0.0:${APP_PORT}"
 
-exec uvicorn app.main:app --host 0.0.0.0 --port "${APP_PORT}"
+exec uvicorn app.main:app --host 0.0.0.0 --port "${APP_PORT}" --log-level debug
