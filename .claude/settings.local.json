@@ -24,7 +24,14 @@
       "Bash(wc:*)",
       "Bash(git restore:*)",
       "Bash(lsof:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(./scripts/nail-docker.sh:*)",
+      "Bash(docker build:*)",
+      "Bash(docker run:*)",
+      "Bash(grep:*)",
+      "Bash(python3:*)"
     ]
   }
 }

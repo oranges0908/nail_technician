@@ -50,6 +50,7 @@ frontend/nail_app/pubspec.lock
 *.swo
 *~
 .DS_Store
+.claude/
 
 # Logs
 *.log
