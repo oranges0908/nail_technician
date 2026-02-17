@@ -25,8 +25,8 @@ COPY backend/ .
 # Copy frontend build output to nginx
 COPY --from=flutter-build /app/frontend/nail_app/build/web /usr/share/nginx/html
 
-# Copy config files
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy config files (nginx.conf as template for envsubst at runtime)
+COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY supervisord.conf /app/supervisord.conf
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
@@ -39,6 +39,7 @@ ENV DATABASE_URL="sqlite:////app/backend/data/nail.db" \
     AI_PROVIDER="openai" \
     LOG_LEVEL="INFO"
 
-EXPOSE 80
+# Railway uses $PORT; local Docker defaults to 80
+EXPOSE ${PORT:-80}
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

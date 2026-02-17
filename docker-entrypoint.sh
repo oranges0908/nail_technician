@@ -8,6 +8,12 @@ mkdir -p /app/backend/uploads/inspirations
 mkdir -p /app/backend/uploads/designs
 mkdir -p /app/backend/uploads/actuals
 
+# Railway provides $PORT; default to 80 for local Docker
+export NGINX_PORT="${PORT:-80}"
+
+# Substitute env vars in nginx config template
+envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
 # Run database migrations
 cd /app/backend
 DATABASE_URL="sqlite:////app/backend/data/nail.db" alembic upgrade head
