@@ -10,9 +10,12 @@ mkdir -p /app/backend/uploads/actuals
 
 # Railway provides $PORT; default to 80 for local Docker
 export NGINX_PORT="${PORT:-80}"
+echo "==> Railway PORT=$PORT, NGINX_PORT=$NGINX_PORT"
 
 # Substitute env vars in nginx config template
 envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+echo "==> nginx listen config:"
+grep 'listen' /etc/nginx/nginx.conf
 
 # Run database migrations
 cd /app/backend
