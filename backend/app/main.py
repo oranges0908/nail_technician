@@ -199,9 +199,8 @@ else:
     )
 
 # 挂载静态文件目录（用于提供上传的图片）
-uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
-if os.path.exists(uploads_dir):
-    app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+if os.path.exists(settings.UPLOAD_DIR):
+    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # 注册 API 路由
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)

@@ -29,6 +29,7 @@ RUN mkdir -p /app/backend/data /app/backend/uploads
 
 # Default environment
 ENV DATABASE_URL="sqlite:////app/backend/data/nail.db" \
+    UPLOAD_DIR="/app/backend/data/uploads" \
     AI_PROVIDER="openai" \
     LOG_LEVEL="INFO"
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# Create data and upload directories
+# Create data and upload directories (all under /app/backend/data for single volume mount)
 mkdir -p /app/backend/data
-mkdir -p /app/backend/uploads/nails
-mkdir -p /app/backend/uploads/inspirations
-mkdir -p /app/backend/uploads/designs
-mkdir -p /app/backend/uploads/actuals
+mkdir -p /app/backend/data/uploads/nails
+mkdir -p /app/backend/data/uploads/inspirations
+mkdir -p /app/backend/data/uploads/designs
+mkdir -p /app/backend/data/uploads/actuals
 
 # Run database migrations
 cd /app/backend
