@@ -166,6 +166,26 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
+  /// 更新设计方案标题
+  Future<bool> updateDesignTitle(int id, String title) async {
+    try {
+      final updated = await _service.updateDesign(id, title: title);
+      final index = _designs.indexWhere((d) => d.id == id);
+      if (index != -1) {
+        _designs[index] = updated;
+      }
+      if (_selectedDesign?.id == id) {
+        _selectedDesign = updated;
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _parseError(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// 归档设计方案
   Future<bool> archiveDesign(int id) async {
     try {

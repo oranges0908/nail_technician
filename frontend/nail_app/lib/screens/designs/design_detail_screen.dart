@@ -129,6 +129,12 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                               ),
                             ),
                           ),
+                          IconButton(
+                            icon: Icon(Icons.edit_outlined, size: 20,
+                                color: ThemeConfig.textSecondaryLight),
+                            onPressed: () => _showRenameDialog(design),
+                            tooltip: '重命名',
+                          ),
                           if (design.version > 1)
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -366,6 +372,40 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
       onTap: isCurrent
           ? null
           : () => context.go('/designs/${version.id}'),
+    );
+  }
+
+  void _showRenameDialog(DesignPlan design) {
+    final controller = TextEditingController(
+      text: design.title ?? '设计方案 #${design.id}',
+    );
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('重命名'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: '输入新名称'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(Constants.cancelButton),
+          ),
+          TextButton(
+            onPressed: () async {
+              final title = controller.text.trim();
+              if (title.isEmpty) return;
+              Navigator.pop(context);
+              await context
+                  .read<DesignProvider>()
+                  .updateDesignTitle(design.id, title);
+            },
+            child: const Text(Constants.confirmButton),
+          ),
+        ],
+      ),
     );
   }
 

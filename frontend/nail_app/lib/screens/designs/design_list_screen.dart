@@ -189,14 +189,31 @@ class _DesignListScreenState extends State<DesignListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      design.title ?? '设计方案 #${design.id}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            design.title ?? '设计方案 #${design.id}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 28,
+                          height: 28,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            icon: Icon(Icons.edit_outlined, size: 16,
+                                color: ThemeConfig.textSecondaryLight),
+                            onPressed: () => _showRenameDialog(design),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -244,6 +261,40 @@ class _DesignListScreenState extends State<DesignListScreen> {
       child: Text(
         text,
         style: TextStyle(fontSize: 10, color: c),
+      ),
+    );
+  }
+
+  void _showRenameDialog(DesignPlan design) {
+    final controller = TextEditingController(
+      text: design.title ?? '设计方案 #${design.id}',
+    );
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('重命名'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: '输入新名称'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(Constants.cancelButton),
+          ),
+          TextButton(
+            onPressed: () async {
+              final title = controller.text.trim();
+              if (title.isEmpty) return;
+              Navigator.pop(context);
+              await context
+                  .read<DesignProvider>()
+                  .updateDesignTitle(design.id, title);
+            },
+            child: const Text(Constants.confirmButton),
+          ),
+        ],
       ),
     );
   }
