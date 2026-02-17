@@ -217,38 +217,13 @@ async def health_check():
 FRONTEND_DIR = "/app/frontend/web"
 
 if os.path.exists(FRONTEND_DIR):
-    # Flutter Web 静态资源（JS/CSS/icons 等）
-    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="frontend_assets")
-    app.mount("/icons", StaticFiles(directory=os.path.join(FRONTEND_DIR, "icons")), name="frontend_icons")
-
-    @app.get("/favicon.png")
-    async def favicon():
-        return FileResponse(os.path.join(FRONTEND_DIR, "favicon.png"))
-
-    @app.get("/flutter.js")
-    async def flutter_js():
-        return FileResponse(os.path.join(FRONTEND_DIR, "flutter.js"))
-
-    @app.get("/flutter_bootstrap.js")
-    async def flutter_bootstrap_js():
-        return FileResponse(os.path.join(FRONTEND_DIR, "flutter_bootstrap.js"))
-
-    @app.get("/manifest.json")
-    async def manifest():
-        return FileResponse(os.path.join(FRONTEND_DIR, "manifest.json"))
-
-    @app.get("/flutter_service_worker.js")
-    async def service_worker():
-        return FileResponse(os.path.join(FRONTEND_DIR, "flutter_service_worker.js"))
-
-    # SPA fallback: 所有未匹配的路径返回 index.html
-    @app.get("/{full_path:path}")
-    async def serve_spa(request: Request, full_path: str):
-        # 静态文件尝试直接返回
-        file_path = os.path.join(FRONTEND_DIR, full_path)
-        if full_path and os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    # Flutter Web 静态资源目录挂载
+    _assets_dir = os.path.join(FRONTEND_DIR, "assets")
+    if os.path.exists(_assets_dir):
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="frontend_assets")
+    _icons_dir = os.path.join(FRONTEND_DIR, "icons")
+    if os.path.exists(_icons_dir):
+        app.mount("/icons", StaticFiles(directory=_icons_dir), name="frontend_icons")
 
     logger.info(f"前端静态文件已挂载: {FRONTEND_DIR}")
 else:
@@ -260,6 +235,34 @@ else:
             "version": settings.APP_VERSION,
             "docs": "/docs",
         }
+
+
+# ============================================
+# SPA Fallback Middleware（必须在所有路由之后）
+# ============================================
+if os.path.exists(FRONTEND_DIR):
+    from starlette.responses import Response as StarletteResponse
+
+    _index_html = os.path.join(FRONTEND_DIR, "index.html")
+
+    @app.middleware("http")
+    async def spa_fallback(request: Request, call_next):
+        response = await call_next(request)
+        # 仅对 GET 请求 + 404/405 响应 + 非 API/非 uploads 路径做 SPA fallback
+        path = request.url.path
+        if (
+            request.method == "GET"
+            and response.status_code in (404, 405)
+            and not path.startswith(("/api/", "/uploads/", "/docs", "/redoc", "/openapi.json", "/health"))
+        ):
+            # 先尝试返回静态文件
+            file_path = os.path.join(FRONTEND_DIR, path.lstrip("/"))
+            if os.path.isfile(file_path):
+                return FileResponse(file_path)
+            # 否则返回 index.html（SPA 路由）
+            if os.path.isfile(_index_html):
+                return FileResponse(_index_html)
+        return response
 
 
 if __name__ == "__main__":
