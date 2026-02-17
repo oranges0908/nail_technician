@@ -20,7 +20,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "",
     response_model=InspirationImageResponse,
     status_code=status.HTTP_201_CREATED,
     summary="创建灵感图",
@@ -46,7 +46,7 @@ async def create_inspiration(
 
 
 @router.get(
-    "/",
+    "",
     response_model=InspirationImageListResponse,
     summary="获取灵感图列表",
     description="获取当前用户的灵感图列表，支持分页、过滤和搜索"

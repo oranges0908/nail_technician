@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/", response_model=ServiceRecordResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ServiceRecordResponse, status_code=status.HTTP_201_CREATED)
 async def create_service_record(
     service: ServiceRecordCreate,
     db: Session = Depends(get_db),
@@ -76,7 +76,7 @@ async def get_service_record(
     return service
 
 
-@router.get("/", response_model=List[ServiceRecordResponse])
+@router.get("", response_model=List[ServiceRecordResponse])
 async def list_service_records(
     customer_id: Optional[int] = Query(None, description="按客户ID过滤"),
     status_filter: Optional[str] = Query(None, alias="status", description="按状态过滤（pending/completed）"),

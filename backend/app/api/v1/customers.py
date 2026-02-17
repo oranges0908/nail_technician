@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "",
     response_model=CustomerResponse,
     status_code=status.HTTP_201_CREATED,
     summary="创建客户",
@@ -49,7 +49,7 @@ async def create_customer(
 
 
 @router.get(
-    "/",
+    "",
     response_model=CustomerListResponse,
     summary="获取客户列表",
     description="获取当前用户的客户列表，支持分页和搜索"

@@ -86,7 +86,7 @@ async def refine_design(
 
 
 @router.get(
-    "/",
+    "",
     response_model=DesignPlanListResponse,
     summary="获取设计方案列表",
     description="获取当前用户的设计方案列表，支持分页、过滤和搜索"

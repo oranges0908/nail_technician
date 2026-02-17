@@ -52,6 +52,7 @@ tags_metadata = [
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
+    redirect_slashes=False,
     description="""
 ## 美甲师能力成长系统 API
 
