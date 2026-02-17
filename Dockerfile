@@ -12,7 +12,7 @@ FROM python:3.11-slim
 
 # Install nginx and supervisor
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends nginx supervisor && \
+    apt-get install -y --no-install-recommends nginx supervisor gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy backend code and install dependencies
