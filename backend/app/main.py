@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -206,18 +206,60 @@ if os.path.exists(uploads_dir):
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
-@app.get("/")
-async def root():
-    return {
-        "message": f"Welcome to {settings.APP_NAME} API",
-        "version": settings.APP_VERSION,
-        "docs": "/docs",
-    }
-
-
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+# ============================================
+# 前端静态文件服务（Docker/Railway 部署时）
+# ============================================
+FRONTEND_DIR = "/app/frontend/web"
+
+if os.path.exists(FRONTEND_DIR):
+    # Flutter Web 静态资源（JS/CSS/icons 等）
+    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="frontend_assets")
+    app.mount("/icons", StaticFiles(directory=os.path.join(FRONTEND_DIR, "icons")), name="frontend_icons")
+
+    @app.get("/favicon.png")
+    async def favicon():
+        return FileResponse(os.path.join(FRONTEND_DIR, "favicon.png"))
+
+    @app.get("/flutter.js")
+    async def flutter_js():
+        return FileResponse(os.path.join(FRONTEND_DIR, "flutter.js"))
+
+    @app.get("/flutter_bootstrap.js")
+    async def flutter_bootstrap_js():
+        return FileResponse(os.path.join(FRONTEND_DIR, "flutter_bootstrap.js"))
+
+    @app.get("/manifest.json")
+    async def manifest():
+        return FileResponse(os.path.join(FRONTEND_DIR, "manifest.json"))
+
+    @app.get("/flutter_service_worker.js")
+    async def service_worker():
+        return FileResponse(os.path.join(FRONTEND_DIR, "flutter_service_worker.js"))
+
+    # SPA fallback: 所有未匹配的路径返回 index.html
+    @app.get("/{full_path:path}")
+    async def serve_spa(request: Request, full_path: str):
+        # 静态文件尝试直接返回
+        file_path = os.path.join(FRONTEND_DIR, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+
+    logger.info(f"前端静态文件已挂载: {FRONTEND_DIR}")
+else:
+    # 无前端文件时（本地开发），显示 API 欢迎页
+    @app.get("/")
+    async def root():
+        return {
+            "message": f"Welcome to {settings.APP_NAME} API",
+            "version": settings.APP_VERSION,
+            "docs": "/docs",
+        }
 
 
 if __name__ == "__main__":
