@@ -27,11 +27,12 @@ def hash_password(password: str) -> str:
     Returns:
         str: 加密后的密码哈希
     """
-    # bcrypt限制密码最长72字节，超过部分会被截断
-    # 这里主动截断以避免警告
-    password_bytes = password.encode('utf-8')[:72]
-    password_truncated = password_bytes.decode('utf-8', errors='ignore')
-    return pwd_context.hash(password_truncated)
+    return pwd_context.hash(_truncate_password(password))
+
+
+def _truncate_password(password: str) -> str:
+    """bcrypt限制密码最长72字节，主动截断以兼容bcrypt 4.x"""
+    return password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -45,7 +46,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         bool: 密码是否匹配
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
 
 
 def create_access_token(
