@@ -16,6 +16,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 IMAGE_NAME="${NAIL_IMAGE:-nail-app}"
 CONTAINER_NAME="${NAIL_CONTAINER:-nail-app}"
 HOST_PORT="${NAIL_PORT:-80}"
+CONTAINER_PORT="${NAIL_CONTAINER_PORT:-80}"  # 容器内部端口，与 entrypoint 默认值保持一致
 
 # 数据卷
 DATA_VOLUME="${NAIL_DATA_VOLUME:-nail_data}"
@@ -70,6 +71,8 @@ collect_env_args() {
     local env_args=""
 
     # 从 backend/.env 文件读取（如果存在）
+    # 跳过 PORT/HOST —— 这些是本地开发专用变量，容器端口由 CONTAINER_PORT 统一管理
+    local skip_keys="PORT HOST"
     if [ -f "$PROJECT_DIR/backend/.env" ]; then
         while IFS='=' read -r key value; do
             # 跳过注释和空行
@@ -77,6 +80,12 @@ collect_env_args() {
             # 去除前后空格
             key=$(echo "$key" | xargs)
             value=$(echo "$value" | xargs)
+            # 跳过本地开发专用 key
+            local skip=0
+            for sk in $skip_keys; do
+                [ "$key" = "$sk" ] && skip=1 && break
+            done
+            [ "$skip" -eq 1 ] && continue
             # 去除引号
             value="${value%\"}"
             value="${value#\"}"
@@ -156,15 +165,16 @@ do_run() {
     env_args=$(collect_env_args)
 
     info "容器名称: $CONTAINER_NAME"
-    info "端口映射: $HOST_PORT -> 80"
+    info "端口映射: $HOST_PORT -> $CONTAINER_PORT"
     info "数据卷:   $DATA_VOLUME, $UPLOADS_VOLUME"
     echo ""
 
     docker run -d \
         --name "$CONTAINER_NAME" \
-        -p "${HOST_PORT}:80" \
+        -p "${HOST_PORT}:${CONTAINER_PORT}" \
+        -e "PORT=${CONTAINER_PORT}" \
         -v "${DATA_VOLUME}:/app/backend/data" \
-        -v "${UPLOADS_VOLUME}:/app/backend/uploads" \
+        -v "${UPLOADS_VOLUME}:/app/backend/data/uploads" \
         --restart unless-stopped \
         $env_args \
         "$IMAGE_NAME"

@@ -7,6 +7,7 @@
 3. AI生成设计图 (/uploads/designs)
 4. 实际完成图 (/uploads/actuals)
 """
+import io
 import logging
 import os
 import uuid
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 from app.core.config import settings
 from app.core.dependencies import get_current_active_user
@@ -34,6 +36,7 @@ ALLOWED_CONTENT_TYPES = {
     "image/png",
     "image/webp"
 }
+ALLOWED_PIL_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 # 上传子目录
 UPLOAD_CATEGORIES = {
@@ -88,11 +91,39 @@ def validate_file(file: UploadFile) -> None:
             detail=f"不支持的文件格式 {file_ext}，仅支持: {', '.join(ALLOWED_EXTENSIONS)}"
         )
 
-    # 检查 Content-Type（允许 application/octet-stream，Web 上传常见）
-    if file.content_type not in ALLOWED_CONTENT_TYPES and file.content_type != "application/octet-stream":
+    # 检查 Content-Type（仅接受标准图片 MIME 类型）
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"不支持的文件类型 {file.content_type}"
+            detail=f"不支持的文件类型 {file.content_type}，仅支持: image/jpeg, image/png, image/webp"
+        )
+
+
+async def _validate_image_magic(file: UploadFile) -> None:
+    """
+    用 PIL 读取文件头，验证实际内容为合法图片。
+    防止攻击者通过伪造扩展名或 Content-Type 头上传非图片文件。
+    """
+    header = await file.read(4096)
+    await file.seek(0)
+    try:
+        img = Image.open(io.BytesIO(header))
+        if img.format not in ALLOWED_PIL_FORMATS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"图片格式不支持: {img.format}，仅支持 JPEG/PNG/WEBP"
+            )
+    except HTTPException:
+        raise
+    except UnidentifiedImageError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="无效的图片文件，无法识别图片内容"
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="图片文件验证失败"
         )
 
 
@@ -135,8 +166,11 @@ async def save_upload_file(
     Raises:
         HTTPException: 保存失败
     """
-    # 验证文件
+    # 验证文件（扩展名 + Content-Type 头）
     validate_file(file)
+
+    # 验证文件真实内容（魔数校验，防止 Content-Type 伪造）
+    await _validate_image_magic(file)
 
     # 生成唯一文件名
     unique_filename = generate_unique_filename(file.filename)

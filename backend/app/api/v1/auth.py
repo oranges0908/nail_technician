@@ -1,10 +1,11 @@
 """
 认证 API 端点
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from app.core.limiter import limiter
 from app.db.database import get_db
 from app.schemas.token import Token, RefreshTokenRequest
 from app.schemas.user import UserCreate, UserResponse
@@ -20,7 +21,9 @@ router = APIRouter()
     summary="用户注册",
     description="注册新用户账号"
 )
+@limiter.limit("5/minute")
 async def register(
+    request: Request,
     user_data: UserCreate,
     db: Session = Depends(get_db)
 ):
@@ -43,7 +46,9 @@ async def register(
     summary="用户登录",
     description="使用邮箱/用户名和密码登录，返回JWT token"
 )
+@limiter.limit("10/minute")
 async def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):

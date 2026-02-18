@@ -25,7 +25,7 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
 # Create directories for persistent data
-RUN mkdir -p /app/backend/data /app/backend/uploads
+RUN mkdir -p /app/backend/data/uploads
 
 # Default environment
 ENV DATABASE_URL="sqlite:////app/backend/data/nail.db" \

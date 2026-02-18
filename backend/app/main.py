@@ -8,8 +8,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.core.config import settings
 from app.core.logging_config import setup_logging, get_logger
 from app.core.exceptions import NailAppException
+from app.core.limiter import limiter
 from app.middleware.logging_middleware import LoggingMiddleware
 from app.api.v1 import api_router
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 import os
 import logging
 
@@ -76,11 +79,11 @@ app = FastAPI(
 
 ### 文档
 
-* **Swagger UI**: [/docs](/docs) - 交互式API文档
-* **ReDoc**: [/redoc](/redoc) - API参考文档
+* **Swagger UI**: [/docs](/docs) - 交互式API文档（仅 DEBUG 模式）
+* **ReDoc**: [/redoc](/redoc) - API参考文档（仅 DEBUG 模式）
 """,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
     openapi_tags=tags_metadata,
     contact={
         "name": "Nail API Support",
@@ -91,6 +94,11 @@ app = FastAPI(
         "url": "https://opensource.org/licenses/MIT",
     },
 )
+
+
+# 注册速率限制器
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 # ============================================
@@ -180,8 +188,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.add_middleware(LoggingMiddleware)
 
 # CORS 中间件配置
+# 注意：allow_origins=["*"] 与 allow_credentials=True 不兼容，浏览器会拒绝
 if settings.DEBUG:
-    # 开发模式：允许所有来源（Flutter Web 每次端口不同）
+    # 开发模式：允许所有来源（Flutter Web 每次端口不同），不携带凭据
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -190,17 +199,40 @@ if settings.DEBUG:
         allow_headers=["*"],
     )
 else:
+    # 生产模式：使用显式白名单，禁止通配符
+    origins = settings.allowed_origins_list
+    if "*" in origins:
+        logger.warning(
+            "ALLOWED_ORIGINS 包含通配符 '*'，生产环境存在安全风险，"
+            "请在 .env 中设置具体的域名白名单"
+        )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.allowed_origins_list,
+        allow_origins=origins,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
     )
 
 # 挂载静态文件目录（用于提供上传的图片）
+# 使用自定义子类在 ASGI 消息层注入安全头，防止 MIME 混淆攻击
+class _SecureStaticFiles(StaticFiles):
+    """在响应头中强制添加安全指令"""
+
+    async def __call__(self, scope, receive, send):
+        async def send_with_security_headers(message):
+            if message["type"] == "http.response.start":
+                headers = list(message["headers"])
+                headers.append((b"x-content-type-options", b"nosniff"))
+                headers.append((b"cache-control", b"private, max-age=3600"))
+                message = {**message, "headers": headers}
+            await send(message)
+
+        await super().__call__(scope, receive, send_with_security_headers)
+
+
 if os.path.exists(settings.UPLOAD_DIR):
-    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+    app.mount("/uploads", _SecureStaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # 注册 API 路由
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)

@@ -1,10 +1,11 @@
 """
 设计方案 API 端点
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy.orm import Session
 from typing import Optional, List
 
+from app.core.limiter import limiter
 from app.db.database import get_db
 from app.core.dependencies import get_current_active_user
 from app.models.user import User
@@ -27,7 +28,9 @@ router = APIRouter()
     summary="AI生成设计方案",
     description="使用AI生成美甲设计方案（调用DALL-E 3）"
 )
+@limiter.limit("10/hour")
 async def generate_design(
+    request: Request,
     design_request: DesignGenerateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
@@ -60,7 +63,9 @@ async def generate_design(
     summary="优化设计方案",
     description="基于现有设计生成优化版本（调用GPT-4 Vision + DALL-E 3）"
 )
+@limiter.limit("10/hour")
 async def refine_design(
+    request: Request,
     design_id: int,
     refine_request: DesignRefineRequest,
     db: Session = Depends(get_db),
