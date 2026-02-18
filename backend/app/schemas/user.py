@@ -12,6 +12,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """创建用户请求"""
     password: str = Field(..., min_length=6, max_length=100, description="密码（至少6位）")
+    invite_code: str = Field(..., description="邀请码")
 
 
 class UserUpdate(BaseModel):

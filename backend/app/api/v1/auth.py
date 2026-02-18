@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.limiter import limiter
 from app.db.database import get_db
 from app.schemas.token import Token, RefreshTokenRequest
@@ -33,9 +34,15 @@ async def register(
     - **email**: 用户邮箱（必须唯一）
     - **username**: 用户名（必须唯一，3-50字符）
     - **password**: 密码（至少6位）
+    - **invite_code**: 邀请码（必填）
 
     **返回**: 创建的用户信息（不包含密码）
     """
+    if settings.INVITE_CODE and user_data.invite_code != settings.INVITE_CODE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="邀请码错误"
+        )
     user = AuthService.register_user(db, user_data)
     return user
 

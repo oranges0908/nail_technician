@@ -17,12 +17,14 @@ class AuthService {
   /// - email: 用户邮箱
   /// - username: 用户名
   /// - password: 密码
+  /// - inviteCode: 邀请码
   ///
   /// 返回: User 对象
   Future<User> register({
     required String email,
     required String username,
     required String password,
+    required String inviteCode,
   }) async {
     try {
       final response = await _apiService.post(
@@ -31,6 +33,7 @@ class AuthService {
           'email': email,
           'username': username,
           'password': password,
+          'invite_code': inviteCode,
         },
       );
 

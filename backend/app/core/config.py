@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""  # 必须在 .env 中设置
     GEMINI_API_KEY: str = ""  # Google Gemini API Key
 
+    # 邀请码配置（注册时必须填写，留空则任何人都可注册）
+    INVITE_CODE: str = ""
+
     # 日志配置
     LOG_LEVEL: str = "INFO"
 

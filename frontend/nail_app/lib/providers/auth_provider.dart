@@ -104,10 +104,12 @@ class AuthProvider extends ChangeNotifier {
   /// - email: 邮箱
   /// - username: 用户名
   /// - password: 密码
+  /// - inviteCode: 邀请码
   Future<bool> register({
     required String email,
     required String username,
     required String password,
+    required String inviteCode,
   }) async {
     _isLoading = true;
     _error = null;
@@ -118,6 +120,7 @@ class AuthProvider extends ChangeNotifier {
         email: email,
         username: username,
         password: password,
+        inviteCode: inviteCode,
       );
 
       // 注册成功后自动登录
@@ -168,6 +171,10 @@ class AuthProvider extends ChangeNotifier {
     } else if (error.toString().contains('409') ||
         error.toString().contains('already')) {
       return '该邮箱或用户名已被注册';
+    } else if (error.toString().contains('邀请码错误') ||
+        (error.toString().contains('400') &&
+            error.toString().contains('invite'))) {
+      return '邀请码错误，请确认后重试';
     } else if (error.toString().contains('422')) {
       return '输入信息格式不正确';
     } else if (error.toString().contains('SocketException') ||

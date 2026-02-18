@@ -20,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _inviteCodeController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -29,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -41,6 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text.trim(),
       username: _usernameController.text.trim(),
       password: _passwordController.text,
+      inviteCode: _inviteCodeController.text.trim(),
     );
 
     if (success && mounted) {
@@ -206,8 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _handleRegister(),
+                    textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: '确认密码',
                       hintText: '再次输入密码',
@@ -232,6 +234,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       }
                       if (value != _passwordController.text) {
                         return '两次输入的密码不一致';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 邀请码输入框
+                  TextFormField(
+                    controller: _inviteCodeController,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _handleRegister(),
+                    decoration: const InputDecoration(
+                      labelText: '邀请码',
+                      hintText: '请输入邀请码',
+                      helperText: '必填',
+                      prefixIcon: Icon(Icons.vpn_key_outlined),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return '请输入邀请码';
                       }
                       return null;
                     },
