@@ -1,5 +1,0 @@
-{"step": "greeting", "archived": false, "role": "assistant", "content": "你好！我是你的 AI 美甲助理 ✨\n\n我可以帮你完成整个服务流程：\n① 查找或新建客户\n② AI 生成设计方案\n③ 创建服务记录\n④ 上传实拍 + 完成服务\n⑤ AI 对比分析\n⑥ 成长复盘总结\n\n请问今天要服务哪位客户？", "ts": "2026-02-21T04:05:33.803411"}
-{"step": "greeting", "archived": false, "role": "user", "content": "帮我新建一个客户，名字叫李小花，电话18900001111", "ts": "2026-02-21T04:05:33.807038"}
-{"step": "greeting", "archived": false, "role": "assistant", "content": "好的，请确认客户信息：姓名 李小花，电话 18900001111，是否创建？", "ui_metadata": {"quick_replies": ["是", "否", "其他问题"], "ui_hint": "show_customer_card", "ui_data": {"name": "李小花", "phone": "18900001111"}, "needs_image_upload": false}, "ts": "2026-02-21T04:05:35.445350"}
-{"step": "greeting", "archived": false, "role": "user", "content": "是", "ts": "2026-02-21T04:05:35.455860"}
-{"step": "greeting", "archived": false, "role": "assistant", "content": "正在创建客户，请稍候。", "ui_metadata": {"quick_replies": [], "ui_hint": "none", "ui_data": null, "needs_image_upload": false}, "ts": "2026-02-21T04:05:36.465668"}

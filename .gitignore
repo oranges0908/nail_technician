@@ -30,6 +30,9 @@ uploads/
 *.db
 *.sqlite3
 
+# AI 对话历史文件（只保留目录结构，不记录内容）
+backend/data/conversations/*/
+
 # Flutter / Frontend
 frontend/nail_app/.dart_tool/
 frontend/nail_app/.flutter-plugins
