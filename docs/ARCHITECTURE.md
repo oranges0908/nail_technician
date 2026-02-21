@@ -24,7 +24,9 @@
 │  │  ┌──────────┬──────────┬──────────┬─────────────┐    │   │
 │  │  │客户管理  │智能设计  │服务记录  │能力中心     │    │   │
 │  │  │Screens   │Screens   │Screens   │Screens      │    │   │
-│  │  └──────────┴──────────┴──────────┴─────────────┘    │   │
+│  │  ├──────────┴──────────┴──────────┴─────────────┤    │   │
+│  │  │         AI对话 Screens (chat/)               │    │   │
+│  │  └──────────────────────────────────────────────┘    │   │
 │  └──────────────────────┬───────────────────────────────┘   │
 │  ┌──────────────────────┴───────────────────────────────┐   │
 │  │           State Management Layer (Provider)           │   │
@@ -49,6 +51,7 @@
 │  ┌──────────────────────┴───────────────────────────────┐   │
 │  │              API Routes (v1)                          │   │
 │  │  /customers│/designs│/services│/analysis│/abilities   │   │
+│  │  /conversations                                       │   │
 │  └──────────────────────┬───────────────────────────────┘   │
 │  ┌──────────────────────┴───────────────────────────────┐   │
 │  │            Business Service Layer                     │   │
@@ -57,6 +60,7 @@
 │  │  ServiceRecordService                                 │   │
 │  │  AnalysisService ───→ [调用AI代理层]                 │   │
 │  │  AbilityService                                       │   │
+│  │  AgentService ─────→ [AI代理层 + 已有Services]       │   │
 │  └──────────────────────┬───────────────────────────────┘   │
 │  ┌──────────────────────┴───────────────────────────────┐   │
 │  │         ORM Layer (SQLAlchemy Models)                 │   │
@@ -130,13 +134,17 @@ lib/
 │   ├── customer_provider.dart
 │   ├── design_provider.dart
 │   ├── service_provider.dart
-│   └── ability_provider.dart
+│   ├── ability_provider.dart
+│   └── chat_provider.dart     # AI对话状态管理（新增）
 │
 ├── screens/             # 页面层
 │   ├── customer/
 │   ├── design/
 │   ├── service/
-│   └── ability/
+│   ├── ability/
+│   └── chat/                  # AI对话界面（新增）
+│       ├── chat_screen.dart
+│       └── widgets/
 │
 ├── widgets/             # 组件层
 │   ├── common/
@@ -222,7 +230,14 @@ backend/app/
 │   ├── design_service.py
 │   ├── service_record_service.py
 │   ├── analysis_service.py
-│   └── ability_service.py
+│   ├── ability_service.py
+│   ├── agent_service.py       # Agent 推理循环（新增）
+│   ├── agent_tools.py         # Tool Registry + ToolExecutor（新增）
+│   └── conversation_file.py   # JSONL 本地文件管理（新增）
+│
+├── models/              # ORM模型层（SQLAlchemy）
+│   ├── ...
+│   └── conversation_session.py  # 会话元数据模型（新增）
 │
 └── api/                 # API路由层
     └── v1/
@@ -232,7 +247,8 @@ backend/app/
         ├── designs.py
         ├── services.py
         ├── analysis.py
-        └── inspirations.py
+        ├── inspirations.py
+        └── conversations.py  # AI 对话助理端点（新增）
 ```
 
 #### 依赖注入
@@ -535,7 +551,70 @@ class DesignService:
         return design_plan
 ```
 
-### 4. 数据库架构
+### 4. AI Agent 对话架构（新增）
+
+#### 设计思路
+
+AI 助理以 **Function Calling 模式**运行，将已有 Service 方法封装为工具，LLM 自主决策调用时机，无需手写业务状态机。
+
+#### 分层设计
+
+```
+ChatScreen (Flutter UI)
+     ↓ HTTP
+conversations API
+     ↓
+AgentService（推理循环）
+     ├── ConversationFileManager（JSONL 本地文件读写）
+     └── ToolExecutor（工具路由）
+           ├── CustomerService
+           ├── DesignService
+           ├── ServiceRecordService
+           ├── AnalysisService
+           └── AbilityService
+```
+
+#### Token 压缩：滚动摘要机制
+
+```
+步骤N完成前，LLM 收到的上下文：
+  system: [基础提示词]
+          [步骤1摘要]  ← 每步仅保留20-50字摘要
+          [步骤2摘要]
+          ...
+          [步骤N-1摘要]
+  messages: [步骤N的所有消息，含 tool_calls]  ← 重置
+
+步骤N完成后：
+  ① 步骤N消息写入本地 JSONL 文件并标记 archived=true
+  ② 步骤N的 step_summary 追加到 DB 的 step_summaries 列表
+  ③ 步骤N+1开始，messages 数组重新为空
+```
+
+#### 存储分层
+
+| 数据 | 存储 | 内容 |
+|------|------|------|
+| 会话元数据 | **数据库** `conversation_sessions` | status、current_step、step_summaries、context 中的业务 ID |
+| 完整对话流水 | **本地 JSONL 文件** `data/conversations/{id}/messages.jsonl` | 所有 role/content/tool_calls，按步骤分段归档 |
+
+#### LLM 回复协议（JSON 格式）
+
+```json
+{
+  "message_text": "面向用户的中文消息",
+  "step_summary": "本步骤关键信息摘要（20-50字）",
+  "step_complete": false,
+  "quick_replies": ["选项1", "选项2"],
+  "ui_hint": "none|show_customer_card|show_design_preview|show_upload_button|show_analysis_result|show_final_summary",
+  "ui_data": null,
+  "needs_image_upload": false
+}
+```
+
+---
+
+### 5. 数据库架构
 
 #### 数据库选择：PostgreSQL
 
@@ -704,6 +783,43 @@ CREATE INDEX idx_ability_records_user_id ON ability_records(user_id);
 CREATE INDEX idx_ability_records_dimension_id ON ability_records(dimension_id);
 ```
 
+##### 10. conversation_sessions（AI对话会话）
+
+```sql
+CREATE TABLE conversation_sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'active',        -- active|completed|abandoned
+    current_step VARCHAR(50) DEFAULT 'greeting', -- greeting|customer|design|service|complete|analysis|review|done
+    context JSONB DEFAULT '{}',
+    -- context 结构：
+    -- {
+    --   "customer_id": 12,
+    --   "customer_name": "王小花",
+    --   "design_plan_id": 34,
+    --   "service_record_id": 56,
+    --   "comparison_result_id": 78,
+    --   "inspiration_paths": [...]
+    -- }
+    step_summaries JSONB DEFAULT '[]',
+    -- step_summaries 结构：
+    -- [
+    --   {"step": "customer", "summary": "客户:王小花(ID:12)"},
+    --   {"step": "design", "summary": "设计方案ID:34，粉色渐变法式"}
+    -- ]
+    file_path VARCHAR(500),                      -- 本地 JSONL 文件路径
+    summary TEXT,                                -- 会话最终总结
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE INDEX idx_conversation_sessions_user_id ON conversation_sessions(user_id);
+CREATE INDEX idx_conversation_sessions_status ON conversation_sessions(status);
+```
+
+> **注**：原始 LLM 对话流水（含 tool_calls、tool results）**不存入数据库**，存储于本地 JSONL 文件 `backend/data/conversations/{session_id}/messages.jsonl`，数据库只保存轻量元数据与步骤摘要。
+
 #### 数据库关系图
 
 ```
@@ -721,6 +837,8 @@ users (1) ──────< design_plans (N)
               └──────> customers (N) [外键关联]
 
 users (1) ──────< inspiration_images (N)
+
+users (1) ──────< conversation_sessions (N)
 
 ability_dimensions (1) ──────< ability_records (N)
 ```

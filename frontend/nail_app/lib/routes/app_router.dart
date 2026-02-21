@@ -19,6 +19,7 @@ import '../screens/services/service_detail_screen.dart';
 import '../screens/services/service_complete_screen.dart';
 import '../screens/abilities/ability_center_screen.dart';
 import '../screens/abilities/ability_trend_screen.dart';
+import '../screens/chat/chat_screen.dart';
 import '../utils/constants.dart';
 
 /// 应用路由配置
@@ -160,6 +161,22 @@ class AppRouter {
         builder: (context, state) {
           final id = int.parse(state.pathParameters['id']!);
           return ServiceCompleteScreen(serviceId: id);
+        },
+      ),
+
+      // AI 对话助理
+      GoRoute(
+        path: '/chat',
+        name: 'chat',
+        builder: (context, state) => const ChatScreen(),
+      ),
+      GoRoute(
+        path: '/chat/:sessionId',
+        name: 'chat-session',
+        builder: (context, state) {
+          final sessionId = int.tryParse(
+              state.pathParameters['sessionId'] ?? '');
+          return ChatScreen(sessionId: sessionId);
         },
       ),
 

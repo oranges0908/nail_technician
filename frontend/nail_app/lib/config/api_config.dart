@@ -68,6 +68,14 @@ class ApiConfig {
   static const String uploadDesignsEndpoint = '/uploads/designs';
   static const String uploadActualsEndpoint = '/uploads/actuals';
 
+  // ==================== AI 对话助理 ====================
+  static const String conversationsEndpoint = '/conversations';
+  static String conversationDetailEndpoint(int id) => '/conversations/$id';
+  static String conversationMessagesEndpoint(int id) =>
+      '/conversations/$id/messages';
+  static String conversationImagesEndpoint(int id) =>
+      '/conversations/$id/images';
+
   // ==================== 健康检查 ====================
   static const String healthEndpoint = '/health';
 

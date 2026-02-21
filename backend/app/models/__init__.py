@@ -11,6 +11,7 @@ from app.models.service_record import ServiceRecord
 from app.models.comparison_result import ComparisonResult
 from app.models.ability_dimension import AbilityDimension
 from app.models.ability_record import AbilityRecord
+from app.models.conversation_session import ConversationSession
 
 __all__ = [
     "Base",
@@ -23,4 +24,5 @@ __all__ = [
     "ComparisonResult",
     "AbilityDimension",
     "AbilityRecord",
+    "ConversationSession",
 ]

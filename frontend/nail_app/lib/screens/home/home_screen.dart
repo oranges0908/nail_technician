@@ -157,12 +157,12 @@ class HomeScreen extends StatelessWidget {
                   ),
                   _buildFeatureCard(
                     context,
-                    icon: Icons.settings_outlined,
-                    title: '设置',
-                    subtitle: '应用设置',
-                    color: ThemeConfig.textSecondaryLight,
+                    icon: Icons.chat_bubble_outline,
+                    title: 'AI 助理',
+                    subtitle: '对话驱动全流程',
+                    color: ThemeConfig.primaryColor,
                     onTap: () {
-                      // TODO: 设置页面
+                      context.push('/chat');
                     },
                   ),
                 ],

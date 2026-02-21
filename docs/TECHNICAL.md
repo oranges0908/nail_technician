@@ -2075,3 +2075,357 @@ alembic upgrade head
 # 回滚
 alembic downgrade -1
 ```
+
+---
+
+## AI Agent 对话服务技术实现
+
+### 1. Tool Registry 结构
+
+工具以 OpenAI Function Calling 格式定义，统一存储在 `agent_tools.py`：
+
+```python
+TOOLS_DEFINITION = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_customer",
+            "description": "按姓名或手机号搜索已有客户，返回匹配列表",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "姓名或手机号关键词"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "generate_design",
+            "description": "根据描述和参考图生成AI设计方案",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "prompt": {"type": "string", "description": "设计描述"},
+                    "customer_id": {"type": "integer", "description": "客户ID（可选）"},
+                    "reference_images": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "参考图路径列表"
+                    },
+                    "style_keywords": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "风格关键词"
+                    },
+                    "design_target": {
+                        "type": "string",
+                        "enum": ["single", "5nails", "10nails"],
+                        "description": "生成目标"
+                    }
+                },
+                "required": ["prompt"]
+            }
+        }
+    }
+    # ... 其余 10 个工具同理
+]
+```
+
+**ToolExecutor** 通过方法名分发：
+
+```python
+class ToolExecutor:
+    async def execute(self, tool_name, tool_args, db, user_id, session) -> str:
+        handler = getattr(self, f"_tool_{tool_name}", None)
+        if not handler:
+            return json.dumps({"error": f"未知工具: {tool_name}"})
+        return await handler(db=db, user_id=user_id, session=session, **tool_args)
+```
+
+每个工具方法执行后，若产生新业务 ID（如 `design_plan_id`），立即更新 `session.context` 并 `db.commit()`，确保业务 ID 跨步骤传递。
+
+---
+
+### 2. AgentService 推理循环
+
+```python
+async def process_message(self, db, session_id, user_id, content, image_paths=None):
+    # 1. 加载会话和当前步骤消息
+    session = self.get_session(db, session_id, user_id)
+    step_messages = ConversationFileManager.read_current_step_messages(
+        session_id, session.current_step
+    )
+
+    # 2. 构建 OpenAI messages
+    system_prompt = self._build_system_prompt(session)
+    openai_messages = self._build_openai_messages(step_messages)
+
+    # 3. 追加用户消息
+    user_msg = {"step": session.current_step, "archived": False,
+                "role": "user", "content": content, "ts": now()}
+    ConversationFileManager.append_message(session_id, user_msg)
+    openai_messages.append({"role": "user", "content": content})
+
+    # 4. LLM 推理循环（最多 8 轮 tool_calls）
+    for _ in range(8):
+        response = await self._call_llm(
+            [{"role": "system", "content": system_prompt}] + openai_messages,
+            with_tools=True
+        )
+        choice = response.choices[0]
+
+        if choice.finish_reason == "tool_calls":
+            # 执行每个工具
+            tool_results = []
+            for tc in choice.message.tool_calls:
+                result = await self._tools.execute(
+                    tc.function.name,
+                    json.loads(tc.function.arguments),
+                    db, user_id, session
+                )
+                tool_results.append({
+                    "role": "tool", "tool_call_id": tc.id,
+                    "name": tc.function.name, "content": result
+                })
+            # 追加到消息列表和文件
+            openai_messages.append(choice.message)
+            openai_messages.extend(tool_results)
+        else:
+            # finish_reason == "stop"：最终文本回复
+            break
+
+    # 5. 解析 JSON 格式响应
+    llm_resp = self._parse_llm_response(choice.message.content)
+
+    # 6. 写入文件
+    assistant_msg = {
+        "step": session.current_step, "archived": False,
+        "role": "assistant", "content": llm_resp.message_text,
+        "ui_metadata": {...}, "ts": now()
+    }
+    ConversationFileManager.append_message(session_id, assistant_msg)
+
+    # 7. 更新 DB 摘要
+    summaries = list(session.step_summaries)
+    # 替换或追加当前步骤摘要（始终保持最新）
+    existing = next((s for s in summaries if s["step"] == session.current_step), None)
+    if existing:
+        existing["summary"] = llm_resp.step_summary
+    else:
+        summaries.append({"step": session.current_step, "summary": llm_resp.step_summary})
+    session.step_summaries = summaries
+
+    # 8. 步骤完成：归档 + 推进步骤
+    if llm_resp.step_complete:
+        ConversationFileManager.archive_step(session_id, session.current_step)
+        session.current_step = self._next_step(session.current_step)
+
+    db.commit()
+    return AssistantMessageResponse(...)
+```
+
+---
+
+### 3. 滚动摘要机制（Token 压缩）
+
+**目标**：对话轮数增加时，LLM 上下文大小保持相对稳定。
+
+**实现**：
+
+```python
+def _build_system_prompt(self, session: ConversationSession) -> str:
+    base = """你是一个专业美甲师 AI 助理，通过自然对话帮助美甲师完成完整服务流程。
+语言：中文，风格亲切简洁。
+
+你必须始终以合法的 JSON 格式回复（不含任何额外文字）：
+{
+  "message_text": "...",
+  "step_summary": "20-50字摘要",
+  "step_complete": false,
+  "quick_replies": [...],
+  "ui_hint": "none|show_customer_card|...",
+  "ui_data": null,
+  "needs_image_upload": false
+}"""
+
+    # 历史摘要注入（每步 20-50 字，多步骤也不超过 500 tokens）
+    if session.step_summaries:
+        summaries_text = "\n".join(
+            f"- {s['step']}: {s['summary']}"
+            for s in session.step_summaries
+        )
+        base += f"\n\n之前已完成的步骤：\n{summaries_text}"
+
+    # 当前业务上下文
+    ctx = session.context
+    context_parts = []
+    if ctx.get("customer_id"):
+        context_parts.append(f"当前客户: {ctx.get('customer_name')}(ID:{ctx['customer_id']})")
+    if ctx.get("design_plan_id"):
+        context_parts.append(f"设计方案 ID: {ctx['design_plan_id']}")
+    if ctx.get("service_record_id"):
+        context_parts.append(f"服务记录 ID: {ctx['service_record_id']}")
+    if context_parts:
+        base += "\n\n当前上下文：\n" + "\n".join(context_parts)
+
+    return base
+```
+
+**步骤归档**（`ConversationFileManager.archive_step`）：
+
+```
+步骤完成前 JSONL（步骤 customer）：
+  {"step": "customer", "archived": false, "role": "user", "content": "帮我找王小花"}
+  {"step": "customer", "archived": false, "role": "assistant", "tool_calls": [...]}
+  {"step": "customer", "archived": false, "role": "tool", "content": "[...]"}
+  {"step": "customer", "archived": false, "role": "assistant", "content": "找到了..."}
+
+archive_step("customer") 后：
+  {"step": "customer", "archived": true, "role": "user", ...}     ← 所有消息标记归档
+  {"step": "customer", "archived": true, "role": "assistant", ...}
+  {"step": "customer", "_archive_marker": true, "summary": "客户:王小花(ID:12)"}  ← 归档标记行
+  {"step": "design", "archived": false, ...}   ← 新步骤消息从此开始
+```
+
+`read_current_step_messages` 只返回 `archived=false` 的消息，因此下次 LLM 调用只携带当前步骤消息。
+
+---
+
+### 4. JSONL 文件格式
+
+每条消息独占一行 JSON，字段说明：
+
+```jsonl
+// 用户消息
+{"step": "customer", "archived": false, "role": "user", "content": "帮我找王小花", "ts": "2026-02-20T10:00:00"}
+
+// 助理工具调用
+{"step": "customer", "archived": false, "role": "assistant", "tool_calls": [{"id": "call_abc", "type": "function", "function": {"name": "search_customer", "arguments": "{\"query\": \"王小花\"}"}}], "ts": "2026-02-20T10:00:01"}
+
+// 工具结果
+{"step": "customer", "archived": false, "role": "tool", "tool_call_id": "call_abc", "name": "search_customer", "content": "{\"result\": \"找到以下客户\", \"customers\": [{\"id\": 12, \"name\": \"王小花\"}]}", "ts": "2026-02-20T10:00:02"}
+
+// 助理最终回复（含 UI 元数据）
+{"step": "customer", "archived": false, "role": "assistant", "content": "找到了王小花！...", "ui_metadata": {"quick_replies": ["确认是她", "重新搜索"], "ui_hint": "show_customer_card", "ui_data": {"customer_id": 12}}, "ts": "2026-02-20T10:00:03"}
+
+// 步骤归档标记（archive_step 写入）
+{"step": "customer", "_archive_marker": true, "summary": "客户:王小花(ID:12)", "ts": "2026-02-20T10:01:00"}
+```
+
+文件路径：`backend/data/conversations/{session_id}/messages.jsonl`
+
+---
+
+### 5. LLM 回复 JSON 解析容错
+
+LLM 偶尔会在 JSON 外包裹 markdown 代码块，解析策略：
+
+```python
+def _parse_llm_response(self, content: str) -> LLMResponse:
+    # 策略1：直接解析
+    try:
+        data = json.loads(content.strip())
+        return LLMResponse(**data)
+    except Exception:
+        pass
+
+    # 策略2：提取 markdown 代码块
+    import re
+    match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL)
+    if match:
+        try:
+            data = json.loads(match.group(1))
+            return LLMResponse(**data)
+        except Exception:
+            pass
+
+    # 策略3：查找第一个 { ... } 块
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+    if match:
+        try:
+            data = json.loads(match.group(0))
+            return LLMResponse(**data)
+        except Exception:
+            pass
+
+    # 兜底：返回纯文本消息
+    return LLMResponse(
+        message_text=content,
+        step_summary="",
+        step_complete=False,
+        quick_replies=[],
+        ui_hint="none",
+        ui_data=None,
+        needs_image_upload=False
+    )
+```
+
+---
+
+### 6. Flutter ChatProvider 乐观更新模式
+
+```dart
+Future<void> sendMessage(String content, {List<String> imagePaths = const []}) async {
+  // 1. 乐观插入用户消息（立即显示）
+  final userMsg = ChatMessage(role: 'user', content: content, imagePaths: imagePaths);
+  _messages.add(userMsg);
+
+  // 2. 插入 loading 占位符（typing indicator）
+  final loadingMsg = ChatMessage(role: 'assistant', content: '', isLoading: true);
+  _messages.add(loadingMsg);
+  _status = ChatStatus.sending;
+  notifyListeners();
+
+  try {
+    // 3. 发送 API 请求
+    final response = await _chatService.sendMessage(
+      _sessionId!, content, imagePaths: imagePaths
+    );
+
+    // 4. 移除 loading，插入真实助理消息
+    _messages.removeLast();  // 移除 loadingMsg
+    _applyAssistantReply(response.message);
+    _status = ChatStatus.idle;
+  } catch (e) {
+    // 5. 失败：移除 loading，设置错误状态（用户消息保留）
+    _messages.removeLast();  // 移除 loadingMsg
+    _error = e.toString();
+    _status = ChatStatus.error;
+  }
+
+  notifyListeners();
+}
+
+void _applyAssistantReply(AssistantMessage msg) {
+  _messages.add(ChatMessage(
+    role: 'assistant',
+    content: msg.content,
+    uiMetadata: msg.uiMetadata,
+    timestamp: DateTime.now(),
+  ));
+  _currentUiMetadata = msg.uiMetadata;
+  _currentStep = msg.currentStep;
+  _context = msg.context;
+}
+```
+
+**QuickReplies 行为**：
+- 仅显示**最新**助理消息的 quickReplies（来自 `_currentUiMetadata`）
+- 点击 Chip 后，调用 `provider.sendMessage(chipLabel)`，快捷回复行自动消失（因为新消息发出后 `_currentUiMetadata` 会被覆盖）
+
+**UI Hint 渲染**（`UiHintWidget`）：
+
+| ui_hint | 渲染组件 | 内容 |
+|---------|---------|------|
+| `show_customer_card` | `CustomerCard` | 客户名、手机、上次服务日期 |
+| `show_design_preview` | `DesignPreviewCard` | 全宽设计图 + 风格标签 |
+| `show_upload_button` | `ImageUploadButton` | 相册/拍照选择按钮 |
+| `show_analysis_result` | `AnalysisResultCard` | 相似度进度条 + 6维评分 |
+| `show_final_summary` | `FinalSummaryCard` | 成长亮点 + 改进建议文字卡 |
+| `none` | 无 | 不渲染额外组件 |

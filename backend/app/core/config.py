@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 10485760  # 10MB
     UPLOAD_DIR: str = "uploads"
 
+    # 对话文件存储目录（JSONL 格式）
+    CONVERSATIONS_DIR: str = "data/conversations"
+
     # AI Provider 配置
     AI_PROVIDER: str = "openai"  # openai/gemini/baidu/alibaba
     OPENAI_API_KEY: str = ""  # 必须在 .env 中设置
@@ -82,5 +85,6 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# 确保上传目录存在
+# 确保存储目录存在
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+os.makedirs(settings.CONVERSATIONS_DIR, exist_ok=True)

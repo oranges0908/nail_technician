@@ -1,0 +1,8 @@
+{"step": "greeting", "archived": true, "role": "assistant", "content": "你好！我是你的 AI 美甲助理 ✨\n\n我可以帮你完成整个服务流程：\n① 查找或新建客户\n② AI 生成设计方案\n③ 创建服务记录\n④ 上传实拍 + 完成服务\n⑤ AI 对比分析\n⑥ 成长复盘总结\n\n请问今天要服务哪位客户？", "ts": "2026-02-21T04:04:01.034643"}
+{"step": "greeting", "archived": true, "role": "user", "content": "我要新建一个客户，叫张小美，手机号13812345678", "ts": "2026-02-21T04:04:01.038033"}
+{"step": "greeting", "archived": true, "role": "assistant", "content": "请确认客户信息：姓名 张小美，手机号 13812345678，是否创建？", "ui_metadata": {"quick_replies": ["是", "否", "其他问题"], "ui_hint": "show_customer_card", "ui_data": {"name": "张小美", "phone": "13812345678"}, "needs_image_upload": false}, "ts": "2026-02-21T04:04:02.798455"}
+{"step": "greeting", "archived": true, "role": "user", "content": "是", "ts": "2026-02-21T04:04:10.335785"}
+{"step": "greeting", "archived": true, "role": "assistant", "tool_calls": [{"id": "function-call-17285039316483336207", "type": "function", "function": {"name": "create_customer", "arguments": "{\"name\":\"张小美\",\"phone\":\"13812345678\"}"}}], "ts": "2026-02-21T04:04:11.066546"}
+{"step": "greeting", "archived": true, "role": "tool", "tool_call_id": "function-call-17285039316483336207", "name": "create_customer", "content": "{\"result\": \"客户创建成功\", \"customer_id\": 1, \"name\": \"张小美\", \"phone\": \"13812345678\"}", "ts": "2026-02-21T04:04:11.088808"}
+{"step": "greeting", "archived": true, "role": "assistant", "content": "已成功创建客户 张小美，接下来我们可以开始设计美甲方案了。", "ui_metadata": {"quick_replies": [], "ui_hint": "none", "ui_data": null, "needs_image_upload": false}, "ts": "2026-02-21T04:04:12.267462"}
+{"_archive_marker": true, "step": "greeting", "ts": "2026-02-21T04:04:12.268507"}

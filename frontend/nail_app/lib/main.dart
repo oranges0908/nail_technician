@@ -11,6 +11,7 @@ import 'providers/inspiration_provider.dart';
 import 'providers/design_provider.dart';
 import 'providers/service_provider.dart';
 import 'providers/ability_provider.dart';
+import 'providers/chat_provider.dart';
 import 'routes/app_router.dart';
 
 void main() async {
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DesignProvider()),
         ChangeNotifierProvider(create: (_) => ServiceRecordProvider()),
         ChangeNotifierProvider(create: (_) => AbilityProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp.router(
         // 应用标题

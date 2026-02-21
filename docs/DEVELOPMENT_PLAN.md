@@ -50,20 +50,26 @@
   ├── Iteration 5.5: 服务记录界面
   └── Iteration 5.6: 能力中心界面
 
-总计: 23个迭代
+阶段7: AI 对话助理 (4个迭代)
+  ├── Iteration 7.1: 数据层 + 文件管理 + Schema
+  ├── Iteration 7.2: Tool Registry + Agent Service（后端核心）
+  ├── Iteration 7.3: REST API 层 + 后端验证
+  └── Iteration 7.4: Flutter 前端（模型+状态+UI）
+
+总计: 32个迭代（含质量提升阶段6的5个迭代）
 ```
 
 ---
 
 ## 📊 开发进度总览
 
-**最后更新**: 2026-02-10
-**总体进度**: 27/28 迭代完成 (96%)
+**最后更新**: 2026-02-20
+**总体进度**: 31/32 迭代完成 (97%)
 
 ### 进度统计
 
 ```
-✅ 已完成: 27 个迭代
+✅ 已完成: 31 个迭代
 🔲 待开始: 1 个迭代
 ```
 
@@ -77,6 +83,7 @@
 | **阶段4: 核心业务** | 7/7 | 100% | 灵感图库✅ 设计生成✅ 设计微调✅ 服务记录✅ AI分析✅ 能力维度✅ 能力分析✅ |
 | **阶段5: 前端开发** | 6/6 | 100% | 基础架构✅ 认证模块✅ 客户管理✅ 设计生成✅ 服务记录✅ 能力中心✅ |
 | **阶段6: 质量提升** | 4/5 | 80% | pytest基础✅ 后端补全✅ 前端Model/Provider✅ Widget测试✅ 集成测试🔲 |
+| **阶段7: AI对话助理** | 4/4 | 100% | 数据层✅ Tool Registry+AgentService✅ REST API✅ Flutter前端✅ |
 ### 已完成迭代清单
 
 **框架层 (Framework)**:
@@ -163,7 +170,7 @@
 ### 关键成果
 
 **已实现核心功能**:
-- ✅ 完整的数据库架构（10个表）
+- ✅ 完整的数据库架构（11个表，含conversation_sessions）
 - ✅ JWT认证与授权系统
 - ✅ 文件上传系统（4种类型，批量上传，安全验证）
 - ✅ AI Provider抽象层（支持多提供商）
@@ -172,16 +179,17 @@
 - ✅ 服务记录完整流程（创建→完成→AI分析→能力评估）
 - ✅ 上下文感知AI分析（图片+文本融合, GPT-4 Vision）
 - ✅ 能力追踪系统（6维度评分+趋势+雷达图）
-- ✅ 完整的Flutter移动应用（6个功能模块, 19个页面）
+- ✅ 完整的Flutter移动应用（7个功能模块, 22个页面）
+- ✅ AI对话助理（Function Calling + 滚动摘要 + 双存储架构）
 
 **代码统计**:
-- 后端API层: ~2,300 行 (11个路由文件)
-- 后端服务层: ~2,400 行 (8个服务 + AI Provider)
-- 后端模型层: ~1,200 行 (10个ORM模型)
+- 后端API层: ~2,600 行 (12个路由文件，含conversations.py)
+- 后端服务层: ~3,200 行 (11个服务：含agent_service/agent_tools/conversation_file)
+- 后端模型层: ~1,300 行 (11个ORM模型，含conversation_session)
 - 后端测试: ~1,600 行 (11个测试文件)
-- 前端界面: 19个Screen文件
-- 前端状态管理: 6个Provider
-- 前端API服务: 8个Service
+- 前端界面: 22个Screen文件（含chat_screen + 4个chat widgets）
+- 前端状态管理: 7个Provider（含chat_provider）
+- 前端API服务: 9个Service（含chat_service）
 
 **Git提交历史**:
 ```
@@ -227,6 +235,32 @@ c196b20 feat(backend): implement error handling and logging system (Iteration 1.
   - LoginScreen, CustomerListScreen, DesignGenerateScreen, ServiceListScreen
   - 22个Widget测试, 684行
   - Git: `2e027a8`
+
+**AI 对话助理 (AI Conversation Assistant)**:
+- ✅ **Iteration 7.1**: 数据层 + 文件管理 + Schema (100%)
+  - ConversationSession ORM模型（status/current_step/context/step_summaries JSON列）
+  - Alembic迁移: `3ae591818deb_add_conversation_session`
+  - ConversationFileManager（JSONL文件读写，按步骤归档）
+  - 完整Pydantic Schema（UiMetadata/LLMResponse/AssistantMessageResponse等）
+  - Git: `28baa89`（含后续所有对话助理提交）
+- ✅ **Iteration 7.2**: Tool Registry + Agent Service（后端核心）(100%)
+  - TOOLS_DEFINITION：10个工具（OpenAI Function Calling格式）
+  - ToolExecutor：工具路由到已有Service，自动更新session.context
+  - AgentService推理循环：多轮tool_calls（最多8轮）+ 步骤完成后压缩归档
+  - 滚动摘要机制：step_summary → DB持久化 → 下步骤重置messages
+  - 系统提示词：历史摘要嵌入 + 当前上下文注入
+- ✅ **Iteration 7.3**: REST API 层 + 后端验证 (100%)
+  - 6个端点：POST/GET /conversations, GET/DELETE /conversations/{id}
+  - POST /conversations/{id}/messages（发送消息）
+  - POST /conversations/{id}/images（会话内图片上传）
+  - 路由注册至 /api/v1，数据库表验证通过
+- ✅ **Iteration 7.4**: Flutter 前端（模型+状态+UI）(100%)
+  - conversation.dart + conversation.g.dart（手写序列化）
+  - ChatApiService（6个API方法）
+  - ChatProvider（乐观更新 + typing indicator + 步骤感知）
+  - chat_screen.dart（消息列表 + 快捷回复 + 图片上传）
+  - 4个子组件：message_bubble/ui_hint_widgets/quick_replies_row
+  - 路由配置 + 首页入口卡片
 
 ### 后续优化建议
 
@@ -3386,6 +3420,185 @@ cd frontend/nail_app && flutter test integration_test/
 
 ---
 
+---
+
+## 阶段7: AI 对话助理（AI Conversation Assistant）
+
+> 通过自然语言对话驱动完整服务流程，消除表单跳转负担。
+
+### Iteration 7.1: 数据层 + 文件管理 + Schema ✅ COMPLETED
+
+**目标**: 建立对话助理的数据基础——数据库模型、本地文件管理、API Schema
+
+**完成日期**: 2026-02-20
+
+#### 1. 分析 (Analysis)
+
+**需求分析**:
+- 会话元数据（状态、步骤摘要、关联业务ID）持久化到数据库
+- 完整 LLM 对话流水（含 tool_calls）存储于本地 JSONL 文件
+- API 契约：定义 LLM 输出格式（JSON协议）和前后端交互格式
+
+#### 2. 设计 (Design)
+
+**新增文件**:
+- `backend/app/models/conversation_session.py` — ORM 模型
+- `backend/app/services/conversation_file.py` — JSONL 文件管理
+- `backend/app/schemas/conversation.py` — Pydantic Schema
+
+**数据库迁移**: `3ae591818deb_add_conversation_session`
+
+#### 3. 实现 (Implementation)
+
+**ConversationSession 模型**:
+- 关键列：status（active/completed/abandoned）、current_step、context（JSON，存关联业务ID）、step_summaries（JSON列表，每步摘要20-50字）、file_path（JSONL文件路径）
+
+**ConversationFileManager**:
+- `get_file_path(session_id)` — 自动创建目录
+- `append_message(session_id, message)` — JSONL 追加
+- `read_current_step_messages(session_id, current_step)` — 读取未归档消息
+- `archive_step(session_id, step_name)` — 归档步骤（标记 archived=true）
+- `read_full_history(session_id)` — 完整历史（审计用）
+
+**LLMResponse Schema**（LLM 输出协议）:
+```json
+{
+  "message_text": "面向用户的中文消息",
+  "step_summary": "20-50字关键摘要",
+  "step_complete": false,
+  "quick_replies": ["选项1", "选项2"],
+  "ui_hint": "none|show_customer_card|show_design_preview|show_upload_button|show_analysis_result|show_final_summary",
+  "ui_data": null,
+  "needs_image_upload": false
+}
+```
+
+#### 4. 测试 (Testing)
+
+验证数据库表结构（11列），验证 JSONL 文件读写正确性。
+
+---
+
+### Iteration 7.2: Tool Registry + Agent Service（后端核心）✅ COMPLETED
+
+**目标**: 实现 Agent 推理循环核心——Tool 封装、LLM 调用、步骤压缩
+
+**完成日期**: 2026-02-20
+
+#### 1. 分析 (Analysis)
+
+**核心挑战**:
+- LLM 自主决策工具调用（避免手写状态机）
+- Token 控制：步骤完成后压缩历史，不线性增长
+- 工具执行后自动更新 session.context（业务ID传递）
+
+#### 2. 设计 (Design)
+
+**工具列表**（10个，OpenAI Function Calling 格式）:
+```
+search_customer       create_customer      get_customer_detail
+update_customer       update_customer_profile
+generate_design       refine_design
+create_service_record complete_service
+run_analysis          get_ability_summary  list_inspirations
+```
+
+**AgentService 推理循环**:
+```
+用户消息 → 读取本地文件（当前步骤消息）
+         → 构建 LLM 上下文（system=基础+历史摘要, messages=当前步骤）
+         → 调用 LLM（gpt-4o, with tools）
+         → 循环处理 tool_calls（最多8轮）
+         → 解析 LLMResponse JSON
+         → 若 step_complete=true：归档消息+追加摘要+推进步骤
+         → 返回 AssistantMessageResponse
+```
+
+**步骤流**: greeting → customer → design → service → complete → analysis → review → done
+
+#### 3. 实现 (Implementation)
+
+- `agent_tools.py`: `TOOLS_DEFINITION` + `ToolExecutor`（10个工具方法）
+  - 每个工具调用对应已有 Service 方法
+  - 执行后更新 `session.context` 并 `db.commit()`
+- `agent_service.py`: `AgentService`
+  - `create_session()`: 创建DB记录 + JSONL文件 + opening message
+  - `process_message()`: 完整推理循环
+  - `handle_image_upload()`: 保存文件 → 更新context → 触发LLM
+  - `_build_system_prompt()`: 历史摘要嵌入
+  - `_parse_llm_response()`: JSON解析（含markdown代码块容错）
+
+#### 4. 测试 (Testing)
+
+启动后端，通过 Swagger UI 测试完整 Agent 推理流程。
+
+---
+
+### Iteration 7.3: REST API 层 + 后端验证 ✅ COMPLETED
+
+**目标**: 暴露 6 个 REST 端点，完成后端端到端验证
+
+**完成日期**: 2026-02-20
+
+#### 端点设计
+
+```
+POST   /api/v1/conversations                   创建会话（返回 opening message）
+GET    /api/v1/conversations                   列出历史会话（分页）
+GET    /api/v1/conversations/{id}              获取会话详情
+DELETE /api/v1/conversations/{id}              放弃会话
+
+POST   /api/v1/conversations/{id}/messages     发送消息（触发Agent推理）
+POST   /api/v1/conversations/{id}/images       会话内图片上传（multipart）
+```
+
+#### 实现要点
+
+- 使用 `_agent_service = AgentService()` 模块级单例
+- 图片上传复用 `save_upload_file` 工具函数
+- 路由注册：`conversations` 前缀加入 `/api/v1`
+- 数据库表验证：11列全部正确创建
+
+---
+
+### Iteration 7.4: Flutter 前端（模型+状态+UI）✅ COMPLETED
+
+**目标**: 实现完整的 AI 对话界面，支持消息发送、快捷回复、图片上传、UI提示卡
+
+**完成日期**: 2026-02-20
+
+#### 新增文件
+
+| 文件 | 说明 |
+|------|------|
+| `lib/models/conversation.dart` + `.g.dart` | 数据模型 + JSON序列化 |
+| `lib/services/chat_service.dart` | API客户端（6个方法） |
+| `lib/providers/chat_provider.dart` | 状态管理（乐观更新） |
+| `lib/screens/chat/chat_screen.dart` | 主界面（消息列表+输入行） |
+| `lib/screens/chat/widgets/message_bubble.dart` | 用户/助理气泡 + TypingIndicator |
+| `lib/screens/chat/widgets/ui_hint_widgets.dart` | 5种UI提示卡 |
+| `lib/screens/chat/widgets/quick_replies_row.dart` | 快捷回复 Chip 行 |
+
+#### 修改文件
+
+- `api_config.dart`：添加 4 个对话端点常量
+- `main.dart`：MultiProvider 注册 `ChatProvider`
+- `app_router.dart`：添加 `/chat` 和 `/chat/:sessionId` 路由
+- `home_screen.dart`：添加 "AI 助理" 入口卡片
+
+#### ChatProvider 乐观更新模式
+
+```
+sendMessage(content)
+  1. 立即插入 UserMessage（前端显示）
+  2. 插入 LoadingMessage（typing indicator）
+  3. 发送 API 请求
+  4. 成功：移除 LoadingMessage，插入 AssistantMessage
+  5. 失败：移除 LoadingMessage，设置 error 状态
+```
+
+---
+
 ## 附录：完整迭代列表
 
 | 迭代ID | 名称 | 代码量 | 状态 |
@@ -3418,12 +3631,17 @@ cd frontend/nail_app && flutter test integration_test/
 | 6.3 | 前端 Model + Provider 测试 | ~900行 | ✅ |
 | 6.4 | 前端 Widget 测试 | ~600行 | ✅ |
 | 6.5 | 端到端集成测试 | ~500行 | 待开始 |
+| 7.1 | 数据层 + 文件管理 + Schema | ~600行 | ✅ |
+| 7.2 | Tool Registry + Agent Service | ~900行 | ✅ |
+| 7.3 | REST API 层 + 后端验证 | ~300行 | ✅ |
+| 7.4 | Flutter 前端（模型+状态+UI） | ~1,200行 | ✅ |
 
 **阶段1-5 总计**: 23个迭代，约15,000行代码 — **全部完成**
 **阶段6 总计**: 5个迭代，约3,800行测试代码 — 4/5 已完成 (80%)
+**阶段7 总计**: 4个迭代，约3,000行代码 — **全部完成**
 
 ---
 
-**文档版本**: v2.1
+**文档版本**: v2.2
 **创建日期**: 2024-01-08
-**最后更新**: 2026-02-10
+**最后更新**: 2026-02-20
