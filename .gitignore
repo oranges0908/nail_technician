@@ -26,12 +26,19 @@ env/
 # FastAPI / Backend
 .env
 .env.local
-uploads/
+backend/uploads/
 *.db
 *.sqlite3
 
 # AI 对话历史文件（只保留目录结构，不记录内容）
 backend/data/conversations/*/
+
+# 上传文件（只保留目录结构，不记录内容）
+backend/data/uploads/actuals/*
+backend/data/uploads/designs/*
+backend/data/uploads/inspirations/*
+backend/data/uploads/nails/*
+!backend/data/uploads/**/.gitkeep
 
 # Flutter / Frontend
 frontend/nail_app/.dart_tool/
