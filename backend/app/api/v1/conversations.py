@@ -134,7 +134,7 @@ async def send_message(
             detail=str(e)
         )
     except Exception as e:
-        logger.error(f"Agent 处理消息失败: {e}")
+        logger.error(f"Agent 处理消息失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"AI 助理处理失败: {str(e)}"
@@ -200,7 +200,7 @@ async def upload_image_in_session(
             detail=str(e)
         )
     except Exception as e:
-        logger.error(f"Agent 处理图片上传失败: {e}")
+        logger.error(f"Agent 处理图片上传失败: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"AI 助理处理图片失败: {str(e)}"

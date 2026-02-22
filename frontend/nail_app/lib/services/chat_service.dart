@@ -77,17 +77,13 @@ class ChatApiService {
         filename: filename,
         contentType: MediaType('image', _inferSubtype(filename)),
       ),
-      'purpose': purpose,
     });
 
     final response = await _dio.post(
       ApiConfig.conversationImagesEndpoint(sessionId),
       data: formData,
       queryParameters: {'purpose': purpose},
-      options: Options(
-        contentType: 'multipart/form-data',
-        receiveTimeout: 120000,
-      ),
+      options: Options(receiveTimeout: 120000),
     );
     return SendMessageResponse.fromJson(
         response.data as Map<String, dynamic>);

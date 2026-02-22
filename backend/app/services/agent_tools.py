@@ -190,7 +190,7 @@ TOOLS_DEFINITION = [
                         "description": "客户满意度 1-5（可选）"
                     }
                 },
-                "required": ["service_id", "actual_image_path"]
+                "required": ["service_id"]
             }
         }
     },
@@ -275,9 +275,11 @@ class ToolExecutor:
                 db=db, user_id=user_id, session=session, **tool_args
             )
         except Exception as e:
-            logger.error(f"工具执行失败 {tool_name}: {e}")
+            logger.error(f"工具执行失败 {tool_name}: {e}", exc_info=True)
+            # 提取 HTTPException 的 detail 字段（比 str(e) 更易读）
+            detail = getattr(e, "detail", None) or str(e)
             return json.dumps(
-                {"error": f"工具执行失败: {str(e)}"},
+                {"error": f"工具执行失败: {detail}"},
                 ensure_ascii=False
             )
 
@@ -440,11 +442,15 @@ class ToolExecutor:
         }, ensure_ascii=False)
 
     async def _tool_complete_service(self, db, user_id, session, service_id,
-                                     actual_image_path, service_duration=None,
+                                     actual_image_path=None, service_duration=None,
                                      materials_used=None, artist_review=None,
                                      customer_feedback=None, customer_satisfaction=None):
         ctx = dict(session.context or {})
         effective_service_id = service_id or ctx.get("service_record_id")
+        # 优先使用 session.context 中已上传的实拍图
+        actual_image_path = actual_image_path or ctx.get("actual_image_path")
+        if not actual_image_path:
+            return json.dumps({"error": "尚未上传实拍图，请先上传实拍完成图"}, ensure_ascii=False)
 
         completion_data = {
             "actual_image_path": actual_image_path,

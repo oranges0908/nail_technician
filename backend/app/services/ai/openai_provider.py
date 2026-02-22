@@ -28,8 +28,13 @@ class OpenAIProvider(AIProvider):
         # 构建增强的提示词
         enhanced_prompt = self._build_generation_prompt(prompt, design_target, customer_context)
 
-        logger.info(f"生成美甲设计，目标: {design_target}")
-        logger.info(f"完整提示词: {enhanced_prompt[:200]}...")
+        logger.info("=== OpenAI generate_design 参数 ===")
+        logger.info(f"  design_target    : {design_target}")
+        logger.info(f"  prompt           : {prompt}")
+        logger.info(f"  reference_images : {reference_images}")
+        logger.info(f"  customer_context : {customer_context}")
+        logger.info(f"  enhanced_prompt  :\n{enhanced_prompt}")
+        logger.info("===================================")
 
         try:
             response = await self.client.images.generate(
@@ -199,18 +204,26 @@ class OpenAIProvider(AIProvider):
         """构建 DALL-E 3 生成提示词（结构化格式）"""
 
         target_descriptions = {
-            "single": "a single nail art design, close-up view",
-            "5nails": "5 nails in a row showing nail art design",
-            "10nails": "10 nails (both hands) showing complete nail art design"
+            "single": "EXACTLY 1 nail, a single nail close-up, one nail only",
+            "5nails": "EXACTLY 5 nails arranged in a row, one hand, five nails total",
+            "10nails": "EXACTLY 10 nails showing both hands complete, ten nails total"
+        }
+
+        target_counts = {
+            "single": "1",
+            "5nails": "5",
+            "10nails": "10"
         }
 
         target_desc = target_descriptions.get(design_target, target_descriptions["10nails"])
+        target_count = target_counts.get(design_target, "10")
 
-        prompt = f"Professional nail art design, {target_desc}.\n\n"
+        prompt = f"Nail art design flat lay, nails only. CRITICAL REQUIREMENT: Show EXACTLY {target_count} nail(s) — {target_desc}. The image MUST contain precisely {target_count} nail(s), no more, no less.\n\n"
         prompt += f"【Design Intent】\n{base_prompt}\n\n"
         if customer_context:
             prompt += f"【Nail Profile - MUST maintain consistency】\n{customer_context}\n\n"
-        prompt += "High quality, detailed, professional photography, well-lit, white background."
+        prompt += f"【Quantity Rule - STRICTLY ENFORCED】\nThe final image must show EXACTLY {target_count} nail(s). Do not add extra nails or omit any.\n\n"
+        prompt += "STRICTLY NO fingers, NO hands, NO skin, NO body parts — nails only, detached and floating on a clean white background. Flat lay or top-down view. High quality, detailed, professional product photography, well-lit. No text, no labels, no annotations, no watermarks."
         return prompt
 
     def _build_comparison_prompt(

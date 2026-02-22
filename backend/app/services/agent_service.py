@@ -44,9 +44,47 @@ _BASE_SYSTEM_PROMPT = """你是一个专业美甲师 AI 助理，通过自然对
 
 创建/生成类工具（create_customer, generate_design, create_service_record 等）分两轮处理：
 - 第一轮（收到用户需求）：输出 JSON 告知操作内容，请用户确认；quick_replies 必须含 ["是", "否", "其他问题"]
-- 第二轮（用户回复"是"确认）：**立即发出 tool call**，不要再输出"正在创建/生成"等文字；等待工具返回后再输出最终 JSON
+- 第二轮（上下文无 design_plan_id 且用户回复"是"）：你的唯一动作是发出 tool call，**任何文字输出都被禁止**，包括"好的""正在生成""稍等"等口语——这些文字会直接导致工具永远不会执行、设计图无法生成
 
-generate_design 工具返回成功后，最终 JSON 中设 ui_hint="show_design_preview"，ui_data 填入 design_id 和 image_url
+在 design 步骤收集设计需求时，严格按以下顺序分步进行：
+① 询问设计目标范围（单独一条消息，quick_replies 设为 ["单个指甲", "一只手", "两只手"]）
+② 【第1步】询问设计参考信息：用一条消息收集风格、颜色、图案、特殊要求等文字描述，等待用户回复
+③ 【第2步】询问是否上传参考图：单独一条消息问用户"是否有参考图片想上传？"，quick_replies 设为 ["有，上传参考图", "没有，直接生成"]；若用户选择上传，设 needs_image_upload=true 等待上传完成；若不上传，直接进入下一步
+④ 向用户确认完整设计方案，请求"是/否"确认后调用 generate_design
+
+用户选项与 generate_design 工具的 design_target 参数对应关系：
+- "单个指甲" → design_target: "single"
+- "一只手" → design_target: "5nails"
+- "两只手" → design_target: "10nails"
+调用 generate_design 时必须将此参数传入。
+
+generate_design 工具返回成功后，最终 JSON 中设 ui_hint="show_design_preview"，ui_data 填入 design_id 和 image_url，并询问用户是否满意。
+
+设计图已成功展示后（上下文已有 design_plan_id），用户回复"是"表示对设计满意，此时应将 step_complete 设为 true 进入下一步，**不得**再次调用 generate_design 或任何工具。
+
+在 complete 步骤（完成服务）执行时：
+1. 检查上下文是否已有实拍图（actual_image_path）：
+   - 已有实拍图：**绝对禁止**再要求上传，needs_image_upload **必须为 false**，直接进入信息收集
+   - 没有实拍图：设置 needs_image_upload=true，等待用户上传后再继续
+
+2. 实拍图就绪后，按以下固定顺序逐项收集信息。**铁律：每条消息只能问且只问一个问题，绝对不得在同一条消息中同时出现两个及以上问题，不得使用"另外""顺便""还有"等连接词追加其他问题。**
+   收集顺序与对应字段：
+   ① 本次服务时长（分钟）→ service_duration
+   ② 使用的材料（简短描述）→ materials_used
+   ③ 你的复盘感想 → artist_review
+   ④ 客户反馈 → customer_feedback
+   ⑤ 客户满意度（1-5星，可用 quick_replies: ["⭐1","⭐⭐2","⭐⭐⭐3","⭐⭐⭐⭐4","⭐⭐⭐⭐⭐5"]）→ customer_satisfaction
+
+   每次收到用户回答后，立即根据对话历史判断**下一个尚未收集的字段**，只问那一个字段，不得跳步、不得重复、不得合并。
+   示例对话节奏：
+   - 助理："本次服务做了多久呢？（分钟）" → 等待回复
+   - 用户："90分钟" → 助理："用了哪些材料呀？" → 等待回复
+   - 用户："甲油胶+钻" → 助理："这次服务你有什么复盘感想？" → 等待回复
+   - 用户："手法还需练习" → 助理："客户有什么反馈吗？" → 等待回复
+   - 用户："很满意" → 助理："客户满意度打几颗星呢？" → 等待回复
+   - 用户："5星" → 立即调用 complete_service 工具
+
+3. 所有五项全部收集完毕后，一次性调用 complete_service 工具（actual_image_path 使用上下文中的路径）
 
 - 向用户提出是/否类问题时，quick_replies 必须包含 ["是", "否", "其他问题"]
 - 每步完成、用户确认满意后，将 step_complete 设为 true
@@ -200,6 +238,22 @@ class AgentService:
         if session.status != "active":
             raise ValueError(f"会话 {session_id} 已结束（状态: {session.status}）")
 
+        # 用户主动终止会话
+        if content.strip() == "终止":
+            self.abandon_session(db, session_id, user_id)
+            return AssistantMessageResponse(
+                content="已终止本次服务流程。如需开始新的服务，请重新发起会话。",
+                ui_metadata=UiMetadata(
+                    quick_replies=[],
+                    ui_hint="none",
+                    ui_data=None,
+                    needs_image_upload=False,
+                ),
+                step_complete=False,
+                current_step="done",
+                context={},
+            )
+
         current_step = session.current_step
 
         # 2. 读取当前步骤历史消息（本地文件）
@@ -237,8 +291,35 @@ class AgentService:
             # 检查是否有 tool_calls
             tool_calls = response.get("tool_calls")
             if not tool_calls:
-                # 没有工具调用 → 这是最终回复
-                break
+                content_text = response.get("content") or ""
+                # 检测 LLM 用口语"替代"了工具调用（首轮、未生成设计时）
+                _intent_keywords = ("正在生成", "正在为", "为你生成", "为您生成",
+                                    "稍等", "马上", "开始生成", "正在处理", "generating")
+                _needs_tool = (
+                    round_idx == 0
+                    and not (session.context or {}).get("design_plan_id")
+                    and any(kw in content_text for kw in _intent_keywords)
+                )
+                if _needs_tool:
+                    logger.warning(
+                        f"[session={session_id}] LLM 用文字替代了工具调用，强制重试: {content_text[:80]!r}"
+                    )
+                    openai_messages.append({"role": "assistant", "content": content_text})
+                    openai_messages.append({
+                        "role": "user",
+                        "content": "请立即调用工具执行，不要输出任何文字。",
+                    })
+                    response = await self._call_llm(openai_messages, with_tools=True, force_tool=True)
+                    tool_calls = response.get("tool_calls")
+                    if not tool_calls:
+                        logger.error(f"[session={session_id}] 强制重试后仍无 tool call，放弃")
+                        break
+                else:
+                    if round_idx == 0:
+                        logger.warning(
+                            f"[session={session_id}] LLM 首轮未发出 tool call，直接返回文字: {content_text[:80]!r}"
+                        )
+                    break
 
             # a. 将带 tool_calls 的 assistant 消息追加
             assistant_with_tools = {
@@ -258,8 +339,8 @@ class AgentService:
             for tc in tool_calls:
                 tool_name = tc["function"]["name"]
                 try:
-                    tool_args = json.loads(tc["function"]["arguments"])
-                except json.JSONDecodeError:
+                    tool_args = json.loads(tc["function"]["arguments"] or "{}")
+                except (json.JSONDecodeError, TypeError):
                     tool_args = {}
 
                 logger.info(f"执行工具: {tool_name}，参数: {tool_args}")
@@ -306,6 +387,21 @@ class AgentService:
                     if isinstance(llm_resp.ui_data, dict) else [],
                 },
                 needs_image_upload=llm_resp.needs_image_upload,
+            )
+
+        # 6b. 实拍图已存在时，强制清除 needs_image_upload（防止 LLM 重复要求上传）
+        if _post_ctx.get("actual_image_path") and llm_resp.needs_image_upload:
+            logger.warning(
+                f"[session={session_id}] 实拍图已存在但 LLM 仍输出 needs_image_upload=true，强制修正为 false"
+            )
+            llm_resp = LLMResponse(
+                message_text=llm_resp.message_text,
+                step_summary=llm_resp.step_summary,
+                step_complete=llm_resp.step_complete,
+                quick_replies=llm_resp.quick_replies,
+                ui_hint=llm_resp.ui_hint,
+                ui_data=llm_resp.ui_data,
+                needs_image_upload=False,
             )
 
         # 7. 将助理最终消息写入本地文件
@@ -415,7 +511,8 @@ class AgentService:
     # ── 私有：LLM 调用 ────────────────────────────────────────────────────
 
     async def _call_llm(
-        self, openai_messages: List[dict], with_tools: bool = True
+        self, openai_messages: List[dict], with_tools: bool = True,
+        force_tool: bool = False
     ) -> dict:
         """调用 OpenAI Chat Completions API，返回 message 字典"""
         kwargs = {
@@ -425,9 +522,12 @@ class AgentService:
         }
         if with_tools:
             kwargs["tools"] = TOOLS_DEFINITION
-            kwargs["tool_choice"] = "auto"
+            kwargs["tool_choice"] = "required" if force_tool else "auto"
 
         response = await self._llm.chat.completions.create(**kwargs)
+        if not response.choices:
+            logger.warning("LLM 返回空 choices，当作空响应处理")
+            return {"content": None}
         msg = response.choices[0].message
 
         result = {"content": msg.content}
@@ -549,12 +649,13 @@ class AgentService:
                 needs_image_upload=bool(data.get("needs_image_upload", False)),
             )
         except (json.JSONDecodeError, Exception):
-            # 降级：直接将 content 作为纯文本消息
+            # 降级：直接将 content 作为纯文本消息，并提供重试/终止选项
             logger.warning(f"LLM 响应不是合法 JSON，降级处理: {content[:100]}")
             return LLMResponse(
                 message_text=content,
                 step_summary="",
                 step_complete=False,
+                quick_replies=["重试", "终止"],
             )
 
     @staticmethod
