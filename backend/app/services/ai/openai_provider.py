@@ -1,5 +1,8 @@
 import json
 import logging
+import os
+import uuid
+import httpx
 from typing import Dict, Optional, List
 from openai import AsyncOpenAI
 from app.services.ai.base import AIProvider
@@ -45,9 +48,23 @@ class OpenAIProvider(AIProvider):
                 n=1
             )
 
-            image_url = response.data[0].url
-            logger.info(f"设计生成成功: {image_url}")
-            return image_url
+            cdn_url = response.data[0].url
+            logger.info(f"DALL-E 3 生成成功，开始下载图片: {cdn_url[:80]}...")
+
+            # 下载图片并保存到本地，避免临时 CDN URL 过期
+            async with httpx.AsyncClient(timeout=60) as http:
+                img_resp = await http.get(cdn_url)
+                img_resp.raise_for_status()
+
+            filename = f"design_{uuid.uuid4().hex[:12]}.png"
+            filepath = os.path.join(settings.UPLOAD_DIR, "designs", filename)
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, "wb") as f:
+                f.write(img_resp.content)
+
+            local_path = f"/uploads/designs/{filename}"
+            logger.info(f"图片已保存本地: {local_path}")
+            return local_path
 
         except Exception as e:
             logger.error(f"DALL-E 3 生成失败: {e}")
@@ -82,6 +99,16 @@ class OpenAIProvider(AIProvider):
 注意：必须保持指甲形状和长度与原图一致，只按优化指令调整设计风格和细节。"""
 
         try:
+            # 构建图片内容：本地路径转 base64，HTTP URL 直接使用
+            if original_image.startswith("/uploads/"):
+                import base64
+                local_path = os.path.join(settings.UPLOAD_DIR, original_image[len("/uploads/"):])
+                with open(local_path, "rb") as f:
+                    b64_data = base64.b64encode(f.read()).decode("utf-8")
+                image_content = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_data}"}}
+            else:
+                image_content = {"type": "image_url", "image_url": {"url": original_image}}
+
             response = await self.client.chat.completions.create(
                 model=self.vision_model,
                 messages=[
@@ -89,7 +116,7 @@ class OpenAIProvider(AIProvider):
                         "role": "user",
                         "content": [
                             {"type": "text", "text": analysis_prompt},
-                            {"type": "image_url", "image_url": {"url": original_image}}
+                            image_content,
                         ]
                     }
                 ],
