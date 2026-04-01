@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'service_record.g.dart';
 
-/// 服务记录数据模型
+/// Service record data model
 @JsonSerializable()
 class ServiceRecord {
   final int id;
@@ -85,7 +85,7 @@ class ServiceRecord {
   }
 }
 
-/// 服务记录列表响应
+/// Service record list response
 @JsonSerializable()
 class ServiceRecordListResponse {
   final List<ServiceRecord> items;

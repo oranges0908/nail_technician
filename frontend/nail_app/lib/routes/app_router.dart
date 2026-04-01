@@ -22,10 +22,10 @@ import '../screens/abilities/ability_trend_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../utils/constants.dart';
 
-/// 应用路由配置
-/// 使用 go_router 进行路由管理，包含认证守卫
+/// Application router configuration
+/// Uses go_router for navigation, including authentication guards
 class AppRouter {
-  /// 需要在 main 中设置，用于路由守卫获取 AuthProvider
+  /// Must be set in main() so the route guard can access AuthProvider
   static AuthProvider? _authProvider;
 
   static void setAuthProvider(AuthProvider provider) {
@@ -40,35 +40,35 @@ class AppRouter {
     initialLocation: Constants.splashRoute,
     refreshListenable: _authProvider,
     routes: [
-      // 启动页
+      // Splash screen
       GoRoute(
         path: Constants.splashRoute,
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // 登录页
+      // Login screen
       GoRoute(
         path: Constants.loginRoute,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // 注册页
+      // Register screen
       GoRoute(
         path: Constants.registerRoute,
         name: 'register',
         builder: (context, state) => const RegisterScreen(),
       ),
 
-      // 主页
+      // Home screen
       GoRoute(
         path: Constants.homeRoute,
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
 
-      // 客户管理
+      // Customer management
       GoRoute(
         path: Constants.customersRoute,
         name: 'customers',
@@ -104,7 +104,7 @@ class AppRouter {
         },
       ),
 
-      // 灵感图库
+      // Inspiration gallery
       GoRoute(
         path: Constants.inspirationsRoute,
         name: 'inspirations',
@@ -116,7 +116,7 @@ class AppRouter {
         builder: (context, state) => const InspirationUploadScreen(),
       ),
 
-      // 设计方案
+      // Design plans
       GoRoute(
         path: Constants.designsRoute,
         name: 'designs',
@@ -136,7 +136,7 @@ class AppRouter {
         },
       ),
 
-      // 服务记录
+      // Service records
       GoRoute(
         path: Constants.servicesRoute,
         name: 'services',
@@ -164,7 +164,7 @@ class AppRouter {
         },
       ),
 
-      // AI 对话助理
+      // AI chat assistant
       GoRoute(
         path: '/chat',
         name: 'chat',
@@ -180,7 +180,7 @@ class AppRouter {
         },
       ),
 
-      // 能力中心
+      // Ability center
       GoRoute(
         path: Constants.abilitiesRoute,
         name: 'abilities',
@@ -196,12 +196,12 @@ class AppRouter {
       ),
     ],
 
-    // 路由守卫
+    // Route guard
     redirect: (context, state) {
       final authProvider = _authProvider;
       if (authProvider == null) return null;
 
-      // 初始化未完成时，停留在 splash
+      // Stay on splash while initialization is not complete
       if (!authProvider.initialized) {
         if (state.matchedLocation != Constants.splashRoute) {
           return Constants.splashRoute;
@@ -214,17 +214,17 @@ class AppRouter {
           state.matchedLocation == Constants.registerRoute;
       final isSplash = state.matchedLocation == Constants.splashRoute;
 
-      // splash 页面初始化完成后，根据登录状态跳转
+      // After splash initialization, redirect based on login state
       if (isSplash) {
         return isLoggedIn ? Constants.homeRoute : Constants.loginRoute;
       }
 
-      // 未登录且不在认证页面，跳转到登录页
+      // Not logged in and not on an auth page — redirect to login
       if (!isLoggedIn && !isAuthRoute) {
         return Constants.loginRoute;
       }
 
-      // 已登录且在认证页面，跳转到主页
+      // Logged in and on an auth page — redirect to home
       if (isLoggedIn && isAuthRoute) {
         return Constants.homeRoute;
       }
@@ -232,7 +232,7 @@ class AppRouter {
       return null;
     },
 
-    // 错误页面
+    // Error page
     errorBuilder: (context, state) {
       return const SplashScreen();
     },

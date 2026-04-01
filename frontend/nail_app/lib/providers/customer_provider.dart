@@ -4,7 +4,7 @@ import '../models/customer_profile.dart';
 import '../services/customer_service.dart';
 import '../config/app_config.dart';
 
-/// 客户管理状态
+/// Customer management state
 class CustomerProvider extends ChangeNotifier {
   final CustomerService _service;
 
@@ -28,7 +28,7 @@ class CustomerProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   bool get hasMore => _hasMore;
 
-  /// 加载客户列表（首次/刷新）
+  /// Load customer list (initial / refresh)
   Future<void> loadCustomers({String? search}) async {
     _isLoading = true;
     _error = null;
@@ -53,7 +53,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载更多（分页）
+  /// Load more (pagination)
   Future<void> loadMore() async {
     if (_isLoading || !_hasMore) return;
 
@@ -78,7 +78,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 获取客户详情
+  /// Get customer detail
   Future<void> getCustomerDetail(int customerId) async {
     _isLoading = true;
     _error = null;
@@ -94,7 +94,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 创建客户
+  /// Create customer
   Future<Customer?> createCustomer({
     required String name,
     required String phone,
@@ -125,7 +125,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 更新客户
+  /// Update customer
   Future<Customer?> updateCustomer(int customerId, {
     String? name,
     String? phone,
@@ -162,7 +162,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 删除客户
+  /// Delete customer
   Future<bool> deleteCustomer(int customerId) async {
     _isLoading = true;
     _error = null;
@@ -186,7 +186,7 @@ class CustomerProvider extends ChangeNotifier {
     }
   }
 
-  /// 更新客户档案
+  /// Update customer profile
   Future<CustomerProfile?> updateProfile(
     int customerId,
     Map<String, dynamic> profileData,
@@ -224,16 +224,16 @@ class CustomerProvider extends ChangeNotifier {
   String _parseError(dynamic error) {
     final msg = error.toString();
     if (msg.contains('409')) {
-      return '该手机号已被使用';
+      return 'This phone number is already in use';
     } else if (msg.contains('404')) {
-      return '客户不存在';
+      return 'Customer not found';
     } else if (msg.contains('422')) {
-      return '输入信息格式不正确';
+      return 'Invalid input format';
     } else if (msg.contains('SocketException') || msg.contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (msg.contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     }
-    return '操作失败，请重试';
+    return 'Operation failed, please retry';
   }
 }

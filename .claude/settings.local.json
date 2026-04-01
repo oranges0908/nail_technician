@@ -31,7 +31,22 @@
       "Bash(docker build:*)",
       "Bash(docker run:*)",
       "Bash(grep:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(git push:*)",
+      "Bash(docker images:*)",
+      "Bash(conda run:*)",
+      "Bash(conda info:*)",
+      "Bash(pip show:*)",
+      "Bash(./scripts/nail-service.sh:*)",
+      "Bash(git rm:*)",
+      "Bash(git -C /Users/mmf/study/python/nail ls-files backend/data/uploads/)",
+      "Bash(sudo gem uninstall ffi && sudo gem install ffi -- --enable-libffi-alloc)",
+      "Bash(find /Users/mmf/study/python/nail/frontend/nail_app/lib -type f \\\\\\(-name *.dart \\\\\\) -exec grep -n [^x00-x7F] {} +)",
+      "Bash(find /Users/mmf/study/python/nail/backend/app -type f \\\\\\(-name *.py \\\\\\) -exec grep -n [^x00-x7F] {} +)",
+      "Bash(done)",
+      "Bash(for file:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/mmf/study/python/nail/**)"
     ]
   }
 }

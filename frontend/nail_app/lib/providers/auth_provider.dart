@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 
-/// 认证状态管理
-/// 管理用户登录状态、用户信息、加载状态和错误信息
+/// Authentication state management
+/// Manages user login state, user info, loading state, and error messages
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
 
@@ -24,9 +24,9 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   bool get initialized => _initialized;
 
-  // ==================== 初始化 ====================
+  // ==================== Initialization ====================
 
-  /// 检查本地存储的登录状态，恢复会话
+  /// Check local storage for login state and restore session
   Future<void> initialize() async {
     if (_initialized) return;
 
@@ -36,13 +36,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       final loggedIn = await _authService.isLoggedIn();
       if (loggedIn) {
-        // 尝试获取用户信息验证 token 是否有效
+        // Attempt to fetch user info to verify token is still valid
         final user = await _authService.getCurrentUser();
         if (user != null) {
           _user = user;
           _isLoggedIn = true;
         } else {
-          // Token 无效，清除本地数据
+          // Token invalid — clear local data
           await _authService.logout();
           _isLoggedIn = false;
         }
@@ -56,13 +56,13 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ==================== 登录 ====================
+  // ==================== Login ====================
 
-  /// 用户登录
+  /// User login
   ///
-  /// 参数:
-  /// - emailOrUsername: 邮箱或用户名
-  /// - password: 密码
+  /// Parameters:
+  /// - emailOrUsername: email address or username
+  /// - password: password
   Future<bool> login({
     required String emailOrUsername,
     required String password,
@@ -77,7 +77,7 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
 
-      // 获取用户信息
+      // Fetch user info
       final user = await _authService.getCurrentUser();
       if (user != null) {
         _user = user;
@@ -96,15 +96,15 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ==================== 注册 ====================
+  // ==================== Register ====================
 
-  /// 用户注册
+  /// User registration
   ///
-  /// 参数:
-  /// - email: 邮箱
-  /// - username: 用户名
-  /// - password: 密码
-  /// - inviteCode: 邀请码
+  /// Parameters:
+  /// - email: email address
+  /// - username: username
+  /// - password: password
+  /// - inviteCode: invitation code
   Future<bool> register({
     required String email,
     required String username,
@@ -123,7 +123,7 @@ class AuthProvider extends ChangeNotifier {
         inviteCode: inviteCode,
       );
 
-      // 注册成功后自动登录
+      // Auto-login after successful registration
       return await login(
         emailOrUsername: email,
         password: password,
@@ -136,9 +136,9 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ==================== 登出 ====================
+  // ==================== Logout ====================
 
-  /// 用户登出
+  /// User logout
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
@@ -146,7 +146,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _authService.logout();
     } catch (e) {
-      // 忽略登出 API 错误
+      // Ignore logout API errors
     } finally {
       _user = null;
       _isLoggedIn = false;
@@ -156,33 +156,33 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ==================== 辅助方法 ====================
+  // ==================== Helper Methods ====================
 
-  /// 清除错误信息
+  /// Clear error message
   void clearError() {
     _error = null;
     notifyListeners();
   }
 
-  /// 解析错误信息
+  /// Parse error message
   String _parseError(dynamic error) {
     if (error.toString().contains('401')) {
-      return '用户名或密码错误';
+      return 'Incorrect username or password';
     } else if (error.toString().contains('409') ||
         error.toString().contains('already')) {
-      return '该邮箱或用户名已被注册';
-    } else if (error.toString().contains('邀请码错误') ||
+      return 'This email or username is already registered';
+    } else if (error.toString().contains('invite code error') ||
         (error.toString().contains('400') &&
             error.toString().contains('invite'))) {
-      return '邀请码错误，请确认后重试';
+      return 'Invalid invitation code, please verify and retry';
     } else if (error.toString().contains('422')) {
-      return '输入信息格式不正确';
+      return 'Invalid input format';
     } else if (error.toString().contains('SocketException') ||
         error.toString().contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (error.toString().contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     }
-    return '操作失败，请重试';
+    return 'Operation failed, please retry';
   }
 }

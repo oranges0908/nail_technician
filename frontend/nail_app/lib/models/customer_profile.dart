@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'customer_profile.g.dart';
 
-/// 客户详细档案模型
+/// Customer detailed profile model
 @JsonSerializable()
 class CustomerProfile {
   final int id;

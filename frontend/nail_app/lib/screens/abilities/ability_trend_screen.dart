@@ -6,8 +6,8 @@ import '../../config/theme_config.dart';
 import '../../providers/ability_provider.dart';
 import '../../utils/constants.dart';
 
-/// 能力趋势详情页
-/// 展示某个维度的历史评分趋势图
+/// Ability trend detail screen
+/// Displays the historical score trend chart for a specific dimension
 class AbilityTrendScreen extends StatefulWidget {
   final String dimensionName;
 
@@ -62,15 +62,15 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 趋势概要
+                // Trend summary
                 _buildSummaryCard(provider),
                 const SizedBox(height: 20),
 
-                // 趋势图
+                // Trend chart
                 _buildTrendChartCard(provider),
                 const SizedBox(height: 20),
 
-                // 历史记录列表
+                // History list
                 _buildHistoryList(provider),
               ],
             ),
@@ -98,7 +98,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.dimensionName}趋势',
+              '${widget.dimensionName} Trend',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -108,22 +108,22 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
             Row(
               children: [
                 _buildStatItem(
-                  '最新评分',
+                  'Latest Score',
                   latestScore.toStringAsFixed(0),
                   _getScoreColor(latestScore),
                 ),
                 _buildStatItem(
-                  '平均评分',
+                  'Average Score',
                   avgScore.toStringAsFixed(1),
                   ThemeConfig.infoColor,
                 ),
                 _buildStatItem(
-                  '变化趋势',
+                  'Change',
                   '${change >= 0 ? "+" : ""}${change.toStringAsFixed(0)}',
                   change >= 0 ? ThemeConfig.successColor : ThemeConfig.errorColor,
                 ),
                 _buildStatItem(
-                  '评分次数',
+                  'Score Count',
                   '${points.length}',
                   ThemeConfig.textSecondaryLight,
                 ),
@@ -168,7 +168,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '评分趋势',
+              'Score Trend',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -197,7 +197,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '历史记录',
+          'History',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -230,7 +230,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
                   ),
                 ),
               ),
-              title: Text('评分: ${score.toStringAsFixed(0)}'),
+              title: Text('Score: ${score.toStringAsFixed(0)}'),
               subtitle: Text(
                 displayDate,
                 style: TextStyle(
@@ -259,7 +259,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '暂无"${widget.dimensionName}"的评分记录',
+              'No score records for "${widget.dimensionName}"',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -267,7 +267,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '完成服务并进行 AI 分析后\n将自动生成该维度的评分',
+              'Complete a service and run AI analysis\nto automatically generate scores for this dimension',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -288,7 +288,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
   }
 }
 
-/// 趋势折线图绘制器
+/// Trend line chart painter
 class TrendChartPainter extends CustomPainter {
   final List<Map<String, dynamic>> dataPoints;
 
@@ -306,7 +306,7 @@ class TrendChartPainter extends CustomPainter {
     final chartWidth = size.width - paddingLeft - paddingRight;
     final chartHeight = size.height - paddingTop - paddingBottom;
 
-    // 绘制Y轴刻度和网格线
+    // Draw Y-axis ticks and grid lines
     final gridPaint = Paint()
       ..color = Colors.grey.withOpacity(0.2)
       ..style = PaintingStyle.stroke
@@ -339,13 +339,13 @@ class TrendChartPainter extends CustomPainter {
       );
     }
 
-    // 绘制数据线
+    // Draw data line
     final scores = dataPoints
         .map((p) => (p['score'] as num?)?.toDouble() ?? 0)
         .toList();
 
     if (scores.length == 1) {
-      // 单个点
+      // Single point
       final x = paddingLeft + chartWidth / 2;
       final y = paddingTop + chartHeight * (1 - scores[0] / 100);
       final dotPaint = Paint()
@@ -357,7 +357,7 @@ class TrendChartPainter extends CustomPainter {
 
     final stepX = chartWidth / (scores.length - 1);
 
-    // 绘制填充区域
+    // Draw fill area
     final fillPath = Path();
     fillPath.moveTo(paddingLeft, paddingTop + chartHeight);
     for (int i = 0; i < scores.length; i++) {
@@ -379,7 +379,7 @@ class TrendChartPainter extends CustomPainter {
       ).createShader(Rect.fromLTWH(0, paddingTop, size.width, chartHeight));
     canvas.drawPath(fillPath, fillPaint);
 
-    // 绘制线条
+    // Draw line
     final linePath = Path();
     for (int i = 0; i < scores.length; i++) {
       final x = paddingLeft + stepX * i;
@@ -399,7 +399,7 @@ class TrendChartPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
     canvas.drawPath(linePath, linePaint);
 
-    // 绘制数据点
+    // Draw data points
     final dotPaint = Paint()
       ..color = ThemeConfig.primaryColor
       ..style = PaintingStyle.fill;

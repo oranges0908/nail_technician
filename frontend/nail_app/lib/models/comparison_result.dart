@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'comparison_result.g.dart';
 
-/// AI对比分析结果数据模型
+/// AI comparison analysis result data model
 @JsonSerializable()
 class ComparisonResult {
   final int id;

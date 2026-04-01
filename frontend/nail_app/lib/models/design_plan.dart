@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'design_plan.g.dart';
 
-/// 设计方案数据模型
+/// Design plan data model
 @JsonSerializable()
 class DesignPlan {
   final int id;
@@ -99,7 +99,7 @@ class DesignPlan {
   }
 }
 
-/// 设计方案列表响应
+/// Design plan list response
 @JsonSerializable()
 class DesignPlanListResponse {
   final int total;

@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'conversation.g.dart';
 
-/// UI 渲染元数据（由后端 LLM 决策）
+/// UI rendering metadata (determined by backend LLM)
 @JsonSerializable()
 class UiMetadata {
   @JsonKey(name: 'quick_replies')
@@ -32,7 +32,7 @@ class UiMetadata {
   static UiMetadata empty() => const UiMetadata();
 }
 
-/// 服务端返回的助理消息
+/// Assistant message returned from the server
 @JsonSerializable()
 class AssistantMessage {
   final String content;
@@ -61,14 +61,14 @@ class AssistantMessage {
   Map<String, dynamic> toJson() => _$AssistantMessageToJson(this);
 }
 
-/// 前端本地消息对象（用户消息 + 助理消息统一列表）
+/// Local frontend chat message object (unified list of user and assistant messages)
 class ChatMessage {
   final String role; // "user" | "assistant"
   final String content;
   final UiMetadata? uiMetadata;
-  final List<String>? imagePaths; // 服务器端图片路径（用于 Image.network）
-  final Uint8List? imageBytes;   // 本地图片字节（上传前预览，用于 Image.memory）
-  final bool isLoading; // 发送中占位符
+  final List<String>? imagePaths; // Server-side image paths (for Image.network)
+  final Uint8List? imageBytes;   // Local image bytes (preview before upload, for Image.memory)
+  final bool isLoading; // Sending placeholder
   final DateTime timestamp;
 
   const ChatMessage({
@@ -105,7 +105,7 @@ class ChatMessage {
   }
 }
 
-/// 会话对象（服务端）
+/// Conversation session object (server-side)
 @JsonSerializable()
 class ConversationSession {
   final int id;
@@ -147,7 +147,7 @@ class ConversationSession {
   Map<String, dynamic> toJson() => _$ConversationSessionToJson(this);
 }
 
-/// 创建会话响应
+/// Create session response
 @JsonSerializable()
 class StartSessionResponse {
   @JsonKey(name: 'session_id')
@@ -180,7 +180,7 @@ class StartSessionResponse {
   Map<String, dynamic> toJson() => _$StartSessionResponseToJson(this);
 }
 
-/// 发送消息响应
+/// Send message response
 @JsonSerializable()
 class SendMessageResponse {
   final AssistantMessage message;
@@ -198,7 +198,7 @@ class SendMessageResponse {
   Map<String, dynamic> toJson() => _$SendMessageResponseToJson(this);
 }
 
-/// 会话列表响应
+/// Session list response
 @JsonSerializable()
 class SessionListResponse {
   final int total;

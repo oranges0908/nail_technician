@@ -2,8 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'token.g.dart';
 
-/// Token 数据模型
-/// 与后端 Token Schema 对应
+/// Token data model
+/// Corresponds to the backend Token Schema
 @JsonSerializable()
 class Token {
   @JsonKey(name: 'access_token')
@@ -21,10 +21,10 @@ class Token {
     this.refreshToken,
   });
 
-  /// 从 JSON 创建 Token 对象
+  /// Create a Token object from JSON
   factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
 
-  /// 将 Token 对象转换为 JSON
+  /// Convert Token object to JSON
   Map<String, dynamic> toJson() => _$TokenToJson(this);
 
   @override

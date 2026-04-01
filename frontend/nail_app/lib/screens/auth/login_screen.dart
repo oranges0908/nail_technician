@@ -6,7 +6,7 @@ import '../../config/app_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/constants.dart';
 
-/// 登录页面
+/// Login screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// 执行登录
+  /// Handle login
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 应用名称
+                  // App name
                   Text(
                     AppConfig.appName,
                     textAlign: TextAlign.center,
@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
 
-                  // 错误提示
+                  // Error message
                   Consumer<AuthProvider>(
                     builder: (context, auth, _) {
                       if (auth.error == null) return const SizedBox.shrink();
@@ -122,15 +122,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  // 邮箱/用户名输入框
+                  // Email / username field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
-                      labelText: '邮箱或用户名',
-                      hintText: '请输入邮箱或用户名',
-                      helperText: '必填',
+                      labelText: 'Email or Username',
+                      hintText: 'Enter your email or username',
+                      helperText: 'Required',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -142,16 +142,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 密码输入框
+                  // Password field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _handleLogin(),
                     decoration: InputDecoration(
-                      labelText: '密码',
-                      hintText: '请输入密码',
-                      helperText: '至少6位字符',
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      helperText: 'At least 6 characters',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -178,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // 记住我
+                  // Remember me
                   Row(
                     children: [
                       SizedBox(
@@ -196,14 +196,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(width: 8),
                       const Text(
-                        '记住我',
+                        'Remember me',
                         style: TextStyle(fontSize: 14),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
 
-                  // 登录按钮
+                  // Login button
                   Consumer<AuthProvider>(
                     builder: (context, auth, _) {
                       return SizedBox(
@@ -222,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 )
                               : const Text(
-                                  '登录',
+                                  'Log In',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -234,12 +234,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // 注册链接
+                  // Register link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        '还没有账号？',
+                        "Don't have an account?",
                         style: TextStyle(fontSize: 14),
                       ),
                       TextButton(
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           context.go(Constants.registerRoute);
                         },
                         child: const Text(
-                          '立即注册',
+                          'Sign Up',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

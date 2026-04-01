@@ -3,7 +3,7 @@ import 'customer_profile.dart';
 
 part 'customer.g.dart';
 
-/// 客户数据模型
+/// Customer data model
 @JsonSerializable()
 class Customer {
   final int id;
@@ -62,7 +62,7 @@ class Customer {
   }
 }
 
-/// 客户列表响应
+/// Customer list response
 @JsonSerializable()
 class CustomerListResponse {
   final int total;

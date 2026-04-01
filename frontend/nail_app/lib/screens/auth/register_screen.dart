@@ -6,7 +6,7 @@ import '../../config/app_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/constants.dart';
 
-/// 注册页面
+/// Registration screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
 
@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  /// 执行注册
+  /// Handle registration
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.loginRoute),
         ),
-        title: const Text('注册'),
+        title: const Text('Sign Up'),
       ),
       body: SafeArea(
         child: Center(
@@ -79,7 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '创建 ${AppConfig.appName} 账号',
+                    'Create a ${AppConfig.appName} Account',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 22,
@@ -88,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // 错误提示
+                  // Error message
                   Consumer<AuthProvider>(
                     builder: (context, auth, _) {
                       if (auth.error == null) return const SizedBox.shrink();
@@ -125,15 +125,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
 
-                  // 邮箱输入框
+                  // Email field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
-                      labelText: '邮箱',
-                      hintText: '请输入邮箱地址',
-                      helperText: '必填，需为有效邮箱格式',
+                      labelText: 'Email',
+                      hintText: 'Enter your email address',
+                      helperText: 'Required, must be a valid email format',
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (value) {
@@ -148,14 +148,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 用户名输入框
+                  // Username field
                   TextFormField(
                     controller: _usernameController,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
-                      labelText: '用户名',
-                      hintText: '3-20位字母、数字或下划线',
-                      helperText: '必填，3-20位字母、数字或下划线',
+                      labelText: 'Username',
+                      hintText: '3-20 letters, digits, or underscores',
+                      helperText: 'Required, 3-20 letters, digits, or underscores',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -163,22 +163,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return Constants.emptyUsernameError;
                       }
                       if (!Constants.usernameRegex.hasMatch(value.trim())) {
-                        return '用户名格式不正确（3-20位字母、数字或下划线）';
+                        return 'Invalid username format (3-20 letters, digits, or underscores)';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // 密码输入框
+                  // Password field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: '密码',
-                      hintText: '至少6位',
-                      helperText: '必填，至少6位字符',
+                      labelText: 'Password',
+                      hintText: 'At least 6 characters',
+                      helperText: 'Required, at least 6 characters',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -205,15 +205,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 确认密码输入框
+                  // Confirm password field
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                      labelText: '确认密码',
-                      hintText: '再次输入密码',
-                      helperText: '必填，需与密码一致',
+                      labelText: 'Confirm Password',
+                      hintText: 'Enter your password again',
+                      helperText: 'Required, must match password',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -230,37 +230,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return '请确认密码';
+                        return 'Please confirm your password';
                       }
                       if (value != _passwordController.text) {
-                        return '两次输入的密码不一致';
+                        return 'Passwords do not match';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // 邀请码输入框
+                  // Invite code field
                   TextFormField(
                     controller: _inviteCodeController,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _handleRegister(),
                     decoration: const InputDecoration(
-                      labelText: '邀请码',
-                      hintText: '请输入邀请码',
-                      helperText: '必填',
+                      labelText: 'Invitation Code',
+                      hintText: 'Enter invitation code',
+                      helperText: 'Required',
                       prefixIcon: Icon(Icons.vpn_key_outlined),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return '请输入邀请码';
+                        return 'Please enter an invitation code';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 32),
 
-                  // 注册按钮
+                  // Register button
                   Consumer<AuthProvider>(
                     builder: (context, auth, _) {
                       return SizedBox(
@@ -279,7 +279,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 )
                               : const Text(
-                                  '注册',
+                                  'Sign Up',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -291,12 +291,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // 登录链接
+                  // Login link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        '已有账号？',
+                        'Already have an account?',
                         style: TextStyle(fontSize: 14),
                       ),
                       TextButton(
@@ -305,7 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           context.go(Constants.loginRoute);
                         },
                         child: const Text(
-                          '立即登录',
+                          'Log In',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

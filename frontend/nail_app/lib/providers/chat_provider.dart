@@ -5,16 +5,16 @@ import '../services/chat_service.dart';
 
 enum ChatStatus { idle, loading, sending, uploading, error }
 
-/// ChatProvider — 管理 AI 对话助理的前端状态
+/// ChatProvider — manages the frontend state of the AI chat assistant
 ///
-/// 职责：
-/// - 持有本地消息列表（含乐观更新）
-/// - 管理会话 ID 和当前步骤
-/// - 暴露 UI 元数据（快捷回复、UI 提示）
+/// Responsibilities:
+/// - Hold local message list (with optimistic updates)
+/// - Manage session ID and current step
+/// - Expose UI metadata (quick replies, UI hints)
 class ChatProvider extends ChangeNotifier {
   final ChatApiService _api = ChatApiService();
 
-  // ── 状态 ────────────────────────────────────────────────────────────────
+  // ── State ────────────────────────────────────────────────────────────────
 
   int? _sessionId;
   List<ChatMessage> _messages = [];
@@ -43,9 +43,9 @@ class ChatProvider extends ChangeNotifier {
   Map<String, dynamic>? get uiData => _currentUiMetadata.uiData;
   bool get needsImageUpload => _currentUiMetadata.needsImageUpload;
 
-  // ── 会话管理 ─────────────────────────────────────────────────────────────
+  // ── Session Management ───────────────────────────────────────────────────
 
-  /// 创建新会话，加入开场消息
+  /// Create a new session and add the opening message
   Future<void> startSession() async {
     _setStatus(ChatStatus.loading);
     _messages = [];
@@ -76,16 +76,16 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  /// 重置并重新创建会话
+  /// Reset and create a new session
   Future<void> newSession() async {
     _sessionId = null;
     _messages = [];
     await startSession();
   }
 
-  // ── 消息发送 ─────────────────────────────────────────────────────────────
+  // ── Message Sending ──────────────────────────────────────────────────────
 
-  /// 发送文本消息（乐观更新）
+  /// Send a text message (optimistic update)
   Future<void> sendMessage(
     String content, {
     List<String> imagePaths = const [],
@@ -93,7 +93,7 @@ class ChatProvider extends ChangeNotifier {
     if (_sessionId == null) return;
     if (isSending || isUploading) return;
 
-    // 乐观插入用户消息
+    // Optimistically insert user message
     final userMsg = ChatMessage(
       role: 'user',
       content: content,
@@ -102,7 +102,7 @@ class ChatProvider extends ChangeNotifier {
     );
     _messages.add(userMsg);
 
-    // 插入 loading 占位符
+    // Insert loading placeholder
     final loadingMsg = ChatMessage(
       role: 'assistant',
       content: '',
@@ -122,13 +122,13 @@ class ChatProvider extends ChangeNotifier {
       _applyAssistantReply(resp.message);
       _setStatus(ChatStatus.idle);
     } catch (e) {
-      // 回滚 loading 占位符
+      // Roll back loading placeholder
       _messages.removeLast();
       _setError('Failed to send message: $e');
     }
   }
 
-  /// 上传图片（multipart）
+  /// Upload an image (multipart)
   Future<void> uploadImage(
     Uint8List bytes,
     String filename, {
@@ -137,7 +137,7 @@ class ChatProvider extends ChangeNotifier {
     if (_sessionId == null) return;
     if (isSending || isUploading) return;
 
-    // 乐观插入用户图片消息（本地字节预览）
+    // Optimistically insert user image message (local bytes preview)
     _messages.add(ChatMessage(
       role: 'user',
       content: '',
@@ -145,7 +145,7 @@ class ChatProvider extends ChangeNotifier {
       timestamp: DateTime.now(),
     ));
 
-    // 插入 loading 占位符
+    // Insert loading placeholder
     final loadingMsg = ChatMessage(
       role: 'assistant',
       content: '',
@@ -166,7 +166,7 @@ class ChatProvider extends ChangeNotifier {
       _applyAssistantReply(resp.message);
       _setStatus(ChatStatus.idle);
     } catch (e) {
-      // 回滚 loading 占位符和用户图片消息
+      // Roll back loading placeholder and user image message
       _messages.removeWhere((m) => m.isLoading || m.imageBytes != null);
       _setError('Upload failed: $e');
     }
@@ -180,13 +180,13 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── 私有 ─────────────────────────────────────────────────────────────────
+  // ── Private ──────────────────────────────────────────────────────────────
 
   void _applyAssistantReply(AssistantMessage reply) {
-    // 移除 loading 占位符
+    // Remove loading placeholder
     _messages.removeWhere((m) => m.isLoading);
 
-    // 插入真实助理消息
+    // Insert real assistant message
     _messages.add(ChatMessage(
       role: 'assistant',
       content: reply.content,
@@ -194,7 +194,7 @@ class ChatProvider extends ChangeNotifier {
       timestamp: DateTime.now(),
     ));
 
-    // 更新步骤和上下文
+    // Update step and context
     _currentStep = reply.currentStep;
     _context = Map.from(reply.context);
     _currentUiMetadata = reply.uiMetadata;

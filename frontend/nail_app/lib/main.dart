@@ -15,10 +15,10 @@ import 'providers/chat_provider.dart';
 import 'routes/app_router.dart';
 
 void main() async {
-  // 确保 Flutter 绑定已初始化
+  // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 设置状态栏样式和屏幕方向（仅原生平台，Web 上不生效）
+  // Set status bar style and screen orientation (native platforms only, has no effect on Web)
   if (!kIsWeb) {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -33,7 +33,7 @@ void main() async {
     ]);
   }
 
-  // 创建 AuthProvider 并注册到路由
+  // Create AuthProvider and register it with the router
   final authProvider = AuthProvider();
   AppRouter.setAuthProvider(authProvider);
 
@@ -58,21 +58,21 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp.router(
-        // 应用标题
+        // App title
         title: AppConfig.appName,
 
-        // 主题配置
+        // Theme settings
         theme: ThemeConfig.lightTheme,
         darkTheme: ThemeConfig.darkTheme,
         themeMode: ThemeMode.light,
 
-        // 路由配置
+        // Router settings
         routerConfig: AppRouter.router,
 
-        // 调试横幅（生产环境关闭）
+        // Debug banner (disabled in production)
         debugShowCheckedModeBanner: !AppConfig.isProduction,
 
-        // 本地化配置
+        // Localization settings
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -84,10 +84,10 @@ class MyApp extends StatelessWidget {
         ],
         locale: const Locale('zh', 'CN'),
 
-        // 性能优化
+        // Performance optimization
         builder: (context, child) {
           return MediaQuery(
-            // 禁用系统字体缩放
+            // Disable system font scaling
             data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
             child: child!,
           );

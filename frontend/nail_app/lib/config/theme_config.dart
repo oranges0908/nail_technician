@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
-/// 主题配置类
-/// 定义应用的明暗主题
+/// Theme configuration class
+/// Defines the app's light and dark themes
 class ThemeConfig {
-  // 主色调
-  static const Color primaryColor = Color(0xFFE91E63); // 粉色（美甲主题色）
+  // Primary colors
+  static const Color primaryColor = Color(0xFFE91E63); // Pink (nail art theme color)
   static const Color primaryDarkColor = Color(0xFFC2185B);
   static const Color primaryLightColor = Color(0xFFF8BBD0);
 
-  // 辅助色
-  static const Color accentColor = Color(0xFF9C27B0); // 紫色
+  // Accent colors
+  static const Color accentColor = Color(0xFF9C27B0); // Purple
   static const Color secondaryColor = Color(0xFF673AB7);
 
-  // 语义颜色
+  // Semantic colors
   static const Color successColor = Color(0xFF4CAF50);
   static const Color warningColor = Color(0xFFFFC107);
   static const Color errorColor = Color(0xFFF44336);
   static const Color infoColor = Color(0xFF2196F3);
 
-  // 文字颜色
+  // Text colors
   static const Color textPrimaryLight = Color(0xFF212121);
   static const Color textSecondaryLight = Color(0xFF757575);
   static const Color textHintLight = Color(0xFFBDBDBD);
@@ -27,18 +27,18 @@ class ThemeConfig {
   static const Color textSecondaryDark = Color(0xFFB0B0B0);
   static const Color textHintDark = Color(0xFF808080);
 
-  // 背景颜色
+  // Background colors
   static const Color backgroundLight = Color(0xFFFAFAFA);
   static const Color surfaceLight = Color(0xFFFFFFFF);
 
   static const Color backgroundDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);
 
-  // 分割线颜色
+  // Divider colors
   static const Color dividerLight = Color(0xFFE0E0E0);
   static const Color dividerDark = Color(0xFF303030);
 
-  /// 明亮主题
+  /// Light theme
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -46,7 +46,7 @@ class ThemeConfig {
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundLight,
 
-      // 颜色方案
+      // Color scheme
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: accentColor,
@@ -60,7 +60,7 @@ class ThemeConfig {
         onSurface: textPrimaryLight,
       ),
 
-      // 文本主题
+      // Text theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
@@ -106,7 +106,7 @@ class ThemeConfig {
         ),
       ),
 
-      // AppBar 主题
+      // AppBar theme
       appBarTheme: const AppBarTheme(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
@@ -119,7 +119,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 卡片主题
+      // Card theme
       cardTheme: CardThemeData(
         color: surfaceLight,
         elevation: 2,
@@ -128,7 +128,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 按钮主题
+      // Button theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -141,7 +141,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 输入框主题
+      // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceLight,
@@ -164,13 +164,13 @@ class ThemeConfig {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
 
-      // 分割线主题
+      // Divider theme
       dividerTheme: const DividerThemeData(
         color: dividerLight,
         thickness: 1,
       ),
 
-      // 图标主题
+      // Icon theme
       iconTheme: const IconThemeData(
         color: textSecondaryLight,
         size: 24,
@@ -178,7 +178,7 @@ class ThemeConfig {
     );
   }
 
-  /// 暗黑主题
+  /// Dark theme
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -186,7 +186,7 @@ class ThemeConfig {
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundDark,
 
-      // 颜色方案
+      // Color scheme
       colorScheme: const ColorScheme.dark(
         primary: primaryColor,
         secondary: accentColor,
@@ -200,7 +200,7 @@ class ThemeConfig {
         onSurface: textPrimaryDark,
       ),
 
-      // 文本主题
+      // Text theme
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
@@ -246,7 +246,7 @@ class ThemeConfig {
         ),
       ),
 
-      // AppBar 主题
+      // AppBar theme
       appBarTheme: const AppBarTheme(
         backgroundColor: surfaceDark,
         foregroundColor: textPrimaryDark,
@@ -259,7 +259,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 卡片主题
+      // Card theme
       cardTheme: CardThemeData(
         color: surfaceDark,
         elevation: 2,
@@ -268,7 +268,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 按钮主题
+      // Button theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -281,7 +281,7 @@ class ThemeConfig {
         ),
       ),
 
-      // 输入框主题
+      // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceDark,
@@ -304,13 +304,13 @@ class ThemeConfig {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
 
-      // 分割线主题
+      // Divider theme
       dividerTheme: const DividerThemeData(
         color: dividerDark,
         thickness: 1,
       ),
 
-      // 图标主题
+      // Icon theme
       iconTheme: const IconThemeData(
         color: textSecondaryDark,
         size: 24,

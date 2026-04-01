@@ -4,7 +4,7 @@ import '../models/comparison_result.dart';
 import '../services/service_record_service.dart';
 import '../config/app_config.dart';
 
-/// 服务记录状态管理
+/// Service record state management
 class ServiceRecordProvider extends ChangeNotifier {
   final ServiceRecordService _service;
 
@@ -32,7 +32,7 @@ class ServiceRecordProvider extends ChangeNotifier {
   bool get hasMore => _hasMore;
   String? get statusFilter => _statusFilter;
 
-  /// 加载服务记录列表
+  /// Load service record list
   Future<void> loadRecords({int? customerId, String? status}) async {
     _isLoading = true;
     _error = null;
@@ -57,7 +57,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载更多
+  /// Load more
   Future<void> loadMore({int? customerId}) async {
     if (_isLoading || !_hasMore) return;
 
@@ -81,7 +81,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 创建服务记录
+  /// Create service record
   Future<ServiceRecord?> createRecord({
     required int customerId,
     int? designPlanId,
@@ -114,7 +114,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 完成服务
+  /// Complete service
   Future<ServiceRecord?> completeService(
     int id, {
     required String actualImagePath,
@@ -154,7 +154,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 获取服务记录详情
+  /// Get service record detail
   Future<void> getRecordDetail(int id) async {
     _isLoading = true;
     _error = null;
@@ -170,7 +170,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 获取对比分析结果
+  /// Get comparison analysis result
   Future<void> getComparison(int serviceId) async {
     _isAnalyzing = true;
     notifyListeners();
@@ -185,7 +185,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 触发AI分析
+  /// Trigger AI analysis
   Future<ComparisonResult?> triggerAnalysis(int serviceId) async {
     _isAnalyzing = true;
     _error = null;
@@ -204,7 +204,7 @@ class ServiceRecordProvider extends ChangeNotifier {
     }
   }
 
-  /// 删除服务记录
+  /// Delete service record
   Future<bool> deleteRecord(int id) async {
     _isLoading = true;
     _error = null;
@@ -242,14 +242,14 @@ class ServiceRecordProvider extends ChangeNotifier {
   String _parseError(dynamic error) {
     final msg = error.toString();
     if (msg.contains('404')) {
-      return '服务记录不存在';
+      return 'Service record not found';
     } else if (msg.contains('400')) {
-      return '请求参数错误';
+      return 'Invalid request parameters';
     } else if (msg.contains('SocketException') || msg.contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (msg.contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     }
-    return '操作失败，请重试';
+    return 'Operation failed, please retry';
   }
 }

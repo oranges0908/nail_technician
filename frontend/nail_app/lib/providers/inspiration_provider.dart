@@ -3,7 +3,7 @@ import '../models/inspiration_image.dart';
 import '../services/inspiration_service.dart';
 import '../config/app_config.dart';
 
-/// 灵感图库状态管理
+/// Inspiration gallery state management
 class InspirationProvider extends ChangeNotifier {
   final InspirationService _service;
 
@@ -29,7 +29,7 @@ class InspirationProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   String? get selectedCategory => _selectedCategory;
 
-  /// 加载灵感图列表
+  /// Load inspiration image list
   Future<void> loadInspirations({String? search, String? category}) async {
     _isLoading = true;
     _error = null;
@@ -55,7 +55,7 @@ class InspirationProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载更多
+  /// Load more
   Future<void> loadMore() async {
     if (_isLoading || !_hasMore) return;
 
@@ -80,19 +80,19 @@ class InspirationProvider extends ChangeNotifier {
     }
   }
 
-  /// 搜索
+  /// Search
   Future<void> search(String query) async {
     _searchQuery = query;
     await loadInspirations();
   }
 
-  /// 按分类筛选
+  /// Filter by category
   Future<void> filterByCategory(String? category) async {
     _selectedCategory = category;
     await loadInspirations();
   }
 
-  /// 删除灵感图
+  /// Delete an inspiration image
   Future<bool> deleteInspiration(int id) async {
     _isLoading = true;
     _error = null;
@@ -124,12 +124,12 @@ class InspirationProvider extends ChangeNotifier {
   String _parseError(dynamic error) {
     final msg = error.toString();
     if (msg.contains('404')) {
-      return '灵感图不存在';
+      return 'Inspiration image not found';
     } else if (msg.contains('SocketException') || msg.contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (msg.contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     }
-    return '操作失败，请重试';
+    return 'Operation failed, please retry';
   }
 }

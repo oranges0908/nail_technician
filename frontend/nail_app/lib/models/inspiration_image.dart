@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'inspiration_image.g.dart';
 
-/// 灵感图数据模型
+/// Inspiration image data model
 @JsonSerializable()
 class InspirationImage {
   final int id;
@@ -62,7 +62,7 @@ class InspirationImage {
   }
 }
 
-/// 灵感图列表响应
+/// Inspiration image list response
 @JsonSerializable()
 class InspirationImageListResponse {
   final int total;

@@ -2,8 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'user.g.dart';
 
-/// 用户数据模型
-/// 与后端 UserResponse Schema 对应
+/// User data model
+/// Corresponds to the backend UserResponse Schema
 @JsonSerializable()
 class User {
   final int id;
@@ -32,13 +32,13 @@ class User {
     this.updatedAt,
   });
 
-  /// 从 JSON 创建 User 对象
+  /// Create a User object from JSON
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
-  /// 将 User 对象转换为 JSON
+  /// Convert User object to JSON
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
-  /// 复制对象并修改部分字段
+  /// Copy the object with some fields modified
   User copyWith({
     int? id,
     String? email,

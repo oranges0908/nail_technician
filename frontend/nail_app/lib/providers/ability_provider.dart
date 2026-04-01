@@ -1,29 +1,29 @@
 import 'package:flutter/foundation.dart';
 import '../services/ability_service.dart';
 
-/// 能力分析状态管理
+/// Ability analysis state management
 class AbilityProvider extends ChangeNotifier {
   final AbilityService _service;
 
   AbilityProvider({AbilityService? service})
       : _service = service ?? AbilityService();
 
-  // 雷达图数据
+  // Radar chart data
   List<String> _dimensions = [];
   List<double> _scores = [];
   double _avgScore = 0.0;
   int _totalRecords = 0;
 
-  // 能力总结
+  // Ability summary
   List<Map<String, dynamic>> _strengths = [];
   List<Map<String, dynamic>> _improvements = [];
   int _totalServices = 0;
 
-  // 趋势数据
+  // Trend data
   String? _trendDimensionName;
   List<Map<String, dynamic>> _trendDataPoints = [];
 
-  // 状态
+  // Status
   bool _isLoading = false;
   bool _isTrendLoading = false;
   String? _error;
@@ -43,14 +43,14 @@ class AbilityProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasData => _dimensions.isNotEmpty && _totalRecords > 0;
 
-  /// 加载能力概览（雷达图 + 总结）
+  /// Load ability overview (radar chart + summary)
   Future<void> loadAbilityOverview() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // 并行加载统计和总结
+      // Load stats and summary in parallel
       final results = await Future.wait([
         _service.getAbilityStats(),
         _service.getAbilitySummary(),
@@ -81,7 +81,7 @@ class AbilityProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载指定维度的趋势数据
+  /// Load trend data for a specific dimension
   Future<void> loadTrend(String dimensionName, {int limit = 20}) async {
     _isTrendLoading = true;
     _trendDimensionName = dimensionName;
@@ -101,7 +101,7 @@ class AbilityProvider extends ChangeNotifier {
     }
   }
 
-  /// 初始化能力维度
+  /// Initialize ability dimensions
   Future<bool> initializeDimensions() async {
     try {
       await _service.initializeDimensions();
@@ -122,12 +122,12 @@ class AbilityProvider extends ChangeNotifier {
   String _parseError(dynamic error) {
     final msg = error.toString();
     if (msg.contains('404')) {
-      return '未找到评分记录';
+      return 'No score records found';
     } else if (msg.contains('SocketException') || msg.contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (msg.contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     }
-    return '加载失败，请重试';
+    return 'Failed to load, please retry';
   }
 }

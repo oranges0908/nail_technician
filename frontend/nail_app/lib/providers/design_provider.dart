@@ -3,7 +3,7 @@ import '../models/design_plan.dart';
 import '../services/design_service.dart';
 import '../config/app_config.dart';
 
-/// 设计方案状态管理
+/// Design plan state management
 class DesignProvider extends ChangeNotifier {
   final DesignService _service;
 
@@ -29,7 +29,7 @@ class DesignProvider extends ChangeNotifier {
   int get total => _total;
   bool get hasMore => _hasMore;
 
-  /// 加载设计方案列表
+  /// Load design plan list
   Future<void> loadDesigns({int? customerId, String? search}) async {
     _isLoading = true;
     _error = null;
@@ -54,7 +54,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载更多
+  /// Load more
   Future<void> loadMore({int? customerId, String? search}) async {
     if (_isLoading || !_hasMore) return;
 
@@ -80,7 +80,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// AI生成设计方案
+  /// AI-generate a design plan
   Future<DesignPlan?> generateDesign({
     required String prompt,
     List<String>? referenceImages,
@@ -118,7 +118,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 优化设计方案
+  /// Refine a design plan
   Future<DesignPlan?> refineDesign(int designId, String instruction) async {
     _isGenerating = true;
     _error = null;
@@ -140,7 +140,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 获取设计方案详情
+  /// Get design plan detail
   Future<void> getDesignDetail(int id) async {
     _isLoading = true;
     _error = null;
@@ -156,7 +156,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 获取版本历史
+  /// Get version history
   Future<void> getVersions(int id) async {
     try {
       _designVersions = await _service.getDesignVersions(id);
@@ -166,7 +166,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 更新设计方案标题
+  /// Update design plan title
   Future<bool> updateDesignTitle(int id, String title) async {
     try {
       final updated = await _service.updateDesign(id, title: title);
@@ -186,7 +186,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 归档设计方案
+  /// Archive a design plan
   Future<bool> archiveDesign(int id) async {
     try {
       await _service.archiveDesign(id);
@@ -202,7 +202,7 @@ class DesignProvider extends ChangeNotifier {
     }
   }
 
-  /// 删除设计方案
+  /// Delete a design plan
   Future<bool> deleteDesign(int id) async {
     try {
       await _service.deleteDesign(id);
@@ -231,14 +231,14 @@ class DesignProvider extends ChangeNotifier {
   String _parseError(dynamic error) {
     final msg = error.toString();
     if (msg.contains('404')) {
-      return '设计方案不存在';
+      return 'Design plan not found';
     } else if (msg.contains('SocketException') || msg.contains('Connection')) {
-      return '网络连接失败，请检查网络设置';
+      return 'Network connection failed, please check your network settings';
     } else if (msg.contains('timeout')) {
-      return '请求超时，请重试';
+      return 'Request timed out, please retry';
     } else if (msg.contains('500')) {
-      return 'AI生成失败，请稍后重试';
+      return 'AI generation failed, please try again later';
     }
-    return '操作失败，请重试';
+    return 'Operation failed, please retry';
   }
 }

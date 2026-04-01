@@ -7,8 +7,8 @@ import '../../config/theme_config.dart';
 import '../../providers/ability_provider.dart';
 import '../../utils/constants.dart';
 
-/// 能力中心主页
-/// 展示雷达图、能力总结、以及各维度入口
+/// Ability center main screen
+/// Displays radar chart, ability summary, and per-dimension entries
 class AbilityCenterScreen extends StatefulWidget {
   const AbilityCenterScreen({Key? key}) : super(key: key);
 
@@ -29,7 +29,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('能力中心'),
+        title: const Text('Ability Center'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.homeRoute),
@@ -65,17 +65,17 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 综合评分卡片
+                  // Overall score card
                   _buildOverallScoreCard(provider),
                   const SizedBox(height: 20),
 
-                  // 雷达图
+                  // Radar chart
                   _buildRadarChartCard(provider),
                   const SizedBox(height: 20),
 
-                  // 擅长领域
+                  // Strengths
                   if (provider.strengths.isNotEmpty) ...[
-                    _buildSectionTitle('擅长领域', Icons.star, ThemeConfig.successColor),
+                    _buildSectionTitle('Strengths', Icons.star, ThemeConfig.successColor),
                     const SizedBox(height: 8),
                     ...provider.strengths.map((s) => _buildDimensionTile(
                       s['dimension'] as String? ?? '',
@@ -85,9 +85,9 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  // 待提升领域
+                  // Areas to improve
                   if (provider.improvements.isNotEmpty) ...[
-                    _buildSectionTitle('待提升领域', Icons.trending_up, ThemeConfig.warningColor),
+                    _buildSectionTitle('Areas to Improve', Icons.trending_up, ThemeConfig.warningColor),
                     const SizedBox(height: 8),
                     ...provider.improvements.map((s) => _buildDimensionTile(
                       s['dimension'] as String? ?? '',
@@ -97,8 +97,8 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  // 所有维度列表
-                  _buildSectionTitle('全部维度', Icons.list_alt, ThemeConfig.primaryColor),
+                  // All dimensions list
+                  _buildSectionTitle('All Dimensions', Icons.list_alt, ThemeConfig.primaryColor),
                   const SizedBox(height: 8),
                   _buildAllDimensionsList(provider),
                   const SizedBox(height: 24),
@@ -117,7 +117,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            // 综合分数圆环
+            // Overall score ring
             SizedBox(
               width: 80,
               height: 80,
@@ -149,7 +149,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '综合能力评分',
+                    'Overall Ability Score',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -157,7 +157,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '已完成 ${provider.totalServices} 次服务',
+                    '${provider.totalServices} services completed',
                     style: TextStyle(
                       fontSize: 14,
                       color: ThemeConfig.textSecondaryLight,
@@ -165,7 +165,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '共 ${provider.totalRecords} 条评分记录',
+                    '${provider.totalRecords} score records total',
                     style: TextStyle(
                       fontSize: 14,
                       color: ThemeConfig.textSecondaryLight,
@@ -188,7 +188,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '能力雷达图',
+              'Ability Radar Chart',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -322,7 +322,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              '暂无能力数据',
+              'No ability data yet',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -330,7 +330,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '完成服务并进行 AI 分析后，\n将自动生成能力评分',
+              'Complete a service and run AI analysis\nto automatically generate ability scores',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -341,7 +341,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
             ElevatedButton.icon(
               onPressed: () => provider.initializeDimensions(),
               icon: const Icon(Icons.play_arrow),
-              label: const Text('初始化能力维度'),
+              label: const Text('Initialize Ability Dimensions'),
             ),
           ],
         ),
@@ -374,7 +374,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                 provider.loadAbilityOverview();
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('重试'),
+              label: const Text('Retry'),
             ),
           ],
         ),
@@ -390,7 +390,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
   }
 }
 
-/// 雷达图绘制器
+/// Radar chart painter
 class RadarChartPainter extends CustomPainter {
   final List<String> dimensions;
   final List<double> scores;
@@ -411,10 +411,10 @@ class RadarChartPainter extends CustomPainter {
     if (sides < 3) return;
 
     final angleStep = 2 * math.pi / sides;
-    // 从顶部开始（-π/2）
+    // Start from top (-π/2)
     const startAngle = -math.pi / 2;
 
-    // 绘制背景网格（5层）
+    // Draw background grid (5 levels)
     final gridPaint = Paint()
       ..color = Colors.grey.withOpacity(0.2)
       ..style = PaintingStyle.stroke
@@ -437,7 +437,7 @@ class RadarChartPainter extends CustomPainter {
       canvas.drawPath(path, gridPaint);
     }
 
-    // 绘制从中心到顶点的连线
+    // Draw lines from center to each vertex
     final linePaint = Paint()
       ..color = Colors.grey.withOpacity(0.15)
       ..style = PaintingStyle.stroke
@@ -450,7 +450,7 @@ class RadarChartPainter extends CustomPainter {
       canvas.drawLine(center, Offset(x, y), linePaint);
     }
 
-    // 绘制数据多边形
+    // Draw data polygon
     if (scores.isNotEmpty) {
       final dataPath = Path();
       final dataFillPaint = Paint()
@@ -479,7 +479,7 @@ class RadarChartPainter extends CustomPainter {
       canvas.drawPath(dataPath, dataFillPaint);
       canvas.drawPath(dataPath, dataStrokePaint);
 
-      // 绘制数据点
+      // Draw data points
       final dotPaint = Paint()
         ..color = ThemeConfig.primaryColor
         ..style = PaintingStyle.fill;
@@ -494,7 +494,7 @@ class RadarChartPainter extends CustomPainter {
       }
     }
 
-    // 绘制维度标签
+    // Draw dimension labels
     final textStyle = TextStyle(
       color: Colors.grey[700],
       fontSize: 12,
@@ -514,7 +514,7 @@ class RadarChartPainter extends CustomPainter {
       );
       textPainter.layout();
 
-      // 根据角度调整标签位置
+      // Adjust label position based on angle
       double dx = x - textPainter.width / 2;
       double dy = y - textPainter.height / 2;
 

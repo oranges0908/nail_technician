@@ -1,12 +1,12 @@
-/// 应用配置类
-/// 定义应用级别的常量和配置
+/// Application configuration class
+/// Defines app-level constants and settings
 class AppConfig {
-  // 应用信息
+  // App info
   static const String appName = 'Nail';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Nail Artist Ability Growth System';
 
-  // 本地存储 Key
+  // Local storage keys
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userIdKey = 'user_id';
@@ -14,11 +14,11 @@ class AppConfig {
   static const String usernameKey = 'username';
   static const String themeKey = 'theme_mode';
 
-  // 分页配置
+  // Pagination settings
   static const int defaultPageSize = 20;
   static const int maxPageSize = 100;
 
-  // 文件上传配置
+  // File upload settings
   static const int maxImageSize = 10 * 1024 * 1024; // 10MB
   static const List<String> allowedImageExtensions = [
     'jpg',
@@ -60,11 +60,11 @@ class AppConfig {
     '10nails': 'Both Hands (10 nails)',
   };
 
-  // 客户满意度选项（1-5 星）
+  // Customer satisfaction options (1-5 stars)
   static const int minSatisfaction = 1;
   static const int maxSatisfaction = 5;
 
-  // 难度级别
+  // Difficulty levels
   static const List<String> difficultyLevels = [
     'easy',
     'medium',
@@ -94,7 +94,7 @@ class AppConfig {
     'cancelled': 'Cancelled',
   };
 
-  // 环境配置
+  // Environment settings
   static const bool isProduction = bool.fromEnvironment(
     'dart.vm.product',
     defaultValue: false,
