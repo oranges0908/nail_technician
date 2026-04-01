@@ -82,7 +82,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
 
     if (design != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('设计生成成功！')),
+        const SnackBar(content: Text('Design generated successfully!')),
       );
       context.go('/designs/${design.id}');
     }
@@ -96,7 +96,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.designsRoute),
         ),
-        title: const Text('AI 设计生成'),
+        title: const Text('AI Design Generator'),
       ),
       body: Consumer<DesignProvider>(
         builder: (context, designProvider, _) {
@@ -144,9 +144,9 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                       TextFormField(
                         controller: _promptController,
                         decoration: const InputDecoration(
-                          labelText: '设计描述 *',
-                          hintText: '描述你想要的美甲设计，例如：\n春日粉色樱花主题，渐变底色配手绘樱花花瓣，点缀金色亮片',
-                          helperText: '必填，描述越详细生成效果越好',
+                          labelText: 'Design Description *',
+                          hintText: 'Describe your desired nail design, e.g.:\nSpring pink cherry blossom theme with gradient base and gold glitter accents',
+                          helperText: 'Required — more detail = better results',
                           prefixIcon: Icon(Icons.auto_awesome),
                           alignLabelWithHint: true,
                         ),
@@ -155,7 +155,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                         textInputAction: TextInputAction.newline,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return '请输入设计描述';
+                            return 'Please enter a design description';
                           }
                           return null;
                         },
@@ -166,8 +166,8 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                       TextFormField(
                         controller: _titleController,
                         decoration: const InputDecoration(
-                          labelText: '方案标题',
-                          hintText: '给设计方案起个名字（选填）',
+                          labelText: 'Design Title',
+                          hintText: 'Give this design a name (optional)',
                           prefixIcon: Icon(Icons.title),
                         ),
                       ),
@@ -179,14 +179,14 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                           return DropdownButtonFormField<int>(
                             value: _selectedCustomerId,
                             decoration: const InputDecoration(
-                              labelText: '关联客户',
-                              hintText: '选择客户（选填）',
+                              labelText: 'Link to Customer',
+                              hintText: 'Select customer (optional)',
                               prefixIcon: Icon(Icons.person_outline),
                             ),
                             items: [
                               const DropdownMenuItem<int>(
                                 value: null,
-                                child: Text('不关联客户'),
+                                child: Text('No customer'),
                               ),
                               ...customerProvider.customers.map(
                                 (c) => DropdownMenuItem<int>(
@@ -217,13 +217,13 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                                   const Icon(Icons.photo_library, size: 20, color: ThemeConfig.primaryColor),
                                   const SizedBox(width: 8),
                                   const Text(
-                                    '参考灵感图',
+                                    'Reference Inspirations',
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                                   ),
                                   const Spacer(),
                                   if (_selectedInspirations.isNotEmpty)
                                     Text(
-                                      '已选 ${_selectedInspirations.length} 张',
+                                      '${_selectedInspirations.length} selected',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: ThemeConfig.primaryColor,
@@ -241,7 +241,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      '暂无灵感图，可在灵感图库中上传',
+                                      'No inspirations yet — upload some in the gallery',
                                       style: TextStyle(color: ThemeConfig.textSecondaryLight, fontSize: 13),
                                     ),
                                   ),
@@ -309,7 +309,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
 
                       // 设计目标
                       const Text(
-                        '设计目标',
+                        'Design Target',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -342,8 +342,8 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                             child: TextFormField(
                               controller: _keywordController,
                               decoration: const InputDecoration(
-                                labelText: '风格关键词',
-                                hintText: '如：优雅、清新、复古',
+                                labelText: 'Style Keywords',
+                                hintText: 'e.g., Elegant, Fresh, Vintage',
                                 prefixIcon: Icon(Icons.style),
                               ),
                               onFieldSubmitted: (_) => _addKeyword(),
@@ -385,8 +385,8 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                               designProvider.isGenerating ? null : _generate,
                           icon: const Icon(Icons.auto_awesome),
                           label: Text(designProvider.isGenerating
-                              ? 'AI 生成中...'
-                              : '生成设计'),
+                              ? 'Generating...'
+                              : 'Generate Design'),
                         ),
                       ),
                     ],
@@ -408,7 +408,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                             const CircularProgressIndicator(),
                             const SizedBox(height: 16),
                             const Text(
-                              'AI 正在生成设计...',
+                              'AI is generating your design...',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -416,7 +416,7 @@ class _DesignGenerateScreenState extends State<DesignGenerateScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '这可能需要 10-30 秒',
+                              'This may take 10–30 seconds',
                               style: TextStyle(
                                 color: ThemeConfig.textSecondaryLight,
                               ),

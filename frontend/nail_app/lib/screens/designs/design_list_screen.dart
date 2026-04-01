@@ -57,7 +57,7 @@ class _DesignListScreenState extends State<DesignListScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.homeRoute),
         ),
-        title: const Text('设计方案'),
+        title: const Text('Designs'),
       ),
       body: Column(
         children: [
@@ -67,7 +67,7 @@ class _DesignListScreenState extends State<DesignListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: '搜索设计方案...',
+                hintText: 'Search designs...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -136,7 +136,7 @@ class _DesignListScreenState extends State<DesignListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/designs/generate'),
         icon: const Icon(Icons.auto_awesome),
-        label: const Text('AI 生成'),
+        label: const Text('AI Generate'),
       ),
     );
   }
@@ -193,7 +193,7 @@ class _DesignListScreenState extends State<DesignListScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            design.title ?? '设计方案 #${design.id}',
+                            design.title ?? 'Design #${design.id}',
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
@@ -267,15 +267,15 @@ class _DesignListScreenState extends State<DesignListScreen> {
 
   void _showRenameDialog(DesignPlan design) {
     final controller = TextEditingController(
-      text: design.title ?? '设计方案 #${design.id}',
+      text: design.title ?? 'Design #${design.id}',
     );
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('重命名'),
+        title: const Text('Rename'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: '输入新名称'),
+          decoration: const InputDecoration(hintText: 'Enter a new name'),
           autofocus: true,
         ),
         actions: [
@@ -308,13 +308,13 @@ class _DesignListScreenState extends State<DesignListScreen> {
               size: 64, color: ThemeConfig.textSecondaryLight),
           const SizedBox(height: 16),
           Text(
-            '暂无设计方案',
+            'No designs yet',
             style: TextStyle(
                 fontSize: 16, color: ThemeConfig.textSecondaryLight),
           ),
           const SizedBox(height: 8),
           Text(
-            '点击右下角按钮生成 AI 设计',
+            'Tap the button below to generate an AI design',
             style:
                 TextStyle(fontSize: 14, color: ThemeConfig.textHintLight),
           ),

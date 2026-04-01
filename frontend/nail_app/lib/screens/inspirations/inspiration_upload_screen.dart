@@ -34,7 +34,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
   bool _isUploading = false;
   double _uploadProgress = 0;
 
-  static const _categories = ['法式', '渐变', '贴片', '彩绘', '纯色', '花卉', '几何', '其他'];
+  static const _categories = ['French', 'Gradient', 'Extensions', 'Art', 'Solid', 'Floral', 'Geometric', 'Other'];
 
   @override
   void dispose() {
@@ -79,7 +79,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
   Future<void> _submit() async {
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请先选择图片')),
+        const SnackBar(content: Text('Please select an image first')),
       );
       return;
     }
@@ -146,7 +146,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.inspirationsRoute),
         ),
-        title: const Text('上传灵感图'),
+        title: const Text('Upload Inspiration'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -188,7 +188,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '点击选择图片',
+                              'Tap to select image',
                               style: TextStyle(
                                 color: ThemeConfig.textHintLight,
                               ),
@@ -203,7 +203,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                 LinearProgressIndicator(value: _uploadProgress),
                 const SizedBox(height: 4),
                 Text(
-                  '上传中 ${(_uploadProgress * 100).toInt()}%',
+                  'Uploading ${(_uploadProgress * 100).toInt()}%',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
@@ -218,8 +218,8 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: '标题',
-                  hintText: '给灵感图起个名字（选填）',
+                  labelText: 'Title',
+                  hintText: 'Give it a name (optional)',
                   prefixIcon: Icon(Icons.title),
                 ),
               ),
@@ -229,8 +229,8 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  labelText: '描述',
-                  hintText: '描述这张灵感图的特点（选填）',
+                  labelText: 'Description',
+                  hintText: 'Describe this inspiration (optional)',
                   prefixIcon: Icon(Icons.description_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -244,7 +244,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: const InputDecoration(
-                  labelText: '分类',
+                  labelText: 'Category',
                   prefixIcon: Icon(Icons.category_outlined),
                 ),
                 items: _categories
@@ -268,8 +268,8 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                     child: TextFormField(
                       controller: _tagController,
                       decoration: const InputDecoration(
-                        labelText: '标签',
-                        hintText: '输入标签后点击添加',
+                        labelText: 'Tags',
+                        hintText: 'Enter a tag and tap add',
                         prefixIcon: Icon(Icons.tag),
                       ),
                       onFieldSubmitted: (_) => _addTag(),
@@ -316,7 +316,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('上传'),
+                      : const Text('Upload'),
                 ),
               ),
             ],
@@ -334,7 +334,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('拍照'),
+              title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -342,7 +342,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('从相册选择'),
+              title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);

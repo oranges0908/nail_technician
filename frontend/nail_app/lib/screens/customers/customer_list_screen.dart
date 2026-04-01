@@ -53,7 +53,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.homeRoute),
         ),
-        title: const Text('客户管理'),
+        title: const Text('Customer Management'),
       ),
       body: Column(
         children: [
@@ -63,7 +63,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: '搜索客户姓名或手机号',
+                hintText: 'Search by name or phone',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -171,7 +171,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _searchController.text.isNotEmpty ? '未找到匹配的客户' : '暂无客户',
+            _searchController.text.isNotEmpty ? 'No matching customers found' : 'No customers yet',
             style: TextStyle(
               fontSize: 16,
               color: ThemeConfig.textSecondaryLight,
@@ -180,7 +180,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           if (_searchController.text.isEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              '点击右下角按钮添加客户',
+              'Tap the button below to add a customer',
               style: TextStyle(
                 fontSize: 14,
                 color: ThemeConfig.textHintLight,

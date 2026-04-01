@@ -47,7 +47,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
       initialDate: _serviceDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      locale: const Locale('zh', 'CN'),
+      locale: const Locale('en', 'US'),
     );
     if (picked != null) {
       setState(() {
@@ -60,7 +60,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCustomerId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请选择客户')),
+        const SnackBar(content: Text('Please select a customer')),
       );
       return;
     }
@@ -99,7 +99,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.servicesRoute),
         ),
-        title: const Text('创建服务记录'),
+        title: const Text('Create Service Record'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -114,9 +114,9 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                   return DropdownButtonFormField<int>(
                     value: _selectedCustomerId,
                     decoration: const InputDecoration(
-                      labelText: '客户 *',
-                      hintText: '选择客户',
-                      helperText: '必填，请选择服务客户',
+                      labelText: 'Customer *',
+                      hintText: 'Select a customer',
+                      helperText: 'Required, select a customer',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     items: customerProvider.customers
@@ -131,7 +131,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                       });
                     },
                     validator: (value) {
-                      if (value == null) return '请选择客户';
+                      if (value == null) return 'Please select a customer';
                       return null;
                     },
                   );
@@ -145,20 +145,20 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                   return DropdownButtonFormField<int>(
                     value: _selectedDesignId,
                     decoration: const InputDecoration(
-                      labelText: '设计方案',
-                      hintText: '关联设计方案（选填）',
+                      labelText: 'Design Plan',
+                      hintText: 'Link a design plan (optional)',
                       prefixIcon: Icon(Icons.brush_outlined),
                     ),
                     items: [
                       const DropdownMenuItem<int>(
                         value: null,
-                        child: Text('不关联设计方案'),
+                        child: Text('No design plan'),
                       ),
                       ...designProvider.designs.map(
                         (d) => DropdownMenuItem<int>(
                           value: d.id,
                           child: Text(
-                            d.title ?? '设计 #${d.id}',
+                            d.title ?? 'Design #${d.id}',
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -179,11 +179,11 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                 onTap: _pickDate,
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: '服务日期',
+                    labelText: 'Service Date',
                     prefixIcon: Icon(Icons.calendar_today),
                   ),
                   child: Text(
-                    DateFormat('yyyy年MM月dd日').format(_serviceDate),
+                    DateFormat('MMM dd, yyyy').format(_serviceDate),
                   ),
                 ),
               ),
@@ -193,9 +193,9 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
               TextFormField(
                 controller: _durationController,
                 decoration: const InputDecoration(
-                  labelText: '预估时长（分钟）',
-                  hintText: '输入预估服务时长（选填）',
-                  helperText: '选填，需为大于0的整数',
+                  labelText: 'Est. Duration (min)',
+                  hintText: 'Enter estimated duration (optional)',
+                  helperText: 'Optional, must be a positive integer',
                   prefixIcon: Icon(Icons.timer_outlined),
                 ),
                 keyboardType: TextInputType.number,
@@ -203,7 +203,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                   if (value != null && value.isNotEmpty) {
                     final num = int.tryParse(value);
                     if (num == null || num <= 0) {
-                      return '请输入有效的时长';
+                      return 'Please enter a valid duration';
                     }
                   }
                   return null;
@@ -215,8 +215,8 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(
-                  labelText: '备注',
-                  hintText: '输入备注信息（选填）',
+                  labelText: 'Notes',
+                  hintText: 'Enter notes (optional)',
                   prefixIcon: Icon(Icons.notes_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -240,7 +240,7 @@ class _ServiceCreateScreenState extends State<ServiceCreateScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('创建服务记录'),
+                      : const Text('Create Record'),
                 ),
               ),
             ],

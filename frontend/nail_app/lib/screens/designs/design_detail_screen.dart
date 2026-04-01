@@ -40,7 +40,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.designsRoute),
         ),
-        title: const Text('设计详情'),
+        title: const Text('Design Details'),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) async {
@@ -57,7 +57,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                   children: const [
                     Icon(Icons.archive_outlined, size: 20),
                     SizedBox(width: 8),
-                    Text('归档'),
+                    Text('Archive'),
                   ],
                 ),
               ),
@@ -68,7 +68,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                     Icon(Icons.delete_outline,
                         size: 20, color: ThemeConfig.errorColor),
                     SizedBox(width: 8),
-                    Text('删除',
+                    Text('Delete',
                         style: TextStyle(color: ThemeConfig.errorColor)),
                   ],
                 ),
@@ -86,7 +86,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
           final design = provider.selectedDesign;
           if (design == null) {
             return Center(
-              child: Text(provider.error ?? '设计方案不存在'),
+              child: Text(provider.error ?? 'Design not found'),
             );
           }
 
@@ -122,7 +122,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              design.title ?? '设计方案 #${design.id}',
+                              design.title ?? 'Design #${design.id}',
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -133,7 +133,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                             icon: Icon(Icons.edit_outlined, size: 20,
                                 color: ThemeConfig.textSecondaryLight),
                             onPressed: () => _showRenameDialog(design),
-                            tooltip: '重命名',
+                            tooltip: 'Rename',
                           ),
                           if (design.version > 1)
                             Container(
@@ -156,7 +156,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        DateFormat('yyyy年MM月dd日 HH:mm')
+                        DateFormat('MMM dd, yyyy HH:mm')
                             .format(design.createdAt),
                         style: TextStyle(
                           color: ThemeConfig.textSecondaryLight,
@@ -168,31 +168,31 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                       const SizedBox(height: 12),
 
                       // 设计参数
-                      _buildInfoSection('设计描述', design.aiPrompt),
+                      _buildInfoSection('Design Description', design.aiPrompt),
 
                       if (design.designTarget != null)
                         _buildInfoRow(
-                            '设计目标',
+                            'Design Target',
                             AppConfig.designTargetLabels[
                                     design.designTarget] ??
                                 design.designTarget!),
 
                       if (design.difficultyLevel != null)
                         _buildInfoRow(
-                            '难度等级',
+                            'Difficulty',
                             AppConfig.difficultyLabels[
                                     design.difficultyLevel] ??
                                 design.difficultyLevel!),
 
                       if (design.estimatedDuration != null)
                         _buildInfoRow(
-                            '预估耗时', '${design.estimatedDuration} 分钟'),
+                            'Est. Duration', '${design.estimatedDuration} min'),
 
                       if (design.estimatedMaterials != null &&
                           design.estimatedMaterials!.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         const Text(
-                          '预估材料',
+                          'Est. Materials',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -218,7 +218,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                           design.styleKeywords!.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         const Text(
-                          '风格关键词',
+                          'Style Keywords',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -245,12 +245,12 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                       if (design.refinementInstruction != null) ...[
                         const SizedBox(height: 12),
                         _buildInfoSection(
-                            '优化指令', design.refinementInstruction!),
+                            'Refinement Instruction', design.refinementInstruction!),
                       ],
 
                       if (design.notes != null) ...[
                         const SizedBox(height: 12),
-                        _buildInfoSection('备注', design.notes!),
+                        _buildInfoSection('Notes', design.notes!),
                       ],
 
                       // 版本历史
@@ -259,7 +259,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                         const Divider(),
                         const SizedBox(height: 12),
                         const Text(
-                          '版本历史',
+                          'Version History',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -282,7 +282,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                               ? null
                               : () => _showRefineDialog(design.id),
                           icon: const Icon(Icons.auto_fix_high),
-                          label: const Text('优化设计'),
+                          label: const Text('Refine Design'),
                         ),
                       ),
                     ],
@@ -357,7 +357,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
         ),
       ),
       title: Text(
-        version.refinementInstruction ?? '初始版本',
+        version.refinementInstruction ?? 'Initial version',
         style: TextStyle(
           fontSize: 13,
           fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
@@ -377,15 +377,15 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
 
   void _showRenameDialog(DesignPlan design) {
     final controller = TextEditingController(
-      text: design.title ?? '设计方案 #${design.id}',
+      text: design.title ?? 'Design #${design.id}',
     );
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('重命名'),
+        title: const Text('Rename'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: '输入新名称'),
+          decoration: const InputDecoration(hintText: 'Enter a new name'),
           autofocus: true,
         ),
         actions: [
@@ -415,13 +415,13 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        title: const Text('优化设计'),
+        title: const Text('Refine Design'),
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           child: TextField(
             controller: controller,
             decoration: const InputDecoration(
-              hintText: '描述你想要的修改，例如：\n增加更多亮片，让渐变更自然',
+              hintText: 'Describe your desired changes, e.g.:\nAdd more glitter, make the gradient smoother',
               alignLabelWithHint: true,
             ),
             maxLines: 4,
@@ -448,7 +448,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                 context.go('/designs/${refined.id}');
               }
             },
-            child: const Text('生成'),
+            child: const Text('Generate'),
           ),
         ],
       ),
@@ -459,8 +459,8 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('归档设计'),
-        content: const Text('归档后不会在列表显示，但仍可通过搜索找到。'),
+        title: const Text('Archive Design'),
+        content: const Text('Archived designs won\'t appear in the list but can still be found via search.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -488,7 +488,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text(Constants.deleteConfirmTitle),
-        content: const Text('确定要删除此设计方案吗？此操作不可撤销。'),
+        content: const Text('Are you sure you want to delete this design? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

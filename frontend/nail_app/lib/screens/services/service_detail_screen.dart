@@ -40,7 +40,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.servicesRoute),
         ),
-        title: const Text('服务详情'),
+        title: const Text('Service Details'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -57,7 +57,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           final record = provider.selectedRecord;
           if (record == null) {
             return Center(
-              child: Text(provider.error ?? '服务记录不存在'),
+              child: Text(provider.error ?? 'Service record not found'),
             );
           }
 
@@ -99,15 +99,15 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           if (provider.isAnalyzing) ...[
                             const CircularProgressIndicator(),
                             const SizedBox(height: 12),
-                            const Text('AI 分析中...'),
+                            const Text('AI analyzing...'),
                           ] else ...[
-                            const Text('暂无 AI 分析结果'),
+                            const Text('No AI analysis yet'),
                             const SizedBox(height: 8),
                             ElevatedButton.icon(
                               onPressed: () =>
                                   provider.triggerAnalysis(widget.serviceId),
                               icon: const Icon(Icons.analytics),
-                              label: const Text('触发 AI 分析'),
+                              label: const Text('Trigger AI Analysis'),
                             ),
                           ],
                         ],
@@ -126,7 +126,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       onPressed: () =>
                           context.go('/services/${record.id}/complete'),
                       icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('完成服务'),
+                      label: const Text('Complete Service'),
                     ),
                   ),
               ],
@@ -197,16 +197,16 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '基本信息',
+              'Basic Info',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _infoRow('客户', '客户 #${record.customerId}'),
+            _infoRow('Customer', 'Customer #${record.customerId}'),
             if (record.designPlanId != null)
-              _infoRow('设计方案', '设计 #${record.designPlanId}'),
+              _infoRow('Design', 'Design #${record.designPlanId}'),
             if (record.serviceDuration != null)
-              _infoRow('服务时长', '${record.serviceDuration} 分钟'),
-            if (record.notes != null) _infoRow('备注', record.notes!),
+              _infoRow('Duration', '${record.serviceDuration} min'),
+            if (record.notes != null) _infoRow('Notes', record.notes!),
           ],
         ),
       ),
@@ -245,7 +245,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '设计 vs 实际',
+              'Design vs Actual',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -255,7 +255,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('设计图',
+                      const Text('Design',
                           style: TextStyle(fontSize: 12, color: ThemeConfig.textSecondaryLight)),
                       const SizedBox(height: 4),
                       Container(
@@ -277,7 +277,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                                       Icons.broken_image),
                                 ),
                               )
-                            : const Center(child: Text('无设计图')),
+                            : const Center(child: Text('No design')),
                       ),
                     ],
                   ),
@@ -287,7 +287,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('实际效果',
+                      const Text('Actual',
                           style: TextStyle(fontSize: 12, color: ThemeConfig.textSecondaryLight)),
                       const SizedBox(height: 4),
                       Container(
@@ -309,7 +309,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                                       Icons.broken_image),
                                 ),
                               )
-                            : const Center(child: Text('待上传')),
+                            : const Center(child: Text('Pending upload')),
                       ),
                     ],
                   ),
@@ -330,14 +330,14 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '服务复盘',
+              'Session Review',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             if (record.customerSatisfaction != null) ...[
               Row(
                 children: [
-                  const Text('客户满意度  '),
+                  const Text('Customer Satisfaction  '),
                   ...List.generate(
                     5,
                     (i) => Icon(
@@ -353,11 +353,11 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               const SizedBox(height: 8),
             ],
             if (record.materialsUsed != null)
-              _infoRow('使用材料', record.materialsUsed!),
+              _infoRow('Materials', record.materialsUsed!),
             if (record.artistReview != null)
-              _infoRow('美甲师复盘', record.artistReview!),
+              _infoRow('Artist Review', record.artistReview!),
             if (record.customerFeedback != null)
-              _infoRow('客户反馈', record.customerFeedback!),
+              _infoRow('Feedback', record.customerFeedback!),
           ],
         ),
       ),
@@ -374,7 +374,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             Row(
               children: [
                 const Text(
-                  'AI 分析结果',
+                  'AI Analysis',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
@@ -409,7 +409,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             // 差异
             if (comparison.differences.isNotEmpty) ...[
               const Text(
-                '差异分析',
+                'Differences',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
@@ -440,7 +440,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
             // 建议
             if (comparison.suggestions.isNotEmpty) ...[
               const Text(
-                '改进建议',
+                'Suggestions',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
@@ -483,7 +483,7 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text(Constants.deleteConfirmTitle),
-        content: const Text('确定要删除此服务记录吗？关联的分析结果也将被删除。'),
+        content: const Text('Are you sure you want to delete this service record? Associated analysis will also be deleted.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

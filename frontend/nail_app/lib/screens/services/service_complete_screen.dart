@@ -63,7 +63,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_actualImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请上传实际完成图')),
+        const SnackBar(content: Text('Please upload the actual result photo')),
       );
       return;
     }
@@ -114,7 +114,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
 
       if (record != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('服务完成！AI 正在分析...')),
+          const SnackBar(content: Text('Service completed! AI is analyzing...')),
         );
         // 尝试获取分析结果
         await provider.getComparison(widget.serviceId);
@@ -145,7 +145,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/services/${widget.serviceId}'),
         ),
-        title: const Text('完成服务'),
+        title: const Text('Complete Service'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -156,7 +156,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
             children: [
               // 实际图上传
               const Text(
-                '实际完成图 *',
+                'Actual Result Photo *',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -190,7 +190,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                             Icon(Icons.camera_alt_outlined,
                                 size: 48, color: ThemeConfig.textHintLight),
                             const SizedBox(height: 8),
-                            Text('点击拍照或选择图片',
+                            Text('Tap to take or select a photo',
                                 style: TextStyle(
                                     color: ThemeConfig.textHintLight)),
                           ],
@@ -204,10 +204,10 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _uploadProgress < 0.5
-                      ? '上传图片中...'
+                      ? 'Uploading photo...'
                       : _uploadProgress < 1.0
-                          ? '提交中...'
-                          : '完成！',
+                          ? 'Submitting...'
+                          : 'Done!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
@@ -222,19 +222,19 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
               TextFormField(
                 controller: _durationController,
                 decoration: const InputDecoration(
-                  labelText: '实际服务时长（分钟）*',
-                  hintText: '输入实际服务时长',
-                  helperText: '必填，需为大于0的整数',
+                  labelText: 'Actual Duration (min) *',
+                  hintText: 'Enter actual service duration',
+                  helperText: 'Required, must be a positive integer',
                   prefixIcon: Icon(Icons.timer),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请输入服务时长';
+                    return 'Please enter service duration';
                   }
                   final num = int.tryParse(value);
                   if (num == null || num <= 0) {
-                    return '请输入有效的时长';
+                    return 'Please enter a valid duration';
                   }
                   return null;
                 },
@@ -245,8 +245,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
               TextFormField(
                 controller: _materialsController,
                 decoration: const InputDecoration(
-                  labelText: '使用材料',
-                  hintText: '记录实际使用的材料（选填）',
+                  labelText: 'Materials Used',
+                  hintText: 'Record materials used (optional)',
                   prefixIcon: Icon(Icons.inventory_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -260,8 +260,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
               TextFormField(
                 controller: _reviewController,
                 decoration: const InputDecoration(
-                  labelText: '美甲师复盘',
-                  hintText: '记录你的复盘心得（选填）',
+                  labelText: 'Artist Review',
+                  hintText: 'Record your session notes (optional)',
                   prefixIcon: Icon(Icons.rate_review_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -275,8 +275,8 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
               TextFormField(
                 controller: _feedbackController,
                 decoration: const InputDecoration(
-                  labelText: '客户反馈',
-                  hintText: '记录客户的评价（选填）',
+                  labelText: 'Customer Feedback',
+                  hintText: 'Record customer feedback (optional)',
                   prefixIcon: Icon(Icons.feedback_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -288,7 +288,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
 
               // 满意度评分
               const Text(
-                '客户满意度',
+                'Customer Satisfaction',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -331,7 +331,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
                           ),
                         )
                       : const Icon(Icons.check),
-                  label: Text(_isSubmitting ? '提交中...' : '完成服务'),
+                  label: Text(_isSubmitting ? 'Submitting...' : 'Complete Service'),
                 ),
               ),
             ],
@@ -349,7 +349,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('拍照'),
+              title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -357,7 +357,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('从相册选择'),
+              title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);

@@ -20,7 +20,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
 
-  static const _categories = ['法式', '渐变', '贴片', '彩绘', '纯色', '花卉', '几何', '其他'];
+  static const _categories = ['French', 'Gradient', 'Extensions', 'Art', 'Solid', 'Floral', 'Geometric', 'Other'];
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.homeRoute),
         ),
-        title: const Text('灵感图库'),
+        title: const Text('Inspirations'),
       ),
       body: Column(
         children: [
@@ -63,7 +63,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: '搜索灵感图...',
+                hintText: 'Search inspirations...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -100,7 +100,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: FilterChip(
-                        label: const Text('全部'),
+                        label: const Text('All'),
                         selected: provider.selectedCategory == null,
                         onSelected: (_) => provider.filterByCategory(null),
                         selectedColor: ThemeConfig.primaryLightColor,
@@ -205,7 +205,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    inspiration.title ?? '未命名',
+                    inspiration.title ?? 'Untitled',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -300,7 +300,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        inspiration.title ?? '未命名',
+                        inspiration.title ?? 'Untitled',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
                                 _confirmDelete(inspiration.id);
                               },
                               icon: const Icon(Icons.delete_outline),
-                              label: const Text('删除'),
+                              label: const Text('Delete'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: ThemeConfig.errorColor,
                               ),
@@ -366,7 +366,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text(Constants.deleteConfirmTitle),
-        content: const Text('确定要删除这张灵感图吗？'),
+        content: const Text('Are you sure you want to delete this inspiration?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -404,7 +404,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无灵感图',
+            'No inspirations yet',
             style: TextStyle(
               fontSize: 16,
               color: ThemeConfig.textSecondaryLight,
@@ -412,7 +412,7 @@ class _InspirationListScreenState extends State<InspirationListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '点击右下角按钮上传灵感图',
+            'Tap the button below to upload an inspiration',
             style: TextStyle(
               fontSize: 14,
               color: ThemeConfig.textHintLight,

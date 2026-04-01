@@ -42,10 +42,10 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
   // 维护偏好
   String? _maintenancePreference;
 
-  static const _nailShapes = ['椭圆形', '方形', '圆形', '杏仁形', '尖形'];
-  static const _nailLengths = ['短', '中等', '长'];
-  static const _styleOptions = ['简约', '华丽', '可爱', '性感', '清新', '复古', '潮流'];
-  static const _maintenanceOptions = ['持久性', '易维护', '快速'];
+  static const _nailShapes = ['Oval', 'Square', 'Round', 'Almond', 'Stiletto'];
+  static const _nailLengths = ['Short', 'Medium', 'Long'];
+  static const _styleOptions = ['Minimalist', 'Glamorous', 'Cute', 'Sexy', 'Fresh', 'Vintage', 'Trendy'];
+  static const _maintenanceOptions = ['Durable', 'Easy Care', 'Quick'];
 
   @override
   void initState() {
@@ -94,7 +94,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/customers/${widget.customerId}'),
         ),
-        title: const Text('客户档案'),
+        title: const Text('Customer Profile'),
       ),
       body: Consumer<CustomerProvider>(
         builder: (context, provider, _) {
@@ -110,11 +110,11 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 甲型信息
-                  _buildSectionHeader('甲型信息', Icons.spa_outlined),
+                  _buildSectionHeader('Nail Info', Icons.spa_outlined),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: _nailShape,
-                    decoration: const InputDecoration(labelText: '甲形'),
+                    decoration: const InputDecoration(labelText: 'Nail Shape'),
                     items: _nailShapes
                         .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                         .toList(),
@@ -123,7 +123,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     value: _nailLength,
-                    decoration: const InputDecoration(labelText: '甲长'),
+                    decoration: const InputDecoration(labelText: 'Nail Length'),
                     items: _nailLengths
                         .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                         .toList(),
@@ -133,8 +133,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   TextFormField(
                     controller: _nailConditionController,
                     decoration: const InputDecoration(
-                      labelText: '甲况描述',
-                      hintText: '如：指甲质地良好，无明显问题',
+                      labelText: 'Nail Condition',
+                      hintText: 'e.g., Good texture, no obvious issues',
                     ),
                     maxLines: 2,
                     keyboardType: TextInputType.multiline,
@@ -143,13 +143,13 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   const SizedBox(height: 24),
 
                   // 颜色偏好
-                  _buildSectionHeader('颜色偏好', Icons.palette_outlined),
+                  _buildSectionHeader('Color Preferences', Icons.palette_outlined),
                   const SizedBox(height: 8),
                   _buildTagInput(
                     controller: _colorPrefController,
                     tags: _colorPreferences,
-                    label: '喜欢的颜色',
-                    hint: '输入颜色后按回车添加',
+                    label: 'Preferred Colors',
+                    hint: 'Enter a color and press Enter to add',
                     onAdd: (tag) => setState(() => _colorPreferences.add(tag)),
                     onRemove: (tag) => setState(() => _colorPreferences.remove(tag)),
                   ),
@@ -157,8 +157,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   _buildTagInput(
                     controller: _colorDislikeController,
                     tags: _colorDislikes,
-                    label: '不喜欢的颜色',
-                    hint: '输入颜色后按回车添加',
+                    label: 'Disliked Colors',
+                    hint: 'Enter a color and press Enter to add',
                     onAdd: (tag) => setState(() => _colorDislikes.add(tag)),
                     onRemove: (tag) => setState(() => _colorDislikes.remove(tag)),
                     chipColor: ThemeConfig.errorColor.withOpacity(0.1),
@@ -166,7 +166,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   const SizedBox(height: 24),
 
                   // 风格偏好
-                  _buildSectionHeader('风格偏好', Icons.style_outlined),
+                  _buildSectionHeader('Style Preferences', Icons.style_outlined),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -193,8 +193,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   TextFormField(
                     controller: _patternPrefController,
                     decoration: const InputDecoration(
-                      labelText: '图案偏好',
-                      hintText: '如：喜欢珍珠、碎钻装饰',
+                      labelText: 'Pattern Preferences',
+                      hintText: 'e.g., Pearl or rhinestone accents',
                     ),
                     maxLines: 2,
                     keyboardType: TextInputType.multiline,
@@ -203,13 +203,13 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   const SizedBox(height: 24),
 
                   // 过敏与禁忌
-                  _buildSectionHeader('过敏与禁忌', Icons.warning_amber_outlined),
+                  _buildSectionHeader('Allergies & Restrictions', Icons.warning_amber_outlined),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _allergiesController,
                     decoration: const InputDecoration(
-                      labelText: '过敏信息',
-                      hintText: '如：对某些胶水过敏',
+                      labelText: 'Allergies',
+                      hintText: 'e.g., Allergic to certain adhesives',
                     ),
                     maxLines: 2,
                     keyboardType: TextInputType.multiline,
@@ -219,8 +219,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   TextFormField(
                     controller: _prohibitionsController,
                     decoration: const InputDecoration(
-                      labelText: '禁忌事项',
-                      hintText: '如：不接受过长指甲',
+                      labelText: 'Restrictions',
+                      hintText: 'e.g., No excessively long nails',
                     ),
                     maxLines: 2,
                     keyboardType: TextInputType.multiline,
@@ -229,11 +229,11 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   const SizedBox(height: 24),
 
                   // 维护偏好
-                  _buildSectionHeader('维护偏好', Icons.build_outlined),
+                  _buildSectionHeader('Maintenance Preference', Icons.build_outlined),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: _maintenancePreference,
-                    decoration: const InputDecoration(labelText: '维护偏好'),
+                    decoration: const InputDecoration(labelText: 'Maintenance Preference'),
                     items: _maintenanceOptions
                         .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                         .toList(),

@@ -49,7 +49,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.homeRoute),
         ),
-        title: const Text('服务记录'),
+        title: const Text('Service Records'),
       ),
       body: Column(
         children: [
@@ -58,11 +58,11 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
-                _buildFilterChip('全部', null),
+                _buildFilterChip('All', null),
                 const SizedBox(width: 8),
-                _buildFilterChip('待完成', 'pending'),
+                _buildFilterChip('Pending', 'pending'),
                 const SizedBox(width: 8),
-                _buildFilterChip('已完成', 'completed'),
+                _buildFilterChip('Completed', 'completed'),
               ],
             ),
           ),
@@ -183,7 +183,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                       size: 16, color: ThemeConfig.textHintLight),
                   const SizedBox(width: 4),
                   Text(
-                    '客户 #${record.customerId}',
+                    'Customer #${record.customerId}',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
@@ -195,7 +195,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                         size: 16, color: ThemeConfig.textHintLight),
                     const SizedBox(width: 4),
                     Text(
-                      '设计 #${record.designPlanId}',
+                      'Design #${record.designPlanId}',
                       style: TextStyle(
                         fontSize: 13,
                         color: ThemeConfig.textSecondaryLight,
@@ -214,7 +214,7 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                           size: 14, color: ThemeConfig.textHintLight),
                       const SizedBox(width: 4),
                       Text(
-                        '${record.serviceDuration} 分钟',
+                        '${record.serviceDuration} min',
                         style: TextStyle(
                           fontSize: 12,
                           color: ThemeConfig.textSecondaryLight,
@@ -253,13 +253,13 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
               size: 64, color: ThemeConfig.textSecondaryLight),
           const SizedBox(height: 16),
           Text(
-            '暂无服务记录',
+            'No service records yet',
             style: TextStyle(
                 fontSize: 16, color: ThemeConfig.textSecondaryLight),
           ),
           const SizedBox(height: 8),
           Text(
-            '点击右下角按钮创建服务记录',
+            'Tap the button below to create a service record',
             style:
                 TextStyle(fontSize: 14, color: ThemeConfig.textHintLight),
           ),

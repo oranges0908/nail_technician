@@ -66,7 +66,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
               ? context.go('/customers/${widget.customerId}')
               : context.go(Constants.customersRoute),
         ),
-        title: Text(isEdit ? '编辑客户' : '添加客户'),
+        title: Text(isEdit ? 'Edit Customer' : 'Add Customer'),
       ),
       body: Consumer<CustomerProvider>(
         builder: (context, provider, _) {
@@ -115,9 +115,9 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(
-                      labelText: '姓名 *',
-                      hintText: '请输入客户姓名',
-                      helperText: '必填，最多100个字符',
+                      labelText: 'Name *',
+                      hintText: 'Enter customer name',
+                      helperText: 'Required, max 100 characters',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
@@ -125,7 +125,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                         return Constants.emptyNameError;
                       }
                       if (value.trim().length > 100) {
-                        return '姓名不能超过100个字符';
+                        return 'Name cannot exceed 100 characters';
                       }
                       return null;
                     },
@@ -136,9 +136,9 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                   TextFormField(
                     controller: _phoneController,
                     decoration: const InputDecoration(
-                      labelText: '手机号 *',
-                      hintText: '请输入手机号',
-                      helperText: '必填，11位国内手机号',
+                      labelText: 'Phone *',
+                      hintText: 'Enter phone number',
+                      helperText: 'Required, 11-digit phone number',
                       prefixIcon: Icon(Icons.phone_outlined),
                     ),
                     keyboardType: TextInputType.phone,
@@ -158,9 +158,9 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
-                      labelText: '邮箱',
-                      hintText: '请输入邮箱（选填）',
-                      helperText: '选填，如填写需为有效邮箱格式',
+                      labelText: 'Email',
+                      hintText: 'Enter email (optional)',
+                      helperText: 'Optional, must be a valid email format',
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     keyboardType: TextInputType.emailAddress,
@@ -179,8 +179,8 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                   TextFormField(
                     controller: _notesController,
                     decoration: const InputDecoration(
-                      labelText: '备注',
-                      hintText: '请输入备注信息（选填）',
+                      labelText: 'Notes',
+                      hintText: 'Enter notes (optional)',
                       prefixIcon: Icon(Icons.notes_outlined),
                       alignLabelWithHint: true,
                     ),
@@ -204,7 +204,7 @@ class _CustomerFormScreenState extends State<CustomerFormScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : Text(isEdit ? Constants.saveButton : '添加客户'),
+                          : Text(isEdit ? Constants.saveButton : 'Add Customer'),
                     ),
                   ),
                 ],

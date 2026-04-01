@@ -35,7 +35,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.customersRoute),
         ),
-        title: const Text('客户详情'),
+        title: const Text('Customer Details'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -54,7 +54,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   children: const [
                     Icon(Icons.delete_outline, size: 20, color: ThemeConfig.errorColor),
                     SizedBox(width: 8),
-                    Text('删除客户'),
+                    Text('Delete Customer'),
                   ],
                 ),
               ),
@@ -88,7 +88,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
           final customer = provider.selectedCustomer;
           if (customer == null) {
-            return const Center(child: Text('客户不存在'));
+            return const Center(child: Text('Customer not found'));
           }
 
           return RefreshIndicator(
@@ -181,7 +181,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               const Divider(),
               const SizedBox(height: 8),
               Text(
-                '备注',
+                'Notes',
                 style: TextStyle(
                   fontSize: 12,
                   color: ThemeConfig.textHintLight,
@@ -207,7 +207,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  '客户档案',
+                  'Customer Profile',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -215,7 +215,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 ),
                 TextButton.icon(
                   icon: const Icon(Icons.edit, size: 16),
-                  label: const Text('编辑'),
+                  label: const Text('Edit'),
                   onPressed: () => context.go(
                     '/customers/${widget.customerId}/profile',
                   ),
@@ -226,20 +226,20 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
             // 甲型信息
             if (profile.nailShape != null || profile.nailLength != null) ...[
-              _buildSectionTitle('甲型信息'),
+              _buildSectionTitle('Nail Info'),
               if (profile.nailShape != null)
-                _buildInfoRow('甲形', profile.nailShape!),
+                _buildInfoRow('Shape', profile.nailShape!),
               if (profile.nailLength != null)
-                _buildInfoRow('甲长', profile.nailLength!),
+                _buildInfoRow('Length', profile.nailLength!),
               if (profile.nailCondition != null)
-                _buildInfoRow('甲况', profile.nailCondition!),
+                _buildInfoRow('Condition', profile.nailCondition!),
               const SizedBox(height: 12),
             ],
 
             // 颜色偏好
             if (profile.colorPreferences != null &&
                 profile.colorPreferences!.isNotEmpty) ...[
-              _buildSectionTitle('喜欢的颜色'),
+              _buildSectionTitle('Preferred Colors'),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -255,7 +255,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
             if (profile.colorDislikes != null &&
                 profile.colorDislikes!.isNotEmpty) ...[
-              _buildSectionTitle('不喜欢的颜色'),
+              _buildSectionTitle('Disliked Colors'),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -273,7 +273,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             // 风格偏好
             if (profile.stylePreferences != null &&
                 profile.stylePreferences!.isNotEmpty) ...[
-              _buildSectionTitle('风格偏好'),
+              _buildSectionTitle('Style Preferences'),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -290,13 +290,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
             // 过敏和禁忌
             if (profile.allergies != null && profile.allergies!.isNotEmpty) ...[
-              _buildSectionTitle('过敏信息'),
+              _buildSectionTitle('Allergies'),
               Text(profile.allergies!),
               const SizedBox(height: 12),
             ],
             if (profile.prohibitions != null &&
                 profile.prohibitions!.isNotEmpty) ...[
-              _buildSectionTitle('禁忌事项'),
+              _buildSectionTitle('Restrictions'),
               Text(profile.prohibitions!),
             ],
           ],
@@ -353,7 +353,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              '尚未创建客户档案',
+              'No profile created yet',
               style: TextStyle(color: ThemeConfig.textSecondaryLight),
             ),
             const SizedBox(height: 12),
@@ -361,7 +361,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               onPressed: () => context.go(
                 '/customers/${widget.customerId}/profile',
               ),
-              child: const Text('创建档案'),
+              child: const Text('Create Profile'),
             ),
           ],
         ),
@@ -374,7 +374,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text(Constants.deleteConfirmTitle),
-        content: const Text('确定要删除该客户吗？'),
+        content: const Text('Are you sure you want to delete this customer?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

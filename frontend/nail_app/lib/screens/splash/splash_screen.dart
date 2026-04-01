@@ -81,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // 加载文字
             Text(
-              '正在加载...',
+              'Loading...',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withOpacity(0.8),

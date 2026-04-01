@@ -64,7 +64,7 @@ class CustomerCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data['name'] as String? ?? '未知客户',
+                      data['name'] as String? ?? 'Unknown Customer',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -152,7 +152,7 @@ class DesignPreviewCard extends StatelessWidget {
               children: [
                 if (designId != null)
                   Text(
-                    '设计方案 #$designId',
+                    'Design #$designId',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -204,7 +204,7 @@ class ImageUploadButton extends StatelessWidget {
           const SizedBox(width: 10),
           const Expanded(
             child: Text(
-              '点击下方相机图标上传图片',
+              'Tap the camera icon below to upload a photo',
               style: TextStyle(
                 color: ThemeConfig.primaryColor,
                 fontWeight: FontWeight.w500,
@@ -243,7 +243,7 @@ class AnalysisResultCard extends StatelessWidget {
                     color: ThemeConfig.infoColor, size: 20),
                 SizedBox(width: 6),
                 Text(
-                  'AI 对比分析结果',
+                  'AI Comparison Result',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -258,11 +258,11 @@ class AnalysisResultCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('整体相似度',
+                  const Text('Overall Similarity',
                       style: TextStyle(fontSize: 13,
                           color: ThemeConfig.textSecondaryLight)),
                   Text(
-                    '${similarity.toStringAsFixed(0)} 分',
+                    '${similarity.toStringAsFixed(0)} pts',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: ThemeConfig.infoColor,
@@ -285,7 +285,7 @@ class AnalysisResultCard extends StatelessWidget {
             // 6维评分列表
             if (scores.isNotEmpty) ...[
               const Text(
-                '维度评分',
+                'Dimension Scores',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -369,7 +369,7 @@ class FinalSummaryCard extends StatelessWidget {
                     color: ThemeConfig.warningColor, size: 20),
                 SizedBox(width: 6),
                 Text(
-                  '本次成长复盘',
+                  'Growth Review',
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 14),
                 ),
@@ -377,7 +377,7 @@ class FinalSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (strengths.isNotEmpty) ...[
-              const Text('✨ 亮点',
+              const Text('✨ Strengths',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: ThemeConfig.successColor,
@@ -399,7 +399,7 @@ class FinalSummaryCard extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             if (improvements.isNotEmpty) ...[
-              const Text('📈 待提升',
+              const Text('📈 To Improve',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: ThemeConfig.warningColor,

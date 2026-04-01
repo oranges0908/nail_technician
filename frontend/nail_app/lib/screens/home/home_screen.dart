@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user?.username ?? '用户',
+                        user?.username ?? 'User',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: ThemeConfig.textPrimaryLight,
@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.logout, size: 20, color: ThemeConfig.errorColor),
                       const SizedBox(width: 8),
-                      const Text('退出登录'),
+                      const Text('Sign Out'),
                     ],
                   ),
                 ),
@@ -80,7 +80,7 @@ class HomeScreen extends StatelessWidget {
             Consumer<AuthProvider>(
               builder: (context, auth, _) {
                 return Text(
-                  '你好，${auth.user?.username ?? '美甲师'}',
+                  'Hello, ${auth.user?.username ?? 'Artist'}',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -108,8 +108,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.people_outline,
-                    title: '客户管理',
-                    subtitle: '管理客户档案',
+                    title: 'Customers',
+                    subtitle: 'Manage profiles',
                     color: ThemeConfig.primaryColor,
                     onTap: () {
                       context.go(Constants.customersRoute);
@@ -118,8 +118,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.photo_library_outlined,
-                    title: '灵感图库',
-                    subtitle: '浏览参考设计',
+                    title: 'Inspirations',
+                    subtitle: 'Browse references',
                     color: ThemeConfig.accentColor,
                     onTap: () {
                       context.go(Constants.inspirationsRoute);
@@ -128,8 +128,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.brush_outlined,
-                    title: 'AI 设计',
-                    subtitle: '生成设计方案',
+                    title: 'AI Design',
+                    subtitle: 'Generate designs',
                     color: ThemeConfig.infoColor,
                     onTap: () {
                       context.go(Constants.designsRoute);
@@ -138,8 +138,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.assignment_outlined,
-                    title: '服务记录',
-                    subtitle: '查看服务历史',
+                    title: 'Services',
+                    subtitle: 'View service history',
                     color: ThemeConfig.successColor,
                     onTap: () {
                       context.go(Constants.servicesRoute);
@@ -148,8 +148,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.radar_outlined,
-                    title: '能力中心',
-                    subtitle: '技能成长分析',
+                    title: 'Ability Center',
+                    subtitle: 'Skill growth analysis',
                     color: ThemeConfig.warningColor,
                     onTap: () {
                       context.go(Constants.abilitiesRoute);
@@ -158,8 +158,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons.chat_bubble_outline,
-                    title: 'AI 助理',
-                    subtitle: '对话驱动全流程',
+                    title: 'AI Assistant',
+                    subtitle: 'Chat-driven workflow',
                     color: ThemeConfig.primaryColor,
                     onTap: () {
                       context.push('/chat');
