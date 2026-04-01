@@ -96,7 +96,9 @@ def setup_logging(
     # 设置第三方库的日志级别（避免过多日志）
     logging.getLogger("uvicorn").setLevel(logging.WARNING)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    # SQL 日志跟随整体 LOG_LEVEL：DEBUG 时可见，否则静默
+    sql_log_level = logging.INFO if numeric_level <= logging.DEBUG else logging.WARNING
+    logging.getLogger("sqlalchemy.engine").setLevel(sql_log_level)
     logging.getLogger("openai").setLevel(logging.WARNING)
 
 

@@ -103,18 +103,23 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   String _getPurposeByStep(String step) {
-    return step == 'complete' ? 'actual' : 'inspiration';
+    return (step == 'complete' || step == 'collect' || step == 'confirm')
+        ? 'actual'
+        : 'inspiration';
   }
 
   String _stepLabel(String step) {
     const labels = {
-      'greeting': '开始',
-      'customer': '客户确认',
-      'design': '设计生成',
-      'service': '服务记录',
-      'complete': '完成服务',
-      'analysis': 'AI 分析',
-      'review': '成长复盘',
+      'collect': 'Describe Service',
+      'confirm': 'Confirm Draft',
+      'analysis': 'AI Analysis',
+      'review': 'Growth Review',
+      // legacy fallbacks
+      'greeting': 'Start',
+      'customer': 'Customer',
+      'design': 'Design',
+      'service': 'Service Record',
+      'complete': 'Complete',
     };
     return labels[step] ?? step;
   }
@@ -165,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return AppBar(
       title: Row(
         children: [
-          const Text('AI 助理'),
+          const Text('AI Assistant'),
           const SizedBox(width: 8),
           Chip(
             label: Text(
@@ -185,21 +190,21 @@ class _ChatScreenState extends State<ChatScreen> {
       actions: [
         IconButton(
           icon: const Icon(Icons.add_comment_outlined),
-          tooltip: '新建会话',
+          tooltip: 'New Session',
           onPressed: () async {
             final confirmed = await showDialog<bool>(
               context: context,
               builder: (_) => AlertDialog(
-                title: const Text('新建会话'),
-                content: const Text('确定开始新的对话？当前会话将被保留在历史记录中。'),
+                title: const Text('New Session'),
+                content: const Text('Start a new conversation? The current session will be saved in history.'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('取消'),
+                    child: const Text('Cancel'),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context, true),
-                    child: const Text('确定'),
+                    child: const Text('Confirm'),
                   ),
                 ],
               ),
@@ -302,7 +307,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               color: ThemeConfig.primaryColor,
               onPressed: isBusy ? null : _pickAndUploadImage,
-              tooltip: '上传图片',
+              tooltip: 'Upload Image',
             ),
 
             // 文本输入框
@@ -314,7 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  hintText: isBusy ? 'AI 正在处理...' : '输入消息...',
+                  hintText: isBusy ? 'AI is processing...' : 'Type a message...',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(22),
                     borderSide: BorderSide.none,
@@ -362,7 +367,7 @@ class _ImageSourceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = purpose == 'actual' ? '实拍完成图' : '灵感参考图';
+    final label = purpose == 'actual' ? 'Completed Photo' : 'Reference Image';
 
     return SafeArea(
       child: Column(
@@ -371,19 +376,19 @@ class _ImageSourceSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              '上传$label',
+              'Upload $label',
               style: const TextStyle(
                   fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.camera_alt_outlined),
-            title: const Text('拍照'),
+            title: const Text('Take Photo'),
             onTap: () => Navigator.pop(context, 'camera'),
           ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('从相册选择'),
+            title: const Text('Choose from Gallery'),
             onTap: () => Navigator.pop(context, 'gallery'),
           ),
           const SizedBox(height: 8),

@@ -125,7 +125,7 @@ class _ServiceCompleteScreenState extends State<ServiceCompleteScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('操作失败: $e')),
+          SnackBar(content: Text('Operation failed: $e')),
         );
       }
     } finally {

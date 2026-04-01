@@ -126,7 +126,7 @@ class _InspirationUploadScreenState extends State<InspirationUploadScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('上传失败: $e')),
+          SnackBar(content: Text('Upload failed: $e')),
         );
       }
     } finally {

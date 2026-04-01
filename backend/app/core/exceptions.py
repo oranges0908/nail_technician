@@ -1,16 +1,16 @@
 """
-自定义异常类
+Custom exception classes
 
-定义应用程序的异常层次结构，方便统一处理错误。
+Defines the application exception hierarchy for unified error handling.
 """
 from typing import Any, Dict, Optional
 
 
 class NailAppException(Exception):
     """
-    应用程序基础异常类
+    Base application exception class
 
-    所有自定义异常都应继承此类
+    All custom exceptions should inherit from this class
     """
     def __init__(
         self,
@@ -25,97 +25,61 @@ class NailAppException(Exception):
 
 
 class AuthenticationError(NailAppException):
-    """
-    认证错误
-
-    用于登录失败、token无效等认证相关错误
-    """
-    def __init__(self, message: str = "认证失败", detail: Optional[Dict[str, Any]] = None):
+    """Authentication error for login failures, invalid tokens, etc."""
+    def __init__(self, message: str = "Authentication failed", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=401, detail=detail)
 
 
 class AuthorizationError(NailAppException):
-    """
-    授权错误
-
-    用于权限不足等授权相关错误
-    """
-    def __init__(self, message: str = "权限不足", detail: Optional[Dict[str, Any]] = None):
+    """Authorization error for insufficient permissions."""
+    def __init__(self, message: str = "Insufficient permissions", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=403, detail=detail)
 
 
 class ResourceNotFoundError(NailAppException):
-    """
-    资源未找到错误
-
-    用于查询的资源不存在
-    """
+    """Resource not found error."""
     def __init__(self, resource: str, resource_id: Any = None):
-        message = f"{resource} 不存在"
+        message = f"{resource} not found"
         detail = {"resource": resource}
         if resource_id:
-            message = f"{resource} (ID: {resource_id}) 不存在"
+            message = f"{resource} (ID: {resource_id}) not found"
             detail["resource_id"] = resource_id
         super().__init__(message, status_code=404, detail=detail)
 
 
 class ResourceConflictError(NailAppException):
-    """
-    资源冲突错误
-
-    用于创建重复资源（如邮箱已存在）
-    """
-    def __init__(self, message: str = "资源冲突", detail: Optional[Dict[str, Any]] = None):
+    """Resource conflict error for duplicate resources (e.g. email already exists)."""
+    def __init__(self, message: str = "Resource conflict", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=409, detail=detail)
 
 
 class FileUploadError(NailAppException):
-    """
-    文件上传错误
-
-    用于文件上传相关错误（类型不支持、大小超限等）
-    """
-    def __init__(self, message: str = "文件上传失败", detail: Optional[Dict[str, Any]] = None):
+    """File upload error (unsupported type, size exceeded, etc.)."""
+    def __init__(self, message: str = "File upload failed", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=400, detail=detail)
 
 
 class AIServiceError(NailAppException):
-    """
-    AI服务错误
-
-    用于AI服务调用失败（OpenAI API错误、配置错误等）
-    """
-    def __init__(self, message: str = "AI服务调用失败", detail: Optional[Dict[str, Any]] = None):
+    """AI service error for failed AI service calls (OpenAI API errors, config errors, etc.)."""
+    def __init__(self, message: str = "AI service call failed", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=503, detail=detail)
 
 
 class DatabaseError(NailAppException):
-    """
-    数据库错误
-
-    用于数据库操作失败
-    """
-    def __init__(self, message: str = "数据库操作失败", detail: Optional[Dict[str, Any]] = None):
+    """Database error for failed database operations."""
+    def __init__(self, message: str = "Database operation failed", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=500, detail=detail)
 
 
 class ValidationError(NailAppException):
-    """
-    数据验证错误
-
-    用于业务逻辑验证失败（区别于Pydantic的RequestValidationError）
-    """
-    def __init__(self, message: str = "数据验证失败", detail: Optional[Dict[str, Any]] = None):
+    """Data validation error for business logic validation failures (distinct from Pydantic's RequestValidationError)."""
+    def __init__(self, message: str = "Data validation failed", detail: Optional[Dict[str, Any]] = None):
         super().__init__(message, status_code=422, detail=detail)
 
 
 class ExternalServiceError(NailAppException):
-    """
-    外部服务错误
-
-    用于调用外部服务失败（文件存储服务、第三方API等）
-    """
-    def __init__(self, service: str, message: str = "外部服务调用失败", detail: Optional[Dict[str, Any]] = None):
+    """External service error for failed calls to external services (file storage, third-party APIs, etc.)."""
+    def __init__(self, service: str, message: str = "External service call failed", detail: Optional[Dict[str, Any]] = None):
         detail = detail or {}
         detail["service"] = service
         super().__init__(message, status_code=502, detail=detail)

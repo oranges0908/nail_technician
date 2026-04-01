@@ -11,50 +11,48 @@ logger = logging.getLogger(__name__)
 
 
 class AnalysisService:
-    """AI 分析服务"""
+    """AI Analysis Service"""
 
     @staticmethod
     async def analyze_service(db: Session, service_record_id: int) -> ComparisonResult:
         """
-        对服务记录进行 AI 综合分析（图片 + 文本）
+        Run comprehensive AI analysis on a service record (image + text)
 
         Args:
-            db: 数据库会话
-            service_record_id: 服务记录 ID
+            db: Database session
+            service_record_id: Service record ID
 
         Returns:
-            ComparisonResult: 对比分析结果
+            ComparisonResult: Comparison analysis result
 
         Raises:
-            ValueError: 服务记录不存在、缺少必要信息等
+            ValueError: Service record not found, missing required info, etc.
         """
 
-        # 1. 获取服务记录
+        # 1. Get service record
         service = db.query(ServiceRecord).filter(ServiceRecord.id == service_record_id).first()
         if not service:
-            raise ValueError(f"服务记录 {service_record_id} 不存在")
+            raise ValueError(f"Service record {service_record_id} not found")
 
         if not service.actual_image_path:
-            raise ValueError("服务记录缺少实际完成图")
+            raise ValueError("Service record is missing the actual completed photo")
 
         if not service.design_plan_id:
-            raise ValueError("服务记录未关联设计方案")
+            raise ValueError("Service record is not linked to a design plan")
 
-        # 2. 获取设计方案图片
+        # 2. Get design plan image
         design_plan = service.design_plan
         if not design_plan or not design_plan.generated_image_path:
-            raise ValueError("设计方案缺少生成图片")
+            raise ValueError("Design plan is missing its generated image")
 
-        # 直接使用存储的路径（如 /uploads/designs/xxx.png）
-        # AI Provider 的 _load_image_part 会处理路径转换
         design_image_url = design_plan.generated_image_path
         actual_image_url = service.actual_image_path
 
-        # 3. 调用 AI Provider 进行综合分析
+        # 3. Call AI Provider for comprehensive analysis
         ai_provider = AIProviderFactory.get_provider()
 
-        logger.info(f"开始 AI 综合分析，服务记录 ID: {service_record_id}")
-        logger.info(f"包含文本上下文: artist_review={bool(service.artist_review)}, "
+        logger.info(f"Starting AI comprehensive analysis, service record ID: {service_record_id}")
+        logger.info(f"Text context included: artist_review={bool(service.artist_review)}, "
                    f"customer_feedback={bool(service.customer_feedback)}, "
                    f"satisfaction={service.customer_satisfaction}")
 
@@ -67,22 +65,22 @@ class AnalysisService:
                 customer_satisfaction=service.customer_satisfaction
             )
         except Exception as e:
-            logger.error(f"AI 分析失败: {e}")
-            raise ValueError(f"AI 分析失败: {str(e)}")
+            logger.error(f"AI analysis failed: {e}")
+            raise ValueError(f"AI analysis failed: {str(e)}")
 
-        # 4. 保存或更新对比结果
+        # 4. Save or update comparison result
         comparison = db.query(ComparisonResult).filter(
             ComparisonResult.service_record_id == service_record_id
         ).first()
 
         if comparison:
-            # 更新现有记录
+            # Update existing record
             comparison.similarity_score = analysis_result["similarity_score"]
             comparison.differences = analysis_result.get("differences", {})
             comparison.suggestions = analysis_result.get("suggestions", [])
             comparison.contextual_insights = analysis_result.get("contextual_insights", {})
         else:
-            # 创建新记录
+            # Create new record
             comparison = ComparisonResult(
                 service_record_id=service_record_id,
                 similarity_score=analysis_result["similarity_score"],
@@ -95,7 +93,7 @@ class AnalysisService:
         db.commit()
         db.refresh(comparison)
 
-        # 5. 更新能力记录
+        # 5. Update ability records
         if "ability_scores" in analysis_result:
             await AnalysisService._update_ability_records(
                 db=db,
@@ -104,7 +102,15 @@ class AnalysisService:
                 ability_scores=analysis_result["ability_scores"]
             )
 
-        logger.info(f"AI 综合分析完成，相似度: {analysis_result['similarity_score']}")
+        # 6. Update customer preference profile
+        if service.customer_id:
+            await AnalysisService._update_customer_profile(
+                db=db,
+                customer_id=service.customer_id,
+                analysis_result=analysis_result
+            )
+
+        logger.info(f"AI comprehensive analysis complete, similarity: {analysis_result['similarity_score']}")
 
         return comparison
 
@@ -116,42 +122,42 @@ class AnalysisService:
         ability_scores: Dict[str, Dict]
     ):
         """
-        更新能力记录
+        Update ability records
 
         Args:
-            db: 数据库会话
-            service_record_id: 服务记录ID
-            user_id: 用户ID
-            ability_scores: 能力评分字典
+            db: Database session
+            service_record_id: Service record ID
+            user_id: User ID
+            ability_scores: Ability scores dict
                 {
-                    "颜色搭配": {"score": 85, "evidence": "..."},
-                    "图案精度": {"score": 90, "evidence": "..."}
+                    "color_matching": {"score": 85, "evidence": "..."},
+                    "pattern_precision": {"score": 90, "evidence": "..."}
                 }
         """
 
-        # 删除现有的能力记录（如果重新分析）
+        # Delete existing ability records (if re-analyzing)
         db.query(AbilityRecord).filter(
             AbilityRecord.service_record_id == service_record_id
         ).delete()
 
-        # 创建新的能力记录
+        # Create new ability records
         for dimension_name, score_data in ability_scores.items():
-            # 查找或创建能力维度
+            # Find or create ability dimension
             dimension = db.query(AbilityDimension).filter(
                 AbilityDimension.name == dimension_name
             ).first()
 
             if not dimension:
-                # 自动创建新维度
+                # Auto-create new dimension
                 dimension = AbilityDimension(
                     name=dimension_name,
                     name_en=dimension_name.lower().replace(" ", "_"),
-                    description=f"自动创建的维度: {dimension_name}"
+                    description=f"Auto-created dimension: {dimension_name}"
                 )
                 db.add(dimension)
                 db.flush()
 
-            # 创建能力记录
+            # Create ability record
             ability_record = AbilityRecord(
                 user_id=user_id,
                 service_record_id=service_record_id,
@@ -163,7 +169,44 @@ class AnalysisService:
 
         db.commit()
 
-        logger.info(f"更新能力记录完成，共 {len(ability_scores)} 个维度")
+        logger.info(f"Ability records updated, {len(ability_scores)} dimensions")
+
+    @staticmethod
+    async def _update_customer_profile(db: Session, customer_id: int, analysis_result: dict):
+        """Incrementally update customer preference profile (colors, styles, notes)"""
+        from app.models.customer_profile import CustomerProfile
+        customer_updates = analysis_result.get("customer_updates", {})
+        if not customer_updates:
+            return
+        profile = db.query(CustomerProfile).filter(
+            CustomerProfile.customer_id == customer_id
+        ).first()
+        if not profile:
+            profile = CustomerProfile(customer_id=customer_id)
+            db.add(profile)
+        # append_unique colors
+        if "colors" in customer_updates:
+            existing = list(profile.color_preferences or [])
+            for c in customer_updates["colors"]:
+                if c and c not in existing:
+                    existing.append(c)
+            profile.color_preferences = existing
+        # append_unique styles
+        if "styles" in customer_updates:
+            existing = list(profile.style_preferences or [])
+            for s in customer_updates["styles"]:
+                if s and s not in existing:
+                    existing.append(s)
+            profile.style_preferences = existing
+        # append_unique notes → pattern_preferences (semicolon-separated)
+        if "notes" in customer_updates:
+            existing = profile.pattern_preferences or ""
+            for note in customer_updates["notes"]:
+                if note and note not in existing:
+                    existing = (existing + "; " + note).strip("; ")
+            profile.pattern_preferences = existing
+        db.commit()
+        logger.info(f"Customer profile incrementally updated, customer_id: {customer_id}")
 
     @staticmethod
     def get_ability_trend(
@@ -173,16 +216,16 @@ class AnalysisService:
         limit: int = 10
     ) -> List[Dict]:
         """
-        获取能力趋势数据
+        Get ability trend data
 
         Args:
-            db: 数据库会话
-            user_id: 用户ID
-            dimension_name: 维度名称
-            limit: 返回记录数
+            db: Database session
+            user_id: User ID
+            dimension_name: Dimension name
+            limit: Number of records to return
 
         Returns:
-            趋势数据列表
+            List of trend data
         """
 
         dimension = db.query(AbilityDimension).filter(
@@ -204,7 +247,7 @@ class AnalysisService:
                 "evidence": r.evidence,
                 "created_at": r.created_at.isoformat()
             }
-            for r in reversed(records)  # 按时间正序排列
+            for r in reversed(records)  # chronological order
         ]
 
         return trend_data
@@ -215,17 +258,17 @@ class AnalysisService:
         user_id: int
     ) -> Dict:
         """
-        获取能力雷达图数据（最近一次服务的各维度评分）
+        Get ability radar chart data (scores across dimensions from the most recent service)
 
         Args:
-            db: 数据库会话
-            user_id: 用户ID
+            db: Database session
+            user_id: User ID
 
         Returns:
-            雷达图数据
+            Radar chart data
         """
 
-        # 获取最近一次服务记录
+        # Get most recent service record
         latest_service = db.query(ServiceRecord).filter(
             ServiceRecord.user_id == user_id,
             ServiceRecord.status == "completed"
@@ -234,7 +277,7 @@ class AnalysisService:
         if not latest_service:
             return {"dimensions": [], "scores": []}
 
-        # 获取该服务的所有能力记录
+        # Get all ability records for this service
         ability_records = db.query(AbilityRecord).join(AbilityDimension).filter(
             AbilityRecord.service_record_id == latest_service.id
         ).all()

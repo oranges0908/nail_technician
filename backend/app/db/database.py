@@ -14,7 +14,7 @@ def get_engine_config():
     """根据数据库类型返回引擎配置"""
     config = {
         "pool_pre_ping": True,  # 连接池健康检查
-        "echo": settings.DEBUG,  # 开发环境打印 SQL
+        "echo": False,  # SQL 日志由 logging_config 中 sqlalchemy.engine 级别统一控制
     }
 
     # SQLite 配置

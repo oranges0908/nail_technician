@@ -20,7 +20,7 @@ class ChatProvider extends ChangeNotifier {
   List<ChatMessage> _messages = [];
   ChatStatus _status = ChatStatus.idle;
   String? _error;
-  String _currentStep = 'greeting';
+  String _currentStep = 'collect';
   Map<String, dynamic> _context = {};
   UiMetadata _currentUiMetadata = UiMetadata.empty();
 
@@ -51,7 +51,7 @@ class ChatProvider extends ChangeNotifier {
     _messages = [];
     _sessionId = null;
     _context = {};
-    _currentStep = 'greeting';
+    _currentStep = 'collect';
     _currentUiMetadata = UiMetadata.empty();
 
     try {
@@ -72,7 +72,7 @@ class ChatProvider extends ChangeNotifier {
 
       _setStatus(ChatStatus.idle);
     } catch (e) {
-      _setError('创建会话失败: $e');
+      _setError('Failed to create session: $e');
     }
   }
 
@@ -124,7 +124,7 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       // 回滚 loading 占位符
       _messages.removeLast();
-      _setError('发送失败: $e');
+      _setError('Failed to send message: $e');
     }
   }
 
@@ -168,7 +168,7 @@ class ChatProvider extends ChangeNotifier {
     } catch (e) {
       // 回滚 loading 占位符和用户图片消息
       _messages.removeWhere((m) => m.isLoading || m.imageBytes != null);
-      _setError('上传失败: $e');
+      _setError('Upload failed: $e');
     }
   }
 

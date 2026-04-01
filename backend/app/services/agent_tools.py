@@ -1,6 +1,6 @@
 """
-AI Agent 工具注册表（Tool Registry）
-将已有业务 Service 方法封装为 OpenAI Function Calling 格式的工具。
+AI Agent Tool Registry
+Wraps existing business Service methods as OpenAI Function Calling format tools.
 """
 import json
 import logging
@@ -27,13 +27,13 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "search_customer",
-            "description": "按姓名或手机号搜索已有客户，返回匹配列表",
+            "description": "Search existing customers by name or phone number, returns matching list",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "姓名或手机号关键词"
+                        "description": "Name or phone number keyword"
                     }
                 },
                 "required": ["query"]
@@ -44,14 +44,14 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "create_customer",
-            "description": "创建新客户档案",
+            "description": "Create a new customer profile",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string", "description": "客户姓名"},
-                    "phone": {"type": "string", "description": "手机号（11位）"},
-                    "email": {"type": "string", "description": "邮箱（可选）"},
-                    "notes": {"type": "string", "description": "备注（可选）"}
+                    "name": {"type": "string", "description": "Customer name"},
+                    "phone": {"type": "string", "description": "Phone number"},
+                    "email": {"type": "string", "description": "Email (optional)"},
+                    "notes": {"type": "string", "description": "Notes (optional)"}
                 },
                 "required": ["name", "phone"]
             }
@@ -61,11 +61,11 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "get_customer_detail",
-            "description": "获取指定客户的详细信息（含档案）",
+            "description": "Get detailed information for a specific customer (including profile)",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "customer_id": {"type": "integer", "description": "客户ID"}
+                    "customer_id": {"type": "integer", "description": "Customer ID"}
                 },
                 "required": ["customer_id"]
             }
@@ -75,32 +75,32 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "generate_design",
-            "description": "调用 AI 生成美甲设计图。耗时约 30-60 秒，调用前告知用户正在处理",
+            "description": "Call AI to generate a nail design image. Takes about 30-60 seconds; inform user it is processing before calling",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "prompt": {
                         "type": "string",
-                        "description": "设计描述，包括风格、颜色、图案等"
+                        "description": "Design description including style, colors, patterns, etc."
                     },
                     "customer_id": {
                         "type": "integer",
-                        "description": "客户ID（可选，用于读取客户偏好）"
+                        "description": "Customer ID (optional, used to read customer preferences)"
                     },
                     "reference_images": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "参考图路径列表（可选）"
+                        "description": "List of reference image paths (optional)"
                     },
                     "style_keywords": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "风格关键词列表（可选）"
+                        "description": "List of style keywords (optional)"
                     },
                     "design_target": {
                         "type": "string",
                         "enum": ["single", "5nails", "10nails"],
-                        "description": "设计目标（默认 10nails）"
+                        "description": "Design target (default: 10nails)"
                     }
                 },
                 "required": ["prompt"]
@@ -111,17 +111,17 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "refine_design",
-            "description": "对已有设计方案进行 AI 优化迭代，生成新版本",
+            "description": "AI iterative refinement of an existing design, generates a new version",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "design_id": {
                         "type": "integer",
-                        "description": "要优化的设计方案ID"
+                        "description": "ID of the design to refine"
                     },
                     "instruction": {
                         "type": "string",
-                        "description": "优化指令，如「换成更深的粉色」「去掉钻石装饰」"
+                        "description": "Refinement instruction, e.g. 'change to a deeper pink' or 'remove diamond decoration'"
                     }
                 },
                 "required": ["design_id", "instruction"]
@@ -132,21 +132,21 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "create_service_record",
-            "description": "创建今日服务记录，关联客户和设计方案",
+            "description": "Create today's service record, linking customer and design plan",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "customer_id": {
                         "type": "integer",
-                        "description": "客户ID"
+                        "description": "Customer ID"
                     },
                     "design_plan_id": {
                         "type": "integer",
-                        "description": "设计方案ID（可选）"
+                        "description": "Design plan ID (optional)"
                     },
                     "service_date": {
                         "type": "string",
-                        "description": "服务日期，格式 YYYY-MM-DD（不填则为今天）"
+                        "description": "Service date in YYYY-MM-DD format (defaults to today)"
                     }
                 },
                 "required": ["customer_id"]
@@ -157,37 +157,37 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "complete_service",
-            "description": "完成服务记录，上传实拍图，记录时长和复盘",
+            "description": "Complete service record, upload actual photo, record duration and review",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "service_id": {
                         "type": "integer",
-                        "description": "服务记录ID"
+                        "description": "Service record ID"
                     },
                     "actual_image_path": {
                         "type": "string",
-                        "description": "实拍图路径（已上传到服务器的路径）"
+                        "description": "Actual photo path (path already uploaded to server)"
                     },
                     "service_duration": {
                         "type": "integer",
-                        "description": "服务时长（分钟）"
+                        "description": "Service duration in minutes"
                     },
                     "materials_used": {
                         "type": "string",
-                        "description": "使用材料描述（可选）"
+                        "description": "Materials used description (optional)"
                     },
                     "artist_review": {
                         "type": "string",
-                        "description": "美甲师复盘感想（可选）"
+                        "description": "Nail artist's review/reflection (optional)"
                     },
                     "customer_feedback": {
                         "type": "string",
-                        "description": "客户反馈（可选）"
+                        "description": "Customer feedback (optional)"
                     },
                     "customer_satisfaction": {
                         "type": "integer",
-                        "description": "客户满意度 1-5（可选）"
+                        "description": "Customer satisfaction 1-5 (optional)"
                     }
                 },
                 "required": ["service_id"]
@@ -198,13 +198,13 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "run_analysis",
-            "description": "对已完成的服务记录运行 AI 对比分析（设计图 vs 实拍图），生成6维评分。耗时 20-40 秒",
+            "description": "Run AI comparison analysis on completed service record (design vs actual photo), generates 6-dimension scores. Takes 20-40 seconds",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "service_id": {
                         "type": "integer",
-                        "description": "服务记录ID"
+                        "description": "Service record ID"
                     }
                 },
                 "required": ["service_id"]
@@ -215,7 +215,7 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "get_ability_summary",
-            "description": "获取美甲师的能力分析总结，包括强项和待提升维度",
+            "description": "Get nail artist's ability analysis summary, including strengths and dimensions to improve",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -227,17 +227,17 @@ TOOLS_DEFINITION = [
         "type": "function",
         "function": {
             "name": "list_inspirations",
-            "description": "搜索灵感图库，返回可用的参考图列表",
+            "description": "Search inspiration image library, returns list of available reference images",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "search": {
                         "type": "string",
-                        "description": "搜索关键词（标题/标签，可选）"
+                        "description": "Search keyword (title/tag, optional)"
                     },
                     "category": {
                         "type": "string",
-                        "description": "分类过滤（可选）"
+                        "description": "Category filter (optional)"
                     }
                 },
                 "required": []
@@ -251,8 +251,8 @@ TOOLS_DEFINITION = [
 
 class ToolExecutor:
     """
-    将工具调用路由到对应的已有 Service 方法。
-    执行后如产生新业务 ID，更新 session.context 并持久化到 DB。
+    Routes tool calls to corresponding existing Service methods.
+    If new business IDs are produced after execution, updates session.context and persists to DB.
     """
 
     async def execute(
@@ -263,11 +263,11 @@ class ToolExecutor:
         user_id: int,
         session: ConversationSession
     ) -> str:
-        """执行工具，返回 LLM 友好的中文 JSON 字符串"""
+        """Execute tool, return LLM-friendly JSON string"""
         handler = getattr(self, f"_tool_{tool_name}", None)
         if not handler:
             return json.dumps(
-                {"error": f"未知工具: {tool_name}"},
+                {"error": f"Unknown tool: {tool_name}"},
                 ensure_ascii=False
             )
         try:
@@ -275,11 +275,10 @@ class ToolExecutor:
                 db=db, user_id=user_id, session=session, **tool_args
             )
         except Exception as e:
-            logger.error(f"工具执行失败 {tool_name}: {e}", exc_info=True)
-            # 提取 HTTPException 的 detail 字段（比 str(e) 更易读）
+            logger.error(f"Tool execution failed {tool_name}: {e}", exc_info=True)
             detail = getattr(e, "detail", None) or str(e)
             return json.dumps(
-                {"error": f"工具执行失败: {detail}"},
+                {"error": f"Tool execution failed: {detail}"},
                 ensure_ascii=False
             )
 
@@ -289,7 +288,7 @@ class ToolExecutor:
         )
         if total == 0:
             return json.dumps(
-                {"result": "未找到匹配客户", "total": 0, "customers": []},
+                {"result": "No matching customers found", "total": 0, "customers": []},
                 ensure_ascii=False
             )
         data = []
@@ -300,8 +299,15 @@ class ToolExecutor:
                 "phone": c.phone or "",
                 "notes": c.notes or ""
             })
+        # 唯一匹配时自动写入 context
+        if total == 1:
+            ctx = dict(session.context or {})
+            ctx["customer_id"] = customers[0].id
+            ctx["customer_name"] = customers[0].name
+            session.context = ctx
+            db.commit()
         return json.dumps(
-            {"result": "找到以下客户", "total": total, "customers": data},
+            {"result": "Found the following customers", "total": total, "customers": data},
             ensure_ascii=False
         )
 
@@ -321,7 +327,7 @@ class ToolExecutor:
         session.context = ctx
         db.commit()
         return json.dumps({
-            "result": "客户创建成功",
+            "result": "Customer created successfully",
             "customer_id": customer.id,
             "name": customer.name,
             "phone": customer.phone
@@ -331,7 +337,7 @@ class ToolExecutor:
         customer = CustomerService.get_customer_by_id(db, customer_id, user_id)
         if not customer:
             return json.dumps(
-                {"error": f"客户 ID {customer_id} 不存在"},
+                {"error": f"Customer ID {customer_id} not found"},
                 ensure_ascii=False
             )
         profile = customer.profile
@@ -377,7 +383,7 @@ class ToolExecutor:
         db.commit()
 
         return json.dumps({
-            "result": "设计图生成成功",
+            "result": "Design generated successfully",
             "design_id": design.id,
             "image_url": design.generated_image_path,
             "estimated_duration": design.estimated_duration,
@@ -398,7 +404,7 @@ class ToolExecutor:
         db.commit()
 
         return json.dumps({
-            "result": "设计图优化成功",
+            "result": "Design refined successfully",
             "design_id": new_design.id,
             "version": new_design.version,
             "image_url": new_design.generated_image_path,
@@ -429,11 +435,12 @@ class ToolExecutor:
 
         # 更新 session.context
         ctx["service_record_id"] = service.id
+        ctx["customer_id"] = service.customer_id
         session.context = ctx
         db.commit()
 
         return json.dumps({
-            "result": "服务记录创建成功",
+            "result": "Service record created successfully",
             "service_id": service.id,
             "customer_id": service.customer_id,
             "design_plan_id": service.design_plan_id,
@@ -450,7 +457,7 @@ class ToolExecutor:
         # 优先使用 session.context 中已上传的实拍图
         actual_image_path = actual_image_path or ctx.get("actual_image_path")
         if not actual_image_path:
-            return json.dumps({"error": "尚未上传实拍图，请先上传实拍完成图"}, ensure_ascii=False)
+            return json.dumps({"error": "No actual photo uploaded yet. Please upload the completed photo first."}, ensure_ascii=False)
 
         completion_data = {
             "actual_image_path": actual_image_path,
@@ -470,7 +477,7 @@ class ToolExecutor:
         db.commit()
 
         return json.dumps({
-            "result": "服务记录已完成",
+            "result": "Service record completed",
             "service_id": service.id,
             "status": service.status,
             "service_duration": service.service_duration,
@@ -500,7 +507,7 @@ class ToolExecutor:
                     scores[record.dimension.name] = record.score
 
         return json.dumps({
-            "result": "AI 分析完成",
+            "result": "AI analysis complete",
             "comparison_id": comparison.id,
             "similarity_score": comparison.similarity_score,
             "scores": scores,
@@ -511,7 +518,7 @@ class ToolExecutor:
     async def _tool_get_ability_summary(self, db, user_id, session):
         summary = AbilityService.get_ability_summary(db, user_id)
         return json.dumps({
-            "result": "能力总结获取成功",
+            "result": "Ability summary retrieved successfully",
             "summary": summary
         }, ensure_ascii=False)
 
@@ -539,7 +546,7 @@ class ToolExecutor:
                 "image_path": insp.image_path,
             })
         return json.dumps({
-            "result": "灵感图库",
+            "result": "Inspiration library",
             "total": len(data),
             "inspirations": data
         }, ensure_ascii=False)

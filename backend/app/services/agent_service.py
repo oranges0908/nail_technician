@@ -1,9 +1,9 @@
 """
-AI Agent 对话服务（核心）
-- 管理会话生命周期
-- 多轮 LLM 推理 + Function Calling 执行
-- 步骤完成后压缩历史（滚动摘要）
-- 协调 DB（元数据）和本地文件（原始消息）双写
+AI Agent conversation service (core)
+- Manages session lifecycle
+- Multi-turn LLM reasoning + Function Calling execution
+- Compress history after step completion (rolling summary)
+- Coordinate DB (metadata) and local file (raw messages) dual-write
 """
 import json
 import logging
@@ -27,93 +27,80 @@ from app.services.agent_tools import TOOLS_DEFINITION, ToolExecutor
 
 logger = logging.getLogger(__name__)
 
-# 步骤流转顺序（用于自动推进）
-STEP_FLOW = ["greeting", "customer", "design", "service", "complete", "analysis", "review"]
+# Step flow order (for auto-advancement)
+STEP_FLOW = ["collect", "confirm", "analysis", "review"]
 
-# 系统基础提示词模板
-_BASE_SYSTEM_PROMPT = """你是一个专业美甲师 AI 助理，通过自然对话帮助美甲师完成完整服务流程。
-语言：中文，风格亲切简洁。
+# Base system prompt template
+_BASE_SYSTEM_PROMPT = """You are a professional nail artist AI assistant, helping nail artists complete service records and reviews through natural conversation. Language: English, concise and friendly.
 
-{summaries_section}当前上下文：
+{summaries_section}Current context:
 {context_section}
 
-【工具调用阶段】需要查询或执行操作时，直接发出 tool call，不要同时输出任何文字：
+{step_instructions}
 
-搜索类工具（search_customer, list_inspirations, get_customer_detail, get_ability_summary）：
-- 用户提供客户姓名/手机号时，立即发出 search_customer tool call，不要先输出任何文字
-
-创建/生成类工具（create_customer, generate_design, create_service_record 等）分两轮处理：
-- 第一轮（收到用户需求）：输出 JSON 告知操作内容，请用户确认；quick_replies 必须含 ["是", "否", "其他问题"]
-- 第二轮（上下文无 design_plan_id 且用户回复"是"）：你的唯一动作是发出 tool call，**任何文字输出都被禁止**，包括"好的""正在生成""稍等"等口语——这些文字会直接导致工具永远不会执行、设计图无法生成
-
-在 design 步骤收集设计需求时，严格按以下顺序分步进行：
-① 询问设计目标范围（单独一条消息，quick_replies 设为 ["单个指甲", "一只手", "两只手"]）
-② 【第1步】询问设计参考信息：用一条消息收集风格、颜色、图案、特殊要求等文字描述，等待用户回复
-③ 【第2步】询问是否上传参考图：单独一条消息问用户"是否有参考图片想上传？"，quick_replies 设为 ["有，上传参考图", "没有，直接生成"]；若用户选择上传，设 needs_image_upload=true 等待上传完成；若不上传，直接进入下一步
-④ 向用户确认完整设计方案，请求"是/否"确认后调用 generate_design
-
-用户选项与 generate_design 工具的 design_target 参数对应关系：
-- "单个指甲" → design_target: "single"
-- "一只手" → design_target: "5nails"
-- "两只手" → design_target: "10nails"
-调用 generate_design 时必须将此参数传入。
-
-generate_design 或 refine_design 工具返回成功后，最终 JSON 中设 ui_hint="show_design_preview"，ui_data 填入 design_id 和 image_url，并询问用户是否满意，quick_replies 设为 ["满意，继续", "需要调整"]。
-
-设计图展示后的处理逻辑（上下文已有 design_plan_id）：
-- 用户表示**满意**（"是"/"好"/"满意"等）：将 step_complete 设为 true 进入下一步，不得再调用 generate_design
-- 用户表示**需要调整**：立即调用 refine_design 工具，传入当前 design_plan_id 和用户的调整描述；工具返回后再次设 ui_hint="show_design_preview" 展示新版本，继续询问是否满意
-- **禁止**在设计已满意（step_complete=true）后再次调用 generate_design 或 refine_design
-
-在 complete 步骤（完成服务）执行时：
-1. 检查上下文是否已有实拍图（actual_image_path）：
-   - 已有实拍图：**绝对禁止**再要求上传，needs_image_upload **必须为 false**，直接进入信息收集
-   - 没有实拍图：设置 needs_image_upload=true，等待用户上传后再继续
-
-2. 实拍图就绪后，按以下固定顺序逐项收集信息。**铁律：每条消息只能问且只问一个问题，绝对不得在同一条消息中同时出现两个及以上问题，不得使用"另外""顺便""还有"等连接词追加其他问题。**
-   收集顺序与对应字段：
-   ① 本次服务时长（分钟）→ service_duration
-   ② 使用的材料（简短描述）→ materials_used
-   ③ 你的复盘感想 → artist_review
-   ④ 客户反馈 → customer_feedback
-   ⑤ 客户满意度（1-5星，可用 quick_replies: ["⭐1","⭐⭐2","⭐⭐⭐3","⭐⭐⭐⭐4","⭐⭐⭐⭐⭐5"]）→ customer_satisfaction
-
-   每次收到用户回答后，立即根据对话历史判断**下一个尚未收集的字段**，只问那一个字段，不得跳步、不得重复、不得合并。
-   示例对话节奏：
-   - 助理："本次服务做了多久呢？（分钟）" → 等待回复
-   - 用户："90分钟" → 助理："用了哪些材料呀？" → 等待回复
-   - 用户："甲油胶+钻" → 助理："这次服务你有什么复盘感想？" → 等待回复
-   - 用户："手法还需练习" → 助理："客户有什么反馈吗？" → 等待回复
-   - 用户："很满意" → 助理："客户满意度打几颗星呢？" → 等待回复
-   - 用户："5星" → 立即调用 complete_service 工具
-
-3. 所有五项全部收集完毕后，一次性调用 complete_service 工具（actual_image_path 使用上下文中的路径）
-
-- 向用户提出是/否类问题时，quick_replies 必须包含 ["是", "否", "其他问题"]
-- 每步完成、用户确认满意后，将 step_complete 设为 true
-
-【最终回复阶段】所有工具调用完成后，必须以合法 JSON 格式输出一次且仅一次最终回复（不含任何额外文字）：
+[Final response format] After all tool calls are complete, output only valid JSON (no other text):
 {{
-  "message_text": "面向用户的中文消息",
-  "step_summary": "本步骤关键信息摘要（20-50字）",
+  "message_text": "User-facing English message",
+  "step_summary": "Step summary (use full JSON string in collect phase)",
   "step_complete": false,
-  "quick_replies": ["选项1", "选项2"],
+  "quick_replies": [],
   "ui_hint": "none|show_customer_card|show_design_preview|show_upload_button|show_analysis_result|show_final_summary",
   "ui_data": null,
   "needs_image_upload": false
 }}"""
 
-# 开场问候消息
+# Step-specific instructions
+_STEP_INSTRUCTIONS = {
+    "collect": """[collect step — free-form service description collection]
+The user can describe today's service in natural language without following any order. Multiple messages to add information are allowed.
+- Optionally call search_customer (for information lookup only, do not write any records)
+- NEVER call create_service_record or complete_service in this step
+- If user uploads an image, record has_actual_image=true
+- When user says "that's all" / "done" / "write it" or the input contains complete service information, trigger step_complete=true
+
+When triggering completion, output a structured draft in message_text for user preview, and set step_summary to the following complete JSON string:
+{
+  "customer_name": "customer name (leave empty if not mentioned)",
+  "estimated_duration": null,
+  "actual_duration": 240,
+  "materials": "gel polish + top coat",
+  "design_desc": "reference design description",
+  "actual_desc": "description of actual completed result",
+  "reflection": "nail artist's review thoughts",
+  "customer_feedback": "customer feedback",
+  "style_tags": ["style tag 1"],
+  "customer_satisfaction": 5,
+  "has_actual_image": false,
+  "pending_fields": ["list of missing fields"]
+}""",
+
+    "confirm": """[confirm step — confirm and write record]
+Read the structured data (JSON string) from the collect step in step_summaries.
+- If there are pending_fields, ask at most 2 missing fields at once, do not ask repeatedly
+- After receiving user confirmation ("confirm" / "yes" / "write"), call tools in order:
+  1. search_customer(customer_name) → if exactly 1 result, use automatically; if 0 results, call create_customer; if multiple, show options for user to choose
+  2. create_service_record(customer_id, design_plan_id=None)
+  3. complete_service(service_id, actual_image_path, service_duration, materials_used, artist_review, customer_feedback, customer_satisfaction)
+- Set step_complete=true after all writes are complete
+- quick_replies should include ["Confirm & Save", "Edit Details"]""",
+
+    "analysis": """[analysis step — AI analysis]
+- If service_record_id exists in context: call run_analysis(service_id)
+- Show analysis highlights (up to 3 strengths + 3 areas to improve), set step_complete=true
+- If no service_record_id or analysis fails: set step_complete=true directly to skip""",
+
+    "review": """[review step — growth review]
+- Call get_ability_summary() to get ability summary
+- Output 1-3 personalized growth suggestions, set step_complete=true""",
+}
+
+# Opening greeting message
 _OPENING_MESSAGE_TEXT = (
-    "你好！我是你的 AI 美甲助理 ✨\n\n"
-    "我可以帮你完成整个服务流程：\n"
-    "① 查找或新建客户\n"
-    "② AI 生成设计方案\n"
-    "③ 创建服务记录\n"
-    "④ 上传实拍 + 完成服务\n"
-    "⑤ AI 对比分析\n"
-    "⑥ 成长复盘总结\n\n"
-    "请问今天要服务哪位客户？"
+    "Hi! I'm your AI nail assistant ✨\n\n"
+    "Just chat with me naturally about today's service.\n"
+    "For example: \"Today I did a green-gold totem design for Momo, referenced the design plan, the result turned out great, took 4 hours, but the top coat wasn't leveled well...\"\n\n"
+    "When you're done, just say \"that's all\" and I'll organize a draft for you to confirm before saving the record 📝\n"
+    "You can also upload the actual photo or reference images 📷"
 )
 
 
@@ -138,11 +125,11 @@ class AgentService:
     def create_session(
         self, db: Session, user_id: int
     ) -> Tuple[ConversationSession, AssistantMessageResponse]:
-        """创建会话，生成本地文件，写入开场问候，返回 (会话, 开场消息)"""
+        """Create session, generate local file, write opening greeting, return (session, opening message)"""
         session = ConversationSession(
             user_id=user_id,
             status="active",
-            current_step="greeting",
+            current_step="collect",
             context={},
             step_summaries=[],
         )
@@ -157,7 +144,7 @@ class AgentService:
 
         # 写入开场问候到本地文件
         self._file_mgr.append_message(session.id, {
-            "step": "greeting",
+            "step": "collect",
             "archived": False,
             "role": "assistant",
             "content": _OPENING_MESSAGE_TEXT,
@@ -166,13 +153,13 @@ class AgentService:
         opening_msg = AssistantMessageResponse(
             content=_OPENING_MESSAGE_TEXT,
             ui_metadata=UiMetadata(
-                quick_replies=["查找老客户", "新建客户档案", "直接生成设计"],
+                quick_replies=[],
                 ui_hint="none",
                 ui_data=None,
                 needs_image_upload=False,
             ),
             step_complete=False,
-            current_step="greeting",
+            current_step="collect",
             context={},
         )
         return session, opening_msg
@@ -237,15 +224,15 @@ class AgentService:
         # 1. 加载会话
         session = self.get_session(db, session_id, user_id)
         if not session:
-            raise ValueError(f"会话 {session_id} 不存在")
+            raise ValueError(f"Session {session_id} not found")
         if session.status != "active":
-            raise ValueError(f"会话 {session_id} 已结束（状态: {session.status}）")
+            raise ValueError(f"Session {session_id} has ended (status: {session.status})")
 
-        # 用户主动终止会话
-        if content.strip() == "终止":
+        # User manually terminates session
+        if content.strip() in ("终止", "abort", "quit"):
             self.abandon_session(db, session_id, user_id)
             return AssistantMessageResponse(
-                content="已终止本次服务流程。如需开始新的服务，请重新发起会话。",
+                content="Session has been terminated. Start a new session to begin a new service.",
                 ui_metadata=UiMetadata(
                     quick_replies=[],
                     ui_hint="none",
@@ -272,7 +259,7 @@ class AgentService:
         # 4. 追加用户消息
         user_msg_content = content
         if image_paths:
-            user_msg_content += f"\n[已附带图片: {', '.join(image_paths)}]"
+            user_msg_content += f"\n[Image attached: {', '.join(image_paths)}]"
 
         user_msg = {
             "step": current_step,
@@ -296,8 +283,8 @@ class AgentService:
             if not tool_calls:
                 content_text = response.get("content") or ""
                 # 检测 LLM 用口语"替代"了工具调用（首轮、未生成设计时）
-                _intent_keywords = ("正在生成", "正在为", "为你生成", "为您生成",
-                                    "稍等", "马上", "开始生成", "正在处理", "generating")
+                _intent_keywords = ("generating", "creating", "working on",
+                                    "just a moment", "please wait", "I'll generate", "I will generate")
                 _needs_tool = (
                     round_idx == 0
                     and not (session.context or {}).get("design_plan_id")
@@ -305,22 +292,22 @@ class AgentService:
                 )
                 if _needs_tool:
                     logger.warning(
-                        f"[session={session_id}] LLM 用文字替代了工具调用，强制重试: {content_text[:80]!r}"
+                        f"[session={session_id}] LLM used text instead of tool call, forcing retry: {content_text[:80]!r}"
                     )
                     openai_messages.append({"role": "assistant", "content": content_text})
                     openai_messages.append({
                         "role": "user",
-                        "content": "请立即调用工具执行，不要输出任何文字。",
+                        "content": "Please call the tool immediately. Do not output any text.",
                     })
                     response = await self._call_llm(openai_messages, with_tools=True, force_tool=True)
                     tool_calls = response.get("tool_calls")
                     if not tool_calls:
-                        logger.error(f"[session={session_id}] 强制重试后仍无 tool call，放弃")
+                        logger.error(f"[session={session_id}] Still no tool call after forced retry, giving up")
                         break
                 else:
                     if round_idx == 0:
                         logger.warning(
-                            f"[session={session_id}] LLM 首轮未发出 tool call，直接返回文字: {content_text[:80]!r}"
+                            f"[session={session_id}] LLM did not issue tool call on first round, returning text directly: {content_text[:80]!r}"
                         )
                     break
 
@@ -346,11 +333,11 @@ class AgentService:
                 except (json.JSONDecodeError, TypeError):
                     tool_args = {}
 
-                logger.info(f"执行工具: {tool_name}，参数: {tool_args}")
+                logger.info(f"Executing tool: {tool_name}, args: {tool_args}")
                 tool_result = await self._tools.execute(
                     tool_name, tool_args, db, user_id, session
                 )
-                logger.info(f"工具结果: {tool_result[:200]}")
+                logger.info(f"Tool result: {tool_result[:200]}")
 
                 tool_result_msg = {
                     "step": current_step,
@@ -395,7 +382,7 @@ class AgentService:
         # 6b. 实拍图已存在时，强制清除 needs_image_upload（防止 LLM 重复要求上传）
         if _post_ctx.get("actual_image_path") and llm_resp.needs_image_upload:
             logger.warning(
-                f"[session={session_id}] 实拍图已存在但 LLM 仍输出 needs_image_upload=true，强制修正为 false"
+                f"[session={session_id}] Actual image already exists but LLM still outputs needs_image_upload=true, forcing to false"
             )
             llm_resp = LLMResponse(
                 message_text=llm_resp.message_text,
@@ -481,7 +468,7 @@ class AgentService:
         """
         session = self.get_session(db, session_id, user_id)
         if not session:
-            raise ValueError(f"会话 {session_id} 不存在")
+            raise ValueError(f"Session {session_id} not found")
 
         ctx = dict(session.context or {})
         if purpose == "inspiration":
@@ -494,18 +481,18 @@ class AgentService:
         session.context = ctx
         db.commit()
 
-        # 写入系统提示消息，告知 LLM 图片已上传
+        # Write system notice to tell LLM that image was uploaded
         system_notice = {
             "step": session.current_step,
             "archived": False,
             "role": "system",
-            "content": f"[用户上传了 {purpose} 图片，路径: {saved_path}]",
+            "content": f"[User uploaded a {purpose} image, path: {saved_path}]",
         }
         self._file_mgr.append_message(session_id, system_notice)
 
-        # 触发 LLM 响应
+        # Trigger LLM response
         upload_msg = (
-            f"我上传了一张{'参考灵感图' if purpose == 'inspiration' else '实拍完成图'}。"
+            f"I uploaded a {'reference/inspiration image' if purpose == 'inspiration' else 'actual completed photo'}."
         )
         return await self.process_message(
             db, session_id, user_id, upload_msg, image_paths=[saved_path]
@@ -527,9 +514,14 @@ class AgentService:
             kwargs["tools"] = TOOLS_DEFINITION
             kwargs["tool_choice"] = "required" if force_tool else "auto"
 
+        logger.info(
+            "[LLM input] model=%s messages=%s",
+            kwargs["model"],
+            json.dumps(openai_messages, ensure_ascii=False),
+        )
         response = await self._llm.chat.completions.create(**kwargs)
         if not response.choices:
-            logger.warning("LLM 返回空 choices，当作空响应处理")
+            logger.warning("LLM returned empty choices, treating as empty response")
             return {"content": None}
         msg = response.choices[0].message
 
@@ -558,32 +550,34 @@ class AgentService:
                 f"- {s.get('step', '')}: {s.get('summary', '')}"
                 for s in summaries
             )
-            summaries_section = f"已完成步骤摘要（这是你了解当前进度的依据）：\n{lines}\n\n"
+            summaries_section = f"Completed step summaries (your reference for current progress):\n{lines}\n\n"
         else:
             summaries_section = ""
 
-        # 构建上下文描述
+        # Build context description
         context_parts = []
         if ctx.get("customer_id"):
             context_parts.append(
-                f"客户: {ctx.get('customer_name', '')} (ID: {ctx['customer_id']})"
+                f"Customer: {ctx.get('customer_name', '')} (ID: {ctx['customer_id']})"
             )
         if ctx.get("design_plan_id"):
-            context_parts.append(f"设计方案 ID: {ctx['design_plan_id']}")
+            context_parts.append(f"Design Plan ID: {ctx['design_plan_id']}")
         if ctx.get("service_record_id"):
-            context_parts.append(f"服务记录 ID: {ctx['service_record_id']}")
+            context_parts.append(f"Service Record ID: {ctx['service_record_id']}")
         if ctx.get("comparison_result_id"):
-            context_parts.append(f"分析结果 ID: {ctx['comparison_result_id']}")
+            context_parts.append(f"Analysis Result ID: {ctx['comparison_result_id']}")
         if ctx.get("actual_image_path"):
-            context_parts.append(f"实拍图: {ctx['actual_image_path']}")
+            context_parts.append(f"Actual photo: {ctx['actual_image_path']}")
 
         context_section = (
-            "\n".join(context_parts) if context_parts else "（暂无业务数据）"
+            "\n".join(context_parts) if context_parts else "(no business data yet)"
         )
 
+        step_instructions = _STEP_INSTRUCTIONS.get(session.current_step, "")
         return _BASE_SYSTEM_PROMPT.format(
             summaries_section=summaries_section,
             context_section=context_section,
+            step_instructions=step_instructions,
         )
 
     def _build_openai_messages(self, step_messages: List[dict]) -> List[dict]:
@@ -625,7 +619,7 @@ class AgentService:
         """
         if not content:
             return LLMResponse(
-                message_text="好的，请继续。",
+                message_text="Got it, please continue.",
                 step_summary="",
                 step_complete=False,
             )
@@ -652,13 +646,13 @@ class AgentService:
                 needs_image_upload=bool(data.get("needs_image_upload", False)),
             )
         except (json.JSONDecodeError, Exception):
-            # 降级：直接将 content 作为纯文本消息，并提供重试/终止选项
-            logger.warning(f"LLM 响应不是合法 JSON，降级处理: {content[:100]}")
+            # Fallback: use content as plain text message and provide retry/abort options
+            logger.warning(f"LLM response is not valid JSON, falling back: {content[:100]}")
             return LLMResponse(
                 message_text=content,
                 step_summary="",
                 step_complete=False,
-                quick_replies=["重试", "终止"],
+                quick_replies=["Retry", "Abort"],
             )
 
     @staticmethod

@@ -60,56 +60,56 @@ class Constants {
   static const String defaultNailImage = 'assets/images/default_nail.png';
   static const String logoImage = 'assets/images/logo.png';
 
-  // ==================== 错误消息 ====================
-  static const String networkError = '网络连接失败，请检查网络设置';
-  static const String serverError = '服务器错误，请稍后重试';
-  static const String unauthorizedError = '未授权，请重新登录';
-  static const String notFoundError = '请求的资源不存在';
-  static const String timeoutError = '请求超时，请重试';
-  static const String unknownError = '未知错误';
+  // ==================== Error Messages ====================
+  static const String networkError = 'Network connection failed, please check your network settings';
+  static const String serverError = 'Server error, please try again later';
+  static const String unauthorizedError = 'Unauthorized, please log in again';
+  static const String notFoundError = 'The requested resource does not exist';
+  static const String timeoutError = 'Request timed out, please retry';
+  static const String unknownError = 'Unknown error';
 
-  // ==================== 验证消息 ====================
-  static const String emptyEmailError = '请输入邮箱';
-  static const String invalidEmailError = '邮箱格式不正确';
-  static const String emptyPasswordError = '请输入密码';
-  static const String shortPasswordError = '密码至少6位';
-  static const String emptyUsernameError = '请输入用户名';
-  static const String emptyNameError = '请输入姓名';
-  static const String emptyPhoneError = '请输入手机号';
-  static const String invalidPhoneError = '手机号格式不正确';
+  // ==================== Validation Messages ====================
+  static const String emptyEmailError = 'Please enter your email';
+  static const String invalidEmailError = 'Invalid email format';
+  static const String emptyPasswordError = 'Please enter your password';
+  static const String shortPasswordError = 'Password must be at least 6 characters';
+  static const String emptyUsernameError = 'Please enter your username';
+  static const String emptyNameError = 'Please enter a name';
+  static const String emptyPhoneError = 'Please enter a phone number';
+  static const String invalidPhoneError = 'Invalid phone number format';
 
-  // ==================== 成功消息 ====================
-  static const String loginSuccess = '登录成功';
-  static const String registerSuccess = '注册成功';
-  static const String logoutSuccess = '退出登录成功';
-  static const String createSuccess = '创建成功';
-  static const String updateSuccess = '更新成功';
-  static const String deleteSuccess = '删除成功';
-  static const String uploadSuccess = '上传成功';
+  // ==================== Success Messages ====================
+  static const String loginSuccess = 'Login successful';
+  static const String registerSuccess = 'Registration successful';
+  static const String logoutSuccess = 'Logged out successfully';
+  static const String createSuccess = 'Created successfully';
+  static const String updateSuccess = 'Updated successfully';
+  static const String deleteSuccess = 'Deleted successfully';
+  static const String uploadSuccess = 'Uploaded successfully';
 
-  // ==================== 确认消息 ====================
-  static const String deleteConfirmTitle = '确认删除';
-  static const String deleteConfirmMessage = '确定要删除吗？此操作不可撤销。';
-  static const String logoutConfirmTitle = '确认退出';
-  static const String logoutConfirmMessage = '确定要退出登录吗？';
-  static const String cancelConfirmTitle = '确认取消';
-  static const String cancelConfirmMessage = '确定要取消吗？未保存的更改将丢失。';
+  // ==================== Confirmation Messages ====================
+  static const String deleteConfirmTitle = 'Confirm Delete';
+  static const String deleteConfirmMessage = 'Are you sure you want to delete? This action cannot be undone.';
+  static const String logoutConfirmTitle = 'Confirm Logout';
+  static const String logoutConfirmMessage = 'Are you sure you want to log out?';
+  static const String cancelConfirmTitle = 'Confirm Cancel';
+  static const String cancelConfirmMessage = 'Are you sure you want to cancel? Unsaved changes will be lost.';
 
-  // ==================== 按钮文字 ====================
-  static const String confirmButton = '确定';
-  static const String cancelButton = '取消';
-  static const String saveButton = '保存';
-  static const String deleteButton = '删除';
-  static const String editButton = '编辑';
-  static const String submitButton = '提交';
-  static const String retryButton = '重试';
-  static const String backButton = '返回';
-  static const String nextButton = '下一步';
-  static const String finishButton = '完成';
-  static const String skipButton = '跳过';
-  static const String loginButton = '登录';
-  static const String registerButton = '注册';
-  static const String logoutButton = '退出登录';
+  // ==================== Button Labels ====================
+  static const String confirmButton = 'Confirm';
+  static const String cancelButton = 'Cancel';
+  static const String saveButton = 'Save';
+  static const String deleteButton = 'Delete';
+  static const String editButton = 'Edit';
+  static const String submitButton = 'Submit';
+  static const String retryButton = 'Retry';
+  static const String backButton = 'Back';
+  static const String nextButton = 'Next';
+  static const String finishButton = 'Done';
+  static const String skipButton = 'Skip';
+  static const String loginButton = 'Login';
+  static const String registerButton = 'Register';
+  static const String logoutButton = 'Logout';
 
   // ==================== 正则表达式 ====================
   static final RegExp emailRegex = RegExp(
