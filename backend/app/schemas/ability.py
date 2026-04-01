@@ -72,7 +72,7 @@ class AbilityRecordResponse(AbilityRecordBase):
 class AbilityStatsResponse(BaseModel):
     """能力统计响应（雷达图数据）"""
     dimensions: List[str] = Field(..., description="维度名称列表")
-    scores: List[int] = Field(..., description="对应的评分列表")
+    scores: List[float] = Field(..., description="对应的评分列表")
     avg_score: float = Field(..., description="平均分")
     total_records: int = Field(..., description="总记录数")
 
