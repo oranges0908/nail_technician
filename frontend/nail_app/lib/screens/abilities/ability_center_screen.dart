@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
+import '../../config/app_config.dart';
 import '../../config/theme_config.dart';
 import '../../providers/ability_provider.dart';
 import '../../utils/constants.dart';
@@ -199,7 +200,9 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
               aspectRatio: 1,
               child: CustomPaint(
                 painter: RadarChartPainter(
-                  dimensions: provider.dimensions,
+                  dimensions: provider.dimensions
+                      .map((d) => AppConfig.abilityDimensionLabels[d] ?? d)
+                      .toList(),
                   scores: provider.scores,
                   maxScore: 100,
                 ),
@@ -231,7 +234,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        title: Text(dimension),
+        title: Text(AppConfig.abilityDimensionLabels[dimension] ?? dimension),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -279,7 +282,7 @@ class _AbilityCenterScreenState extends State<AbilityCenterScreen> {
                 ),
               ),
             ),
-            title: Text(dimension),
+            title: Text(AppConfig.abilityDimensionLabels[dimension] ?? dimension),
             subtitle: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(

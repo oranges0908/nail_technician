@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/app_config.dart';
 import '../../config/theme_config.dart';
 import '../../providers/ability_provider.dart';
 import '../../utils/constants.dart';
@@ -37,7 +38,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Constants.abilitiesRoute),
         ),
-        title: Text(widget.dimensionName),
+        title: Text(AppConfig.abilityDimensionLabels[widget.dimensionName] ?? widget.dimensionName),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -98,7 +99,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.dimensionName} Trend',
+              '${AppConfig.abilityDimensionLabels[widget.dimensionName] ?? widget.dimensionName} Trend',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -259,7 +260,7 @@ class _AbilityTrendScreenState extends State<AbilityTrendScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No score records for "${widget.dimensionName}"',
+              'No score records for "${AppConfig.abilityDimensionLabels[widget.dimensionName] ?? widget.dimensionName}"',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

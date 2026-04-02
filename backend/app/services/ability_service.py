@@ -132,7 +132,7 @@ class AbilityService:
             Optional[AbilityDimension]: 维度对象（不存在时返回 None）
         """
         dimension = db.query(AbilityDimension).filter(
-            AbilityDimension.name == name
+            (AbilityDimension.name == name) | (AbilityDimension.name_en == name)
         ).first()
 
         return dimension
@@ -208,7 +208,7 @@ class AbilityService:
             ).scalar()
 
             score = round(avg_score or 0, 1)
-            dimension_names.append(dimension.name)
+            dimension_names.append(dimension.name_en)
             dimension_scores.append(score)
 
             if avg_score:
