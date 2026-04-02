@@ -100,11 +100,17 @@ class HomeScreen extends StatelessWidget {
 
             // 功能导航卡片
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 840),
+                  child: GridView(
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 1.0,
+                    ),
+                    children: [
                   _buildFeatureCard(
                     context,
                     icon: Icons.people_outline,
@@ -165,7 +171,9 @@ class HomeScreen extends StatelessWidget {
                       context.push('/chat');
                     },
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
